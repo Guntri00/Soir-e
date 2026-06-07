@@ -1265,28 +1265,12 @@ async function initVideoCamera() {
     return;
   }
 
-  if (cameraStream && cameraStream.active) {
-    try {
-      const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      videoStream = new MediaStream([
-        ...cameraStream.getVideoTracks(),
-        ...audioStream.getAudioTracks()
-      ]);
-    } catch(e) {
-      videoStream = new MediaStream(cameraStream.getVideoTracks());
-    }
-    if (permEl)  permEl.style.display = 'none';
-    if (recWrap) recWrap.style.display = 'block';
-    vid.srcObject = videoStream;
-    await vid.play().catch(() => {});
-    return;
-  }
-
-  // Aucun flux actif → on démarre DIRECTEMENT la caméra vidéo.
-  //    On appelle requestVideoPermission() sans 'await' préalable : getUserMedia
-  //    est ainsi exécuté dans le geste utilisateur (le tap sur l'onglet), ce qu'iOS
-  //    et Android exigent. Si la permission est déjà accordée, la vidéo s'affiche
-  //    immédiatement — plus besoin de passer par l'onglet « Appareil photo ».
+  // Plus de flux vidéo actif → on démarre un flux PROPRE (vidéo + audio).
+  // On libère d'abord la caméra photo pour n'avoir qu'un seul flux à la fois
+  // (sinon iOS peut bloquer la 2e demande). stopCamera() est synchrone, donc
+  // getUserMedia reste dans le geste du tap : la vidéo démarre immédiatement,
+  // sans devoir passer par l'onglet « Appareil photo ».
+  if (typeof stopCamera === 'function') stopCamera();
   await requestVideoPermission();
 
   // Secours : si l'acquisition a échoué (permission refusée), proposer le bouton « Activer »
