@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <meta name="color-scheme" content="dark">
 <meta name="supported-color-schemes" content="dark">
-<meta name="theme-color" content="#06343A">
+<meta name="theme-color" content="#2A1226">
 <title>Soirée d'été — CSE IQVIA</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
 <style>
@@ -13,23 +13,23 @@
 html{color-scheme:dark}
 :root{
   color-scheme:dark;
-  --rose:    #E8FBFA;
-  --rose-d:  #C9E8E6;
-  --blush:   #7FD6C9;
-  --rouge:   #4FB8A8;
-  --gold:    #2BC6CE;
-  --gold-l:  #FFD23F;
-  --gold-d:  #159BA6;
-  --dark:    #06343A;
-  --brown:   #0E4A4F;
-  --stone:   #7FA0A0;
-  --cream:   #F2FBFA;
+  --rose:    #FCE9E4;
+  --rose-d:  #F2D0CA;
+  --blush:   #FF9E8A;
+  --rouge:   #F2576E;
+  --gold:    #F5B83D;
+  --gold-l:  #FF8A5B;
+  --gold-d:  #C77A2E;
+  --dark:    #2A1226;
+  --brown:   #3E1A36;
+  --stone:   #A88290;
+  --cream:   #FDF3F1;
   --warm:    #FFFFFF;
 }
 
 html{scroll-behavior:smooth}
 body{
-  background:linear-gradient(160deg, var(--dark) 0%, var(--brown) 50%, #0A2E33 100%);
+  background:linear-gradient(160deg, var(--dark) 0%, var(--brown) 50%, #200C1E 100%);
   background-attachment:fixed;
   font-family:'Lato',sans-serif;font-weight:300;
   color:var(--dark);min-height:100vh;
@@ -48,7 +48,7 @@ body::after{
 ════════════════════════════════ */
 .login-page{
   min-height:100vh;display:flex;
-  background:linear-gradient(160deg, var(--dark) 0%, var(--brown) 50%, #0A2E33 100%);
+  background:linear-gradient(160deg, var(--dark) 0%, var(--brown) 50%, #200C1E 100%);
   position:relative;overflow:hidden;
 }
 
@@ -100,7 +100,7 @@ body::after{
   margin:24px 0;width:100%;max-width:340px;
   animation:fadeUp .8s ease .3s both;
 }
-.login-divider-line{flex:1;height:1px;background:rgba(31,182,193,.25)}
+.login-divider-line{flex:1;height:1px;background:rgba(245,184,61,.25)}
 .login-divider span{font-size:14px;color:var(--gold);opacity:.6}
 
 .login-box{
@@ -115,16 +115,16 @@ body::after{
 .login-field input{
   width:100%;padding:14px 18px;
   background:rgba(255,255,255,.07);
-  border:1px solid rgba(31,182,193,.25);
+  border:1px solid rgba(245,184,61,.25);
   border-radius:3px;color:var(--warm);
   font-family:'Lato',sans-serif;font-size:14px;font-weight:300;
   outline:none;transition:all .3s;
 }
 .login-field input:focus{
-  border-color:rgba(31,182,193,.6);
+  border-color:rgba(245,184,61,.6);
   background:rgba(255,255,255,.1);
 }
-.login-field input::placeholder{color:rgba(127,160,160,.4)}
+.login-field input::placeholder{color:rgba(168,130,144,.4)}
 .login-submit{
   width:100%;margin-top:6px;padding:15px;
   background:linear-gradient(135deg,var(--gold),var(--gold-l));
@@ -138,7 +138,7 @@ body::after{
   background:rgba(255,255,255,0);transition:background .3s;
 }
 .login-submit:hover::before{background:rgba(255,255,255,.15)}
-.login-submit:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(31,182,193,.3)}
+.login-submit:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(245,184,61,.3)}
 .login-err{
   text-align:center;font-size:12px;color:#E8A0A0;
   margin-top:12px;display:none;
@@ -158,7 +158,7 @@ body::after{
 }
 .hero::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:60px;
-  background:linear-gradient(transparent,rgba(6,52,58,.1));pointer-events:none;
+  background:linear-gradient(transparent,rgba(42,18,38,.1));pointer-events:none;
 }
 
 /* Pétales hero */
@@ -177,11 +177,11 @@ body::after{
 }
 .hero-logout{
   font-size:9px;letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(127,160,160,.6);background:none;
-  border:1px solid rgba(127,160,160,.25);
+  color:rgba(168,130,144,.6);background:none;
+  border:1px solid rgba(168,130,144,.25);
   padding:6px 14px;border-radius:2px;cursor:pointer;transition:all .2s;
 }
-.hero-logout:hover{color:var(--warm);border-color:rgba(31,182,193,.4)}
+.hero-logout:hover{color:var(--warm);border-color:rgba(245,184,61,.4)}
 
 .hero-content{position:relative;z-index:1}
 .hero-ring{font-size:44px;display:block;margin-bottom:16px;animation:floatRing 4s ease-in-out infinite}
@@ -210,7 +210,7 @@ body::after{
   font-size:28px;font-weight:400;color:var(--gold);display:block;
 }
 .hero-stat-lbl{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--blush)}
-.hero-stat-sep{color:rgba(31,182,193,.3);font-size:20px}
+.hero-stat-sep{color:rgba(245,184,61,.3);font-size:20px}
 
 /* BODY */
 .body{max-width:900px;margin:0 auto;padding:40px 20px 80px;position:relative;z-index:1}
@@ -218,7 +218,7 @@ body::after{
 /* SECTION TITLE */
 .sec-title{
   font-family:'Playfair Display',serif;
-  font-size:24px;font-weight:400;color:rgba(242,251,250,.9);
+  font-size:24px;font-weight:400;color:rgba(253,243,241,.9);
   margin-bottom:6px;
 }
 .sec-title em{font-style:italic;color:var(--gold-l)}
@@ -226,7 +226,7 @@ body::after{
 .sec-divider{
   display:flex;align-items:center;gap:14px;margin-bottom:28px;
 }
-.sec-divider-line{flex:1;height:1px;background:rgba(127,214,201,.2)}
+.sec-divider-line{flex:1;height:1px;background:rgba(255,158,138,.2)}
 .sec-divider span{font-size:16px;opacity:.4}
 
 /* DIAPORAMA CARD */
@@ -236,12 +236,12 @@ body::after{
   display:flex;align-items:center;justify-content:space-between;
   gap:20px;flex-wrap:wrap;margin-bottom:40px;
   position:relative;overflow:hidden;
-  box-shadow:0 12px 40px rgba(6,52,58,.2);
+  box-shadow:0 12px 40px rgba(42,18,38,.2);
 }
 .ss-card::before{
   content:'';position:absolute;
   top:-40px;right:-40px;width:180px;height:180px;
-  background:radial-gradient(circle,rgba(31,182,193,.15),transparent 70%);
+  background:radial-gradient(circle,rgba(245,184,61,.15),transparent 70%);
   border-radius:50%;
 }
 .ss-card-left .ss-card-icon{font-size:32px;margin-bottom:10px;display:block}
@@ -259,12 +259,12 @@ body::after{
   border:none;border-radius:4px;cursor:pointer;transition:all .3s;
   font-weight:400;white-space:nowrap;flex-shrink:0;
 }
-.ss-launch:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(31,182,193,.35)}
+.ss-launch:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,184,61,.35)}
 .ss-launch:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
 /* MESSAGE DU JOUR */
 .message-card{
-  background:rgba(242,251,250,.08);border:1px solid rgba(127,214,201,.2);
+  background:rgba(253,243,241,.08);border:1px solid rgba(255,158,138,.2);
   border-radius:12px;padding:28px;margin-bottom:40px;
   text-align:center;position:relative;overflow:hidden;
   backdrop-filter:blur(8px);
@@ -272,12 +272,12 @@ body::after{
 .message-card::before{
   content:'"';
   font-family:'Playfair Display',serif;font-size:120px;font-weight:400;
-  color:rgba(127,214,201,.15);position:absolute;top:-20px;left:16px;line-height:1;
+  color:rgba(255,158,138,.15);position:absolute;top:-20px;left:16px;line-height:1;
   pointer-events:none;
 }
 .message-card p{
   font-family:'Playfair Display',serif;font-style:italic;
-  font-size:18px;color:rgba(242,251,250,.85);line-height:1.7;
+  font-size:18px;color:rgba(253,243,241,.85);line-height:1.7;
   position:relative;z-index:1;max-width:480px;margin:0 auto 12px;
 }
 .message-card cite{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--blush)}
@@ -289,26 +289,26 @@ body::after{
 }
 @media(min-width:580px){.dl-grid{grid-template-columns:repeat(4,1fr)}}
 .dl-card{
-  background:rgba(242,251,250,.07);border:1px solid rgba(127,214,201,.2);
+  background:rgba(253,243,241,.07);border:1px solid rgba(255,158,138,.2);
   border-radius:10px;padding:22px 16px 18px;
   text-align:center;transition:all .3s;cursor:pointer;
   position:relative;overflow:hidden;backdrop-filter:blur(8px);
 }
 .dl-card::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(31,182,193,.08),transparent);
+  background:linear-gradient(135deg,rgba(245,184,61,.08),transparent);
   pointer-events:none;
 }
 .dl-card:hover{
   border-color:var(--gold);transform:translateY(-3px);
-  box-shadow:0 10px 30px rgba(31,182,193,.2);
-  background:rgba(242,251,250,.1);
+  box-shadow:0 10px 30px rgba(245,184,61,.2);
+  background:rgba(253,243,241,.1);
 }
 .dl-card.loading{opacity:.6;pointer-events:none}
 .dl-card-emoji{font-size:30px;margin-bottom:10px;display:block}
 .dl-card-name{
   font-family:'Playfair Display',serif;font-size:15px;
-  color:rgba(242,251,250,.9);margin-bottom:4px;
+  color:rgba(253,243,241,.9);margin-bottom:4px;
 }
 .dl-card-count{font-size:10px;color:var(--blush);margin-bottom:14px;letter-spacing:.08em;opacity:.8}
 .dl-card-btn{
@@ -321,15 +321,15 @@ body::after{
 .dl-card-btn:hover{opacity:.85}
 
 .dl-all{
-  background:rgba(31,182,193,.12);
-  border:1px solid rgba(31,182,193,.3);border-radius:10px;
+  background:rgba(245,184,61,.12);
+  border:1px solid rgba(245,184,61,.3);border-radius:10px;
   padding:22px 24px;
   display:flex;align-items:center;justify-content:space-between;
   gap:16px;flex-wrap:wrap;margin-bottom:40px;cursor:pointer;transition:all .3s;
   backdrop-filter:blur(8px);
 }
-.dl-all:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(31,182,193,.2)}
-.dl-all-info h3{font-family:'Playfair Display',serif;font-size:18px;color:rgba(242,251,250,.9);margin-bottom:3px}
+.dl-all:hover{border-color:var(--gold);box-shadow:0 8px 24px rgba(245,184,61,.2)}
+.dl-all-info h3{font-family:'Playfair Display',serif;font-size:18px;color:rgba(253,243,241,.9);margin-bottom:3px}
 .dl-all-info p{font-size:12px;color:var(--blush);opacity:.8}
 .dl-all-btn{
   padding:12px 26px;
@@ -343,7 +343,7 @@ body::after{
 
 /* PROGRESS */
 .dl-prog{
-  background:rgba(242,251,250,.08);border:1px solid rgba(127,214,201,.2);
+  background:rgba(253,243,241,.08);border:1px solid rgba(255,158,138,.2);
   border-radius:8px;padding:16px 20px;margin-bottom:20px;display:none;
   backdrop-filter:blur(8px);
 }
@@ -358,8 +358,8 @@ body::after{
   flex-wrap:wrap;
 }
 .cat-tab{
-  padding:8px 14px;background:rgba(242,251,250,.08);
-  border:1px solid rgba(127,214,201,.2);border-radius:20px;
+  padding:8px 14px;background:rgba(253,243,241,.08);
+  border:1px solid rgba(255,158,138,.2);border-radius:20px;
   font-family:'Lato',sans-serif;font-size:10px;
   letter-spacing:.12em;text-transform:uppercase;
   color:var(--blush);cursor:pointer;transition:all .25s;
@@ -389,21 +389,21 @@ body::after{
   background:var(--rose);cursor:pointer;
   transition:all .3s;
 }
-.photo-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(6,52,58,.15)}
+.photo-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(42,18,38,.15)}
 .photo-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
-.video-thumb{position:relative;width:100%;aspect-ratio:1;background:#06222a;overflow:hidden}
+.video-thumb{position:relative;width:100%;aspect-ratio:1;background:#1E0A1A;overflow:hidden}
 .video-thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .video-thumb .vplay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.video-thumb .vplay span{width:48px;height:48px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.5);font-size:20px;padding-left:4px;color:#06222a}
+.video-thumb .vplay span{width:48px;height:48px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.5);font-size:20px;padding-left:4px;color:#1E0A1A}
 .photo-card-meta{
-  padding:8px 10px;background:rgba(6,52,58,.6);
-  border-top:1px solid rgba(127,214,201,.15);
+  padding:8px 10px;background:rgba(42,18,38,.6);
+  border-top:1px solid rgba(255,158,138,.15);
 }
-.photo-meta-name{font-size:11px;color:rgba(242,251,250,.9)}
+.photo-meta-name{font-size:11px;color:rgba(253,243,241,.9)}
 .photo-meta-time{font-size:10px;color:var(--blush)}
 .photo-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(transparent 50%,rgba(6,52,58,.6));
+  background:linear-gradient(transparent 50%,rgba(42,18,38,.6));
   opacity:0;transition:opacity .25s;
   display:flex;align-items:flex-end;justify-content:flex-end;
   padding:10px;
@@ -431,7 +431,7 @@ body::after{
 
 /* LIGHTBOX */
 .lb{
-  position:fixed;inset:0;background:rgba(6,52,58,.95);
+  position:fixed;inset:0;background:rgba(42,18,38,.95);
   z-index:200;display:none;align-items:center;justify-content:center;padding:20px;
 }
 .lb.open{display:flex;animation:fadeIn .3s ease}
@@ -456,7 +456,7 @@ body::after{
 .ss-overlay.show-ui{cursor:default}
 
 /* Barre de progression en haut */
-.ss-bar-top{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(31,182,193,.15);z-index:10}
+.ss-bar-top{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(245,184,61,.15);z-index:10}
 .ss-bar-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));width:0%;transition:width linear}
 
 /* Conteneur double-couche pour crossfade */
@@ -493,20 +493,20 @@ body::after{
 
 .ss-tag{
   position:absolute;top:18px;left:18px;z-index:10;
-  background:rgba(31,182,193,.2);backdrop-filter:blur(12px);
+  background:rgba(245,184,61,.2);backdrop-filter:blur(12px);
   color:var(--gold);font-size:10px;letter-spacing:.2em;text-transform:uppercase;
   padding:6px 16px;border-radius:14px;font-family:'Lato',sans-serif;
 }
 .ss-num{
   position:absolute;top:18px;right:18px;z-index:10;
-  background:rgba(6,52,58,.6);backdrop-filter:blur(12px);
+  background:rgba(42,18,38,.6);backdrop-filter:blur(12px);
   color:rgba(255,255,255,.7);font-size:11px;padding:6px 16px;border-radius:14px;
   font-family:'Lato',sans-serif;
 }
 .ss-footer{
   position:absolute;bottom:0;left:0;right:0;z-index:10;
   padding:24px 28px 36px;
-  background:linear-gradient(transparent,rgba(4,20,22,.85));
+  background:linear-gradient(transparent,rgba(30,10,26,.85));
   display:flex;align-items:flex-end;justify-content:space-between;
   gap:16px;
 }
@@ -516,13 +516,13 @@ body::after{
   font-family:'Playfair Display',serif;font-size:18px;font-weight:400;
   color:var(--warm);white-space:nowrap;
 }
-.ss-footer-info span{font-size:11px;color:rgba(127,214,201,.8);white-space:nowrap}
+.ss-footer-info span{font-size:11px;color:rgba(255,158,138,.8);white-space:nowrap}
 
 /* Légende IA */
 .ss-caption{
   margin-top:8px;min-height:22px;
   font-family:'Playfair Display',serif;font-style:italic;
-  font-size:15px;line-height:1.5;color:rgba(242,251,250,.85);
+  font-size:15px;line-height:1.5;color:rgba(253,243,241,.85);
   max-width:520px;
   opacity:0;transform:translateY(6px);
   transition:opacity .6s ease,transform .6s ease;
@@ -550,8 +550,8 @@ body::after{
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:all .2s;backdrop-filter:blur(6px);
 }
-.ss-btn:hover{background:rgba(255,255,255,.25);border-color:rgba(31,182,193,.4)}
-.ss-btn.active{background:rgba(31,182,193,.3);border-color:var(--gold)}
+.ss-btn:hover{background:rgba(255,255,255,.25);border-color:rgba(245,184,61,.4)}
+.ss-btn.active{background:rgba(245,184,61,.3);border-color:var(--gold)}
 
 /* Zone de navigation tactile (swipe + tap zones) */
 .ss-touch-prev,.ss-touch-next{
@@ -567,8 +567,8 @@ body::after{
   padding:12px 24px;border-radius:24px;
   font-size:12px;letter-spacing:.08em;
   z-index:400;opacity:0;transition:opacity .3s;
-  white-space:nowrap;box-shadow:0 8px 32px rgba(6,52,58,.4);
-  pointer-events:none;border:1px solid rgba(31,182,193,.2);
+  white-space:nowrap;box-shadow:0 8px 32px rgba(42,18,38,.4);
+  pointer-events:none;border:1px solid rgba(245,184,61,.2);
 }
 .toast.show{opacity:1}
 
@@ -579,8 +579,8 @@ body::after{
 footer{
   text-align:center;padding:28px;
   font-size:10px;letter-spacing:.2em;
-  color:rgba(127,214,201,.6);text-transform:uppercase;
-  border-top:1px solid rgba(127,214,201,.15);
+  color:rgba(255,158,138,.6);text-transform:uppercase;
+  border-top:1px solid rgba(255,158,138,.15);
   background:transparent;margin-top:40px;
   position:relative;z-index:1;
 }
@@ -645,7 +645,7 @@ footer em{font-style:italic;font-family:'Playfair Display',serif;font-size:12px;
 <link rel="preconnect" href="https://xhijahegkohowfmajjvq.supabase.co" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌴</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌅</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 let _jszipPromise=null;
@@ -676,16 +676,16 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
 
 <!-- PÉTALES LOGIN -->
 <div class="login-page" id="loginPage">
-  <span class="petal" style="top:-20px">🌺</span>
-  <span class="petal" style="top:-20px">🌺</span>
-  <span class="petal" style="top:-20px">🌺</span>
+  <span class="petal" style="top:-20px">✨</span>
+  <span class="petal" style="top:-20px">✨</span>
+  <span class="petal" style="top:-20px">✨</span>
   <span class="petal" style="top:-20px">🌷</span>
-  <span class="petal" style="top:-20px">🌺</span>
-  <span class="petal" style="top:-20px">🌺</span>
+  <span class="petal" style="top:-20px">✨</span>
+  <span class="petal" style="top:-20px">✨</span>
 
   <div class="login-content">
     <div class="login-ornament">
-      <span class="ring">🌴</span>
+      <span class="ring">🌅</span>
       <h1 class="login-title">Soirée <em>d'été</em></h1>
       <p class="login-date">Jeudi 11 Juin 2026 · CSE IQVIA</p>
     </div>
@@ -717,24 +717,24 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
 <div id="dashboard">
   <!-- Pétales animés sur toute la page -->
   <div id="globalPetals" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden">
-    <span style="position:absolute;left:3%;top:-20px;font-size:16px;opacity:.1;animation:drift 20s linear infinite">🌺</span>
-    <span style="position:absolute;left:12%;top:-20px;font-size:20px;opacity:.08;animation:drift 25s linear infinite;animation-delay:-8s">🌺</span>
-    <span style="position:absolute;left:23%;top:-20px;font-size:14px;opacity:.1;animation:drift 18s linear infinite;animation-delay:-3s">🌺</span>
+    <span style="position:absolute;left:3%;top:-20px;font-size:16px;opacity:.1;animation:drift 20s linear infinite">✨</span>
+    <span style="position:absolute;left:12%;top:-20px;font-size:20px;opacity:.08;animation:drift 25s linear infinite;animation-delay:-8s">✨</span>
+    <span style="position:absolute;left:23%;top:-20px;font-size:14px;opacity:.1;animation:drift 18s linear infinite;animation-delay:-3s">✨</span>
     <span style="position:absolute;left:35%;top:-20px;font-size:22px;opacity:.07;animation:drift 28s linear infinite;animation-delay:-14s">🌷</span>
-    <span style="position:absolute;left:48%;top:-20px;font-size:16px;opacity:.09;animation:drift 22s linear infinite;animation-delay:-6s">🌺</span>
-    <span style="position:absolute;left:58%;top:-20px;font-size:18px;opacity:.08;animation:drift 24s linear infinite;animation-delay:-11s">🌺</span>
-    <span style="position:absolute;left:70%;top:-20px;font-size:14px;opacity:.1;animation:drift 19s linear infinite;animation-delay:-2s">🌺</span>
+    <span style="position:absolute;left:48%;top:-20px;font-size:16px;opacity:.09;animation:drift 22s linear infinite;animation-delay:-6s">✨</span>
+    <span style="position:absolute;left:58%;top:-20px;font-size:18px;opacity:.08;animation:drift 24s linear infinite;animation-delay:-11s">✨</span>
+    <span style="position:absolute;left:70%;top:-20px;font-size:14px;opacity:.1;animation:drift 19s linear infinite;animation-delay:-2s">✨</span>
     <span style="position:absolute;left:80%;top:-20px;font-size:20px;opacity:.07;animation:drift 26s linear infinite;animation-delay:-17s">🌷</span>
-    <span style="position:absolute;left:90%;top:-20px;font-size:16px;opacity:.09;animation:drift 21s linear infinite;animation-delay:-9s">🌺</span>
-    <span style="position:absolute;left:96%;top:-20px;font-size:12px;opacity:.1;animation:drift 23s linear infinite;animation-delay:-4s">🌺</span>
+    <span style="position:absolute;left:90%;top:-20px;font-size:16px;opacity:.09;animation:drift 21s linear infinite;animation-delay:-9s">✨</span>
+    <span style="position:absolute;left:96%;top:-20px;font-size:12px;opacity:.1;animation:drift 23s linear infinite;animation-delay:-4s">✨</span>
   </div>
 
   <!-- HERO -->
   <div class="hero">
-    <span class="hero-petal" style="left:8%;top:-10px;animation-duration:22s">🌺</span>
-    <span class="hero-petal" style="left:25%;top:-10px;animation-duration:18s;animation-delay:-7s">🌺</span>
+    <span class="hero-petal" style="left:8%;top:-10px;animation-duration:22s">✨</span>
+    <span class="hero-petal" style="left:25%;top:-10px;animation-duration:18s;animation-delay:-7s">✨</span>
     <span class="hero-petal" style="left:65%;top:-10px;animation-duration:25s;animation-delay:-3s">🌷</span>
-    <span class="hero-petal" style="left:85%;top:-10px;animation-duration:20s;animation-delay:-11s">🌺</span>
+    <span class="hero-petal" style="left:85%;top:-10px;animation-duration:20s;animation-delay:-11s">✨</span>
 
     <div class="hero-topbar">
       <div class="hero-logo">CSE IQVIA</div>
@@ -742,7 +742,7 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
     </div>
 
     <div class="hero-content">
-      <span class="hero-ring">🌴</span>
+      <span class="hero-ring">🌅</span>
       <h1 class="hero-names">Soirée <em>d'été</em></h1>
       <p class="hero-date">Jeudi 11 Juin 2026 · CSE IQVIA</p>
       <p class="hero-tagline">Bienvenue dans votre espace personnel — retrouvez ici tous les souvenirs partagés par vos invités</p>

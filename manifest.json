@@ -5,8 +5,8 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#06343A",
-  "theme_color": "#1FB6C1",
+  "background_color": "#3A1F33",
+  "theme_color": "#F2576E",
   "lang": "fr",
   "categories": [
     "photography",
