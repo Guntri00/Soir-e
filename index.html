@@ -1282,18 +1282,18 @@ async function initVideoCamera() {
     return;
   }
 
-  const granted = await _wasCameraEverGranted();
-  if (granted) {
-    if (permEl)  permEl.style.display = 'none';
-    if (recWrap) recWrap.style.display = 'block';
-    _videoWasActive = true;
-    const ok = await _reacquireCameraOnce();
-    if (!ok) _reacquireCameraWithRetry();
-    return;
-  }
+  // Aucun flux actif → on démarre DIRECTEMENT la caméra vidéo.
+  //    On appelle requestVideoPermission() sans 'await' préalable : getUserMedia
+  //    est ainsi exécuté dans le geste utilisateur (le tap sur l'onglet), ce qu'iOS
+  //    et Android exigent. Si la permission est déjà accordée, la vidéo s'affiche
+  //    immédiatement — plus besoin de passer par l'onglet « Appareil photo ».
+  await requestVideoPermission();
 
-  if (recWrap) recWrap.style.display = 'none';
-  if (permEl)  permEl.style.display = 'flex';
+  // Secours : si l'acquisition a échoué (permission refusée), proposer le bouton « Activer »
+  if (!(videoStream && videoStream.active)) {
+    if (recWrap) recWrap.style.display = 'none';
+    if (permEl)  permEl.style.display = 'flex';
+  }
 }
 
 async function requestVideoPermission() {
