@@ -626,6 +626,9 @@ to{opacity:1;transform:translateY(0)}}
 #btnRecord.recording{background:rgba(192,57,43,.9);border-color:#fff}
 #btnRecord .rec-dot{width:24px;height:24px;background:#C0392B;border-radius:50%;transition:all .2s}
 #btnRecord.recording .rec-dot{width:14px;height:14px;border-radius:3px;background:#fff}
+/* Boutons flip / flash superposés sur l'aperçu vidéo */
+.video-cam-controls{position:absolute;bottom:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:4;pointer-events:none}
+.video-cam-controls .cam-flip-btn{pointer-events:auto}
 .video-preview-actions{display:flex;gap:10px;justify-content:center;margin-top:8px}
 .btn-retake,.btn-use{padding:8px 20px;border-radius:2px;font-family:'Jost',sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;border:none}
 .btn-retake{background:transparent;color:var(--stone);border:1px solid var(--gold-m)}
@@ -1044,6 +1047,10 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
             <video id="videoLive" autoplay muted playsinline></video>
             <div class="camera-overlay"><div class="camera-frame"></div></div>
             <div id="recIndicator">⏺ REC</div>
+            <div class="video-cam-controls">
+              <button class="cam-flip-btn" onclick="flipVideoCamera()" aria-label="Changer de caméra" title="Changer de caméra">🔄</button>
+              <button class="cam-flip-btn" id="videoFlashBtn" onclick="toggleVideoFlash()" aria-label="Activer le flash" title="Flash">⚡</button>
+            </div>
           </div>
           <div class="video-progress-bar" id="videoProgressBar" style="display:none">
             <div class="video-progress-fill" id="videoProgressFill"></div>
@@ -1206,6 +1213,8 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 // ══ VIDÉO — variables et fonctions ══
 let videoStream = null, mediaRecorder = null, videoChunks = [], videoBlob = null;
 let videoTimer = null, videoProgress = null, isRecording = false;
+let videoFacingMode = 'environment'; // caméra arrière par défaut (vidéo)
+let videoFlashEnabled = false;
 const VIDEO_MAX_MS = 20000;
 
 async function loadEventConfig() {
@@ -1287,10 +1296,11 @@ async function requestVideoPermission() {
   const btn = permEl ? permEl.querySelector('button') : null;
   if (btn) { btn.disabled = true; btn.textContent = 'Activation…'; }
 
+  const f = videoFacingMode;
   const tries = [
-    { video: { facingMode: 'environment', width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30} }, audio: true },
-    { video: { facingMode: 'environment', width:{ideal:1280}, height:{ideal:720},  frameRate:{ideal:30} }, audio: true },
-    { video: { facingMode: 'user',        width:{ideal:1280}, height:{ideal:720},  frameRate:{ideal:30} }, audio: true },
+    { video: { facingMode: f, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30} }, audio: true },
+    { video: { facingMode: f, width:{ideal:1280}, height:{ideal:720},  frameRate:{ideal:30} }, audio: true },
+    { video: { facingMode: f }, audio: true },
     { video: true, audio: true },
     { video: true, audio: false }
   ];
@@ -1316,6 +1326,37 @@ async function requestVideoPermission() {
   }
   if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
   showToast('Caméra non disponible — vérifiez les permissions dans votre navigateur');
+}
+
+// Changer de caméra (avant/arrière) en mode vidéo
+async function flipVideoCamera() {
+  if (isRecording) { showDlToast('Arrêtez l\'enregistrement avant de changer de caméra'); return; }
+  videoFacingMode = (videoFacingMode === 'environment') ? 'user' : 'environment';
+  // Le flash (torch) n'existe que sur la caméra arrière → on le réinitialise
+  videoFlashEnabled = false;
+  const fb = document.getElementById('videoFlashBtn');
+  if (fb) fb.classList.remove('cam-flash-on');
+  // Couper le flux courant puis relancer avec la nouvelle caméra
+  if (videoStream) { try { videoStream.getTracks().forEach(t => t.stop()); } catch(_){} videoStream = null; }
+  await requestVideoPermission();
+}
+
+// Activer / couper le flash (torch) en mode vidéo
+async function toggleVideoFlash() {
+  if (!videoStream) { showDlToast('Démarrez la vidéo d\'abord'); return; }
+  const track = videoStream.getVideoTracks()[0];
+  let supported = false;
+  try { supported = !!(track && track.getCapabilities && track.getCapabilities().torch); } catch(_){}
+  if (!supported) { showDlToast('Flash non disponible sur cette caméra'); return; }
+  videoFlashEnabled = !videoFlashEnabled;
+  try {
+    await track.applyConstraints({ advanced: [{ torch: videoFlashEnabled }] });
+    const btn = document.getElementById('videoFlashBtn');
+    if (btn) btn.classList.toggle('cam-flash-on', videoFlashEnabled);
+  } catch(e) {
+    videoFlashEnabled = false;
+    showDlToast('Flash non disponible');
+  }
 }
 
 
