@@ -663,6 +663,14 @@ function loadJSZip(){
 }
 if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
+<style>
+/* ═══ OPTIMISATIONS MOBILE — iOS & Android ═══ */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+@supports(height:100dvh){body{min-height:100dvh}}
+a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
+@media(max-width:600px){ input,select,textarea{font-size:16px!important} }
+</style>
 </head>
 <body>
 

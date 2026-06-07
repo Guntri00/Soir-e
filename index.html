@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob: data: wss:; img-src 'self' https: blob: data:; media-src 'self' https: blob: data:; connect-src 'self' https: wss: blob:; script-src 'self' 'unsafe-inline' https:; worker-src 'self' blob:;">
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <title>Soirée d'été — CSE IQVIA</title>
@@ -739,6 +739,39 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<style>
+/* ═══════════════════════════════════════════
+   OPTIMISATIONS MOBILE — iOS (Safari) & Android
+═══════════════════════════════════════════ */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overflow-x:hidden;overscroll-behavior-y:contain}
+/* Hauteur dynamique : évite le saut quand la barre d'adresse iOS apparaît/disparaît */
+@supports(height:100dvh){body{min-height:100dvh}}
+/* Supprime le délai de tap (300 ms) sur les éléments cliquables */
+a,button,.tab,.flip-wrap,.flip-btn-3d,.ubtn,.sbtn,.upload-tab,.cat-pill,.react-btn,.del-btn,.dl-btn,.qr-dl,.back-btn,.g-back,.cam-shoot-btn,.cam-flip-btn{touch-action:manipulation}
+/* iOS : empêche le zoom automatique au focus d'un champ (police < 16px) */
+@media(max-width:600px){
+  input,select,textarea{font-size:16px!important}
+}
+/* Zones sûres iPhone (encoche en haut / barre d'accueil en bas) */
+.lb-x{top:calc(20px + env(safe-area-inset-top,0px))}
+.dl-toast{bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.slideshow-bar{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.camera-controls{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+/* Écrans tactiles (sans survol) : actions de la galerie visibles + cibles plus grandes */
+@media(hover:none){
+  .gitem .dl-btn,.gitem .del-btn,.gitem .del-timer,.gitem .gmeta,.gitem .reactions{opacity:1}
+  .del-btn,.dl-btn{width:34px;height:34px;font-size:15px}
+  .react-btn{padding:6px 11px;background:rgba(255,255,255,.28)}
+}
+/* Très petits écrans : marges resserrées + titre adapté */
+@media(max-width:380px){
+  .wrap{padding-left:14px;padding-right:14px}
+  .cards-grid{gap:9px}
+  h1{font-size:clamp(32px,11vw,52px)}
+}
+</style>
 </head>
 <body>
 <!-- 🌴🍹 -->

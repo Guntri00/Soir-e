@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <title>Soirée d'été — Dashboard CSE IQVIA</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -355,6 +355,16 @@ footer{text-align:center;padding:24px;font-size:10px;letter-spacing:.18em;color:
 
 
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌴</text></svg>">
+<style>
+/* ═══ OPTIMISATIONS MOBILE — iOS & Android ═══ */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+@supports(height:100dvh){body{min-height:100dvh}}
+a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
+@media(max-width:600px){ input,select,textarea{font-size:16px!important} }
+.select-bar{top:calc(68px + env(safe-area-inset-top,0px))}
+@media(hover:none){ .photo-card .photo-dl-btn,.photo-card .photo-select-cb,.photo-card .del-btn{opacity:1} }
+</style>
 </head>
 <body>
 
