@@ -771,6 +771,11 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
   .cards-grid{gap:9px}
   h1{font-size:clamp(32px,11vw,52px)}
 }
+/* ── Bouton « Envoyer par mail » (lightbox) ── */
+.lb-share{position:absolute;top:calc(20px + env(safe-area-inset-top,0px));left:16px;display:inline-flex;align-items:center;gap:7px;background:var(--gold);border:none;color:var(--warm);padding:11px 18px;border-radius:24px;font-family:'Jost',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;z-index:3;box-shadow:0 4px 16px rgba(14,58,62,.45);transition:background .2s}
+.lb-share:hover{background:var(--charcoal)}
+.lb-share:active{transform:scale(.96)}
+.lb-share:disabled{opacity:.6;cursor:default}
 </style>
 <!-- Vercel Web Analytics (sans cookie) -->
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1176,6 +1181,7 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 <!-- LIGHTBOX -->
 <div class="lb" id="lb" onclick="closeLB()">
   <button class="lb-x" aria-label="Fermer l'image" onclick="closeLB()">✕</button>
+  <button class="lb-share" id="lbShareBtn" aria-label="Envoyer par mail" onclick="event.stopPropagation();shareCurrentMedia()">✉️ Envoyer par mail</button>
   <img id="lbImg" src="" alt="" loading="lazy" style="display:block">
   <video id="lbVideo" src="" controls playsinline style="display:none;max-width:100%;max-height:90vh;border-radius:8px"></video>
 </div>
@@ -2601,7 +2607,46 @@ function showWidgets() {
 function downloadQR() {
   window.open('https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=https%3A%2F%2Fsoir-e-alpha.vercel.app&margin=20&ecc=Q','_blank');
 }
+// ── Envoyer / partager le média affiché ──
+// Mobile : feuille de partage native → « Mail » avec le fichier attaché (et WhatsApp, AirDrop…)
+// Secours (ordinateur / navigateur sans partage de fichier) : ouverture du mail avec le lien
+let lbCurrentSrc = '', lbCurrentIsVideo = false;
+async function shareCurrentMedia() {
+  const url = lbCurrentSrc;
+  if (!url) return;
+  const isVideo = lbCurrentIsVideo;
+  const btn = document.getElementById('lbShareBtn');
+  const text = isVideo ? 'Ma vidéo de la soirée 🌴' : 'Ma photo de la soirée 🌴';
+
+  if (navigator.share && navigator.canShare) {
+    try {
+      if (btn) { btn.disabled = true; btn.innerHTML = '⏳ …'; }
+      const res  = await fetch(url, { mode:'cors', credentials:'omit' });
+      const blob = await res.blob();
+      let ext = (blob.type.split('/')[1] || (isVideo ? 'mp4' : 'jpg'));
+      if (ext === 'quicktime') ext = 'mov';
+      if (ext === 'jpeg') ext = 'jpg';
+      const file = new File([blob], 'soiree-ete-cse-iqvia.' + ext, { type: blob.type });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Soirée d'été — CSE IQVIA", text: text });
+        if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Envoyer par mail'; }
+        return;
+      }
+    } catch (e) {
+      if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Envoyer par mail'; }
+      if (e && e.name === 'AbortError') return; // l'utilisateur a annulé le partage
+    }
+    if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Envoyer par mail'; }
+  }
+
+  // Secours : application mail avec le lien
+  const subject = encodeURIComponent("Mes souvenirs — Soirée d'été CSE IQVIA");
+  const body    = encodeURIComponent("Voici mon souvenir de la soirée d'été du CSE IQVIA 🌴\n\n" + url + "\n\n(clique sur le lien pour voir ou télécharger)");
+  window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+}
+
 function openLB(src) {
+  lbCurrentSrc = src; lbCurrentIsVideo = false;
   const lbImg   = document.getElementById('lbImg');
   const lbVideo = document.getElementById('lbVideo');
   lbImg.src     = src;
@@ -2613,6 +2658,7 @@ function openLB(src) {
 }
 
 function openLBVideo(src) {
+  lbCurrentSrc = src; lbCurrentIsVideo = true;
   const lbImg   = document.getElementById('lbImg');
   const lbVideo = document.getElementById('lbVideo');
   lbImg.style.display   = 'none';
