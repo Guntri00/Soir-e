@@ -1176,14 +1176,16 @@ header::before{opacity:.62;filter:blur(1px)}
 .qr-confetti.q5{left:48%;top:15%;width:4px;height:4px;border-radius:50%;background:#fff3e0;animation-delay:2.9s}
 .qr-confetti.q6{right:31%;bottom:14%;width:6px;height:6px;background:#ff9f68;animation-delay:3.5s}
 .qr-badge{
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:7px 13px;border-radius:999px;
-  background:rgba(255,243,224,.12);border:1px solid rgba(255,243,224,.18);
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 15px;border-radius:999px;
+  background:rgba(255,243,224,.14);border:1px solid rgba(255,243,224,.22);
   backdrop-filter:blur(8px);font-size:9px;letter-spacing:.28em;text-transform:uppercase;
-  color:#ffd166;margin-bottom:18px;
+  color:#ffd166;margin-bottom:18px;font-family:'Jost',sans-serif;cursor:pointer;
   box-shadow:0 0 0 0 rgba(255,209,102,.24);
   animation:qrBadgePulse 3.4s ease-in-out infinite;
 }
+.qr-badge:hover{background:rgba(255,243,224,.22)}
+.qr-badge:active{transform:scale(.95)}
 .qr-hero-copy{display:flex;flex-direction:column;align-items:center;margin-bottom:18px;text-align:center}
 .qr-hero-copy span{font-family:'Cormorant Garamond',serif;font-size:30px;font-style:italic;font-weight:300;line-height:1;color:#fff7ec;text-shadow:0 10px 24px rgba(0,0,0,.28)}
 .qr-hero-copy strong{font-family:'Jost',sans-serif;font-size:11px;font-weight:400;letter-spacing:.42em;color:#ffd166;margin-top:4px}
@@ -1835,7 +1837,7 @@ footer{
         <span class="qr-confetti q4"></span>
         <span class="qr-confetti q5"></span>
         <span class="qr-confetti q6"></span>
-        <div class="qr-badge">Scan & Share</div>
+        <button type="button" class="qr-badge" onclick="shareInvite()" aria-label="Partager le lien du site">📤 Scan &amp; Share</button>
         <div class="qr-hero-copy">
           <span>Soirée d'été</span>
           <strong>CSE IQVIA</strong>
@@ -3416,6 +3418,17 @@ async function downloadQR() {
 // Mobile : feuille de partage native → « Mail » avec le fichier attaché (et WhatsApp, AirDrop…)
 // Secours (ordinateur / navigateur sans partage de fichier) : ouverture du mail avec le lien
 let lbCurrentSrc = '', lbCurrentIsVideo = false;
+// Partager le LIEN du site pour inviter d'autres participants (feuille de partage native)
+async function shareInvite(){
+  const url = 'https://soir-e-alpha.vercel.app/';
+  const data = { title: "Soirée d'été — CSE IQVIA", text: "📸 Rejoins-nous pour partager tes photos de la soirée !", url: url };
+  try {
+    if (navigator.share) { await navigator.share(data); return; }
+  } catch(e){ if (e && e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(url); showDlToast('✓ Lien copié — partagez-le !'); return; } catch(_){}
+  window.location.href = 'mailto:?subject=' + encodeURIComponent("Soirée d'été — CSE IQVIA") + '&body=' + encodeURIComponent("Rejoins-nous pour partager tes photos : " + url);
+}
+
 async function shareCurrentMedia() {
   const url = lbCurrentSrc;
   if (!url) return;
