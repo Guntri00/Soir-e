@@ -10,9 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html{color-scheme:light;background:#FB7A3B}
+html{color-scheme:light;background:#FF8A3D}
 :root{color-scheme:light;--primary:#FF7A1A;--secondary:#F0414E;--accent:#FFD166;--coral:#FF6B6B;--sand:#FFF3E0;--text:#2D3748;--white:#FFFFFF;--gradient:linear-gradient(135deg,#FF7A1A 0%,#F0414E 50%,#FFD166 100%);--cream:#FFF3E0;--warm:#FFFFFF;--gold:#FF7A1A;--gold-l:#F0414E;--gold-m:#FFD9A0;--dark:#2D3748;--stone:#6B4A2C;--charcoal:#C0341B}
-body{background:linear-gradient(180deg,#FF8C3C 0%,#F76B3C 100%);background-repeat:no-repeat;font-family:'Jost',sans-serif;font-weight:300;color:var(--dark);min-height:100vh}
+body{background:linear-gradient(160deg,#FFCE3A 0%,#FF8A3D 50%,#F0414E 100%);background-repeat:no-repeat;font-family:'Jost',sans-serif;font-weight:300;color:var(--dark);min-height:100vh}
 .btn-primary{background:var(--primary);color:var(--white)}
 .btn-primary:hover{background:var(--secondary)}
 .wrap{max-width:680px;margin:0 auto;padding:0 20px 80px}
@@ -753,17 +753,17 @@ to{opacity:1;transform:translateY(0)}}
 .intro-edges{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 85% 85% at 50% 50%, transparent 55%, rgba(12,8,2,.55) 100%)}
 .intro-top{position:relative;z-index:3;text-align:center;padding-top:clamp(40px,8vh,80px);animation:fadeDown 1.3s ease .4s both}
 @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:translateY(0)}}
-.intro-brand-script{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,7vw,64px);font-weight:200;font-style:italic;color:#FFF3E0;letter-spacing:.04em;line-height:1;text-shadow:0 2px 30px rgba(255,122,26,.3)}
-.intro-brand-love{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,38px);font-weight:300;color:#FF7A1A;letter-spacing:.45em;text-transform:uppercase;margin-top:2px;text-shadow:0 2px 20px rgba(255,122,26,.4)}
+.intro-brand-script{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,7vw,64px);font-weight:300;font-style:italic;color:#FFF7EC;letter-spacing:.04em;line-height:1;text-shadow:0 2px 4px rgba(0,0,0,.45),0 4px 18px rgba(0,0,0,.55)}
+.intro-brand-love{font-family:'Cormorant Garamond',serif;font-size:clamp(22px,4vw,38px);font-weight:500;color:#FFD166;letter-spacing:.45em;text-transform:uppercase;margin-top:2px;text-shadow:0 2px 4px rgba(0,0,0,.5),0 3px 14px rgba(0,0,0,.55)}
 .intro-bottom{position:relative;z-index:3;text-align:center;padding-bottom:clamp(40px,8vh,72px);animation:fadeUp 1.3s ease .6s both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-.intro-tagline{font-size:clamp(10px,2vw,13px);letter-spacing:.42em;text-transform:uppercase;color:#FF7A1A;margin-bottom:14px;font-weight:300}
+.intro-tagline{font-size:clamp(10px,2vw,13px);letter-spacing:.42em;text-transform:uppercase;color:#FFE6CC;margin-bottom:14px;font-weight:500;text-shadow:0 1px 8px rgba(0,0,0,.6)}
 .intro-orn-line{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px}
 .intro-orn-l{height:1px;width:36px;background:linear-gradient(90deg,transparent,rgba(255,122,26,.5))}
 .intro-orn-r{height:1px;width:36px;background:linear-gradient(90deg,rgba(255,122,26,.5),transparent)}
 .intro-orn-d{width:4px;height:4px;background:#FF7A1A;transform:rotate(45deg);opacity:.7}
-.intro-date-3d{font-size:11px;color:rgba(138,128,120,.6);letter-spacing:.18em;margin-bottom:20px}
-.intro-tap-3d{font-size:10px;letter-spacing:.38em;text-transform:uppercase;color:rgba(255,122,26,.38);animation:blink3d 2.4s ease 2.5s infinite}
+.intro-date-3d{font-size:11px;color:rgba(255,247,236,.95);letter-spacing:.18em;margin-bottom:20px;font-weight:500;text-shadow:0 1px 8px rgba(0,0,0,.6)}
+.intro-tap-3d{font-size:10px;letter-spacing:.38em;text-transform:uppercase;color:rgba(255,255,255,.92);animation:blink3d 2.4s ease 2.5s infinite;text-shadow:0 1px 8px rgba(0,0,0,.6)}
 @keyframes blink3d{0%,100%{opacity:0}40%,60%{opacity:1}}
 
 
