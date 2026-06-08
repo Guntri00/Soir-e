@@ -1982,6 +1982,7 @@ function updateVideoUI() {
   }
 }
 function stopVideoCamera() {
+  _pauseCamRecovery();   // arrêt volontaire (changement d'onglet) → pas de reprise auto de la caméra
   if (videoStream) {
     // Ne stopper que les tracks propres à videoStream
     // (ne pas toucher cameraStream/cameraVideo de l'onglet photo)
@@ -2021,6 +2022,7 @@ async function initVideoCamera() {
   // (sinon iOS peut bloquer la 2e demande). stopCamera() est synchrone, donc
   // getUserMedia reste dans le geste du tap : la vidéo démarre immédiatement,
   // sans devoir passer par l'onglet « Appareil photo ».
+  _pauseCamRecovery();                              // l'arrêt de la caméra photo ne doit pas déclencher de reprise auto
   if (typeof stopCamera === 'function') stopCamera();
   await requestVideoPermission();
 
@@ -2055,7 +2057,11 @@ async function requestVideoPermission() {
       _primeCameraCache();
       videoStream.getTracks().forEach(t => {
         t.addEventListener('ended', () => {
-          if (document.hidden) return;
+          if (_suppressRecovery || document.hidden) return;        // arrêt volontaire (bascule/flip) → pas de reprise
+          if (typeof isRecording !== 'undefined' && isRecording) { // piste morte en plein enregistrement → on arrête proprement
+            try { stopVideoRecord(); } catch(_){}
+            return;
+          }
           _videoWasActive = true;
           _reacquireCameraWithRetry();
         });
@@ -2086,7 +2092,9 @@ async function flipVideoCamera() {
     const fb = document.getElementById('videoFlashBtn');
     if (fb) fb.classList.remove('cam-flash-on');
     // Couper le flux courant puis relancer avec la nouvelle caméra
+    _pauseCamRecovery();                            // arrêt volontaire → pas de reprise concurrente
     if (videoStream) { try { videoStream.getTracks().forEach(t => t.stop()); } catch(_){} videoStream = null; }
+    cameraStream = null;                            // la piste vidéo partagée vient d'être stoppée → on l'oublie aussi
     await requestVideoPermission();
     _videoWasActive = false; _cameraWasActive = false; _stopReacquireRetry(); // pas de reprise auto après une bascule réussie
   } finally {
@@ -4047,6 +4055,9 @@ let _cameraWasActive   = false;
 let _videoWasActive    = false;
 let _reacquireBusy     = false;
 let _reacquireRetryId  = null;
+let _suppressRecovery  = false;   // pendant un arrêt VOLONTAIRE (bascule photo↔vidéo, flip), on n'enclenche pas de reprise auto
+let _suppressRecoveryTimer = null;
+function _pauseCamRecovery(ms){ _suppressRecovery = true; clearTimeout(_suppressRecoveryTimer); _suppressRecoveryTimer = setTimeout(() => { _suppressRecovery = false; }, ms || 900); }
 
 async function _attachStreamToVideo(videoEl, stream) {
   if (!videoEl) return;
@@ -4089,7 +4100,11 @@ async function _reacquireMediaStream(wantAudio) {
       _primeCameraCache();
       s.getTracks().forEach(t => {
         t.addEventListener('ended', () => {
-          if (document.hidden) return;
+          if (_suppressRecovery || document.hidden) return;
+          if (typeof isRecording !== 'undefined' && isRecording) {
+            try { stopVideoRecord(); } catch(_){}
+            return;
+          }
           _cameraWasActive = true;
           _reacquireCameraWithRetry();
         });
