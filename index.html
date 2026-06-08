@@ -2457,7 +2457,7 @@ async function doUpload() {
       const fileToUpload = file._isVideo ? file : await compressImage(file);
       const uploadRes = await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${filename}`, {
         method:'POST', mode:'cors', credentials:'omit', signal: ctrl.signal,
-        headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type': (file._isVideo ? (file.type||'video/mp4') : 'image/jpeg'),'x-upsert':'true' },
+        headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type': (file._isVideo ? ((file.type||'video/webm').split(';')[0].trim()) : 'image/jpeg'),'x-upsert':'true' },
         body:fileToUpload
       });
       if (!uploadRes.ok) throw new Error(`Storage ${uploadRes.status}: ${await uploadRes.text()}`);
@@ -3581,8 +3581,9 @@ function _startCameraWatchdog() {
         liveVid && !recording) {
       const streamDead = !hasVid || !videoStream.active ||
                          videoStream.getVideoTracks().every(t => t.readyState === 'ended');
-      const videoDead  = liveVid.paused || liveVid.readyState === 0 || liveVid.videoWidth === 0;
-      if (streamDead || videoDead) {
+      // En mode vidéo : ne relancer la caméra QUE si le flux est réellement mort.
+      // (l'aperçu peut afficher 0px sans casser l'enregistrement → évite le « Reprise… » en boucle)
+      if (streamDead) {
         if (await _wasCameraEverGranted()) { _videoWasActive = true; _reacquireCameraOnce(); }
       }
     }
