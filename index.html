@@ -1784,7 +1784,7 @@ footer{
       </div>
       <div class="previews" id="previews"></div>
 <div class="nfield">
-        <label>Votre prénom (optionnel)</label>
+        <label for="uname">Votre prénom (optionnel)</label>
         <input id="uname" type="text" placeholder="ex : Sophie" oninput="saveName(this.value)">
       </div>
       <div class="prog" id="prog" style="display:none">
@@ -2443,34 +2443,48 @@ async function flipCamera() {
   if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
   if (video) { try { video.srcObject = null; } catch(_){} }
 
+  const want = (facingMode === 'environment') ? 'user' : 'environment';
   let stream = null;
 
-  // 1) Bascule FIABLE par deviceId : prendre une caméra physiquement différente de l'actuelle (Android)
-  try {
-    const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
-    if (cams.length > 1 && currentId) {
-      const next = cams.find(d => d.deviceId && d.deviceId !== currentId);
-      if (next) stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: next.deviceId } }, audio: false });
-    }
-  } catch(_){}
+  // 1) facingMode exact : garantit le bon côté (avant/arrière) quand l'appareil le supporte
+  try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){}
 
-  // 2) Repli par facingMode (iOS / si l'énumération échoue) — SANS {video:true} qui retombait sur la frontale
+  // 2) facingMode ideal MAIS on vérifie qu'il a réellement basculé (sinon on rejette)
   if (!stream) {
-    const want = (facingMode === 'environment') ? 'user' : 'environment';
-    for (const c of [{ video:{ facingMode:{ exact: want } }, audio:false }, { video:{ facingMode: want }, audio:false }]) {
-      try { stream = await navigator.mediaDevices.getUserMedia(c); break; } catch(_){}
-    }
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: want } }, audio:false });
+      if (s.getVideoTracks()[0].getSettings().facingMode === want) stream = s;
+      else s.getTracks().forEach(t => t.stop());
+    } catch(_){}
   }
 
-  if (!stream) { showDlToast('Impossible de changer de caméra'); return; }
+  // 3) Repli par deviceId : choisir la caméra dont le facing correspond VRAIMENT à "want"
+  if (!stream) {
+    try {
+      const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+      let anyOther = null;
+      for (const cam of cams) {
+        try {
+          const s = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: cam.deviceId } }, audio:false });
+          const fm = s.getVideoTracks()[0].getSettings().facingMode;
+          if (fm === want) { stream = s; break; }
+          if (!fm && cam.deviceId !== currentId && !anyOther) { anyOther = s; continue; } // facing inconnu : garder comme repli
+          s.getTracks().forEach(t => t.stop());
+        } catch(_){}
+      }
+      if (!stream && anyOther) stream = anyOther;
+    } catch(_){}
+  }
+
+  if (!stream) {
+    showDlToast('Impossible de changer de caméra');
+    // ne pas rester sans flux : reprendre la caméra actuelle
+    try { cameraStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facingMode }, audio:false }); if (video){ video.srcObject = cameraStream; await video.play().catch(()=>{}); } } catch(_){}
+    return;
+  }
 
   cameraStream = stream;
-  // synchroniser facingMode (miroir selfie) depuis la caméra réellement obtenue
-  try {
-    const fm = stream.getVideoTracks()[0].getSettings().facingMode;
-    facingMode = (fm === 'user' || fm === 'environment') ? fm : ((facingMode === 'environment') ? 'user' : 'environment');
-  } catch(_) { facingMode = (facingMode === 'environment') ? 'user' : 'environment'; }
-
+  try { const fm = stream.getVideoTracks()[0].getSettings().facingMode; facingMode = (fm === 'user' || fm === 'environment') ? fm : want; } catch(_) { facingMode = want; }
   if (video) { video.srcObject = stream; await video.play().catch(()=>{}); }
 }
 
@@ -4013,22 +4027,12 @@ function _startCameraWatchdog() {
 _startCameraWatchdog();
 
 function _showReacquireOverlay(show) {
+  // Ne plus AFFICHER l'overlay « Reprise… » (il restait parfois bloqué → écran noir). On masque juste un résidu.
+  if (show) return;
   ['cameraVideo','videoLive'].forEach(id => {
     const vid = document.getElementById(id);
-    if (!vid || !vid.parentNode) return;
-    let ov = vid.parentNode.querySelector('.cam-loader');
-    if (show) {
-      if (!ov) {
-        ov = document.createElement('div');
-        ov.className = 'cam-loader';
-        ov.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);color:#fff;font-family:Jost,sans-serif;font-size:12px;letter-spacing:.18em;text-transform:uppercase;z-index:5;pointer-events:none;gap:10px';
-        ov.innerHTML = '<span style="display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:camSpin .8s linear infinite"></span>Reprise…';
-        const style = document.getElementById('cam-loader-style') || Object.assign(document.createElement('style'),{id:'cam-loader-style',textContent:'@keyframes camSpin{to{transform:rotate(360deg)}}'});
-        if (!style.parentNode) document.head.appendChild(style);
-        vid.parentNode.appendChild(ov);
-      }
-      ov.style.display = 'flex';
-    } else if (ov) { ov.style.display = 'none'; }
+    const ov = vid && vid.parentNode && vid.parentNode.querySelector('.cam-loader');
+    if (ov) ov.style.display = 'none';
   });
 }
 

@@ -231,6 +231,7 @@ body{background:linear-gradient(160deg,#FFCE3A 0%,#FF8A3D 50%,#F0414E 100%);back
 .lb{position:fixed;inset:0;background:rgba(45,55,72,.95);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
 .lb.open{display:flex}
 .lb img,.lb video{max-width:100%;max-height:88vh;border-radius:4px;object-fit:contain}
+@supports(height:100dvh){.lb img,.lb video,#lbVideo{max-height:88dvh}}
 .lb-x{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .photo-card-meta{
   padding:10px 12px;background:var(--warm);
@@ -575,7 +576,7 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
 <div class="lb" id="lb" onclick="if(event.target===this)closeLB()">
   <button class="lb-x" onclick="closeLB()">✕</button>
   <img id="lbImg" src="" alt="" style="display:none">
-  <video id="lbVideo" src="" controls playsinline style="display:none;max-width:100%;max-height:88vh;border-radius:4px"></video>
+  <video id="lbVideo" src="" controls playsinline style="display:none;max-width:100%;max-height:88dvh;border-radius:4px"></video>
 </div>
 
 <div class="dash-toast" id="dashToast"></div>
@@ -1325,7 +1326,7 @@ function toast(msg) {
 
 // Fermer modal avec Echap
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Escape') { closeModal(); closeLB(); }
   if (e.key === 'Enter' && document.getElementById('loginWrap').style.display !== 'none') doLogin();
 });
 </script>
