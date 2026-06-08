@@ -71,6 +71,8 @@ h1 em{font-style:italic;color:var(--gold)}
 .cam-shoot-btn:hover{transform:scale(1.08)}
 .cam-shoot-btn:active{transform:scale(.93)}
 .cam-shoot-inner{width:44px;height:44px;background:white;border-radius:50%;display:block}
+@keyframes previewIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+#cameraPreview,#videoPreviewWrap{animation:previewIn .32s cubic-bezier(.22,.61,.36,1) both}
 .cam-flip-btn{width:44px;height:44px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(4px)}
 .cam-flip-btn:hover{background:rgba(255,255,255,.28)}
 .cam-flash-on{background:rgba(255,220,50,.35) !important;border-color:rgba(255,220,50,.6) !important}
