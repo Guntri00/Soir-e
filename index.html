@@ -1043,8 +1043,8 @@ header::before{
 .qr-steps .sn{box-shadow:0 0 0 6px rgba(255,122,26,.12);animation:stepPulse 3s ease-in-out infinite}
 .slideshow-img{animation:summerSlideIn .55s cubic-bezier(.22,.61,.36,1)}
 .lb.open img{animation:lightboxBloom .45s ease both}
-.toast{box-shadow:0 14px 34px rgba(42,14,34,.16);animation:toastRiseInline .35s ease both}
-.dl-toast{box-shadow:0 14px 34px rgba(42,14,34,.22);animation:toastRise .35s ease both}
+.toast{box-shadow:0 14px 34px rgba(42,14,34,.16)}
+.dl-toast{box-shadow:0 14px 34px rgba(42,14,34,.22)}
 .charm{
   text-shadow:0 8px 20px rgba(42,14,34,.18);
   animation-name:summerCharmFall;
@@ -1873,6 +1873,7 @@ footer{
   </div>
   <div class="ss-counter" id="ssCounter"></div>
   <img class="slideshow-img" id="ssImg" src="" alt="" loading="lazy">
+  <video class="slideshow-img" id="ssVideo" style="display:none" playsinline muted></video>
   <div class="slideshow-bar">
     <div class="ss-info">
       <strong id="ssName"></strong>
@@ -3556,38 +3557,62 @@ function ssShow(idx) {
   if (!ssPhotos.length) return;
   const p   = ssPhotos[idx];
   const img = document.getElementById('ssImg');
+  const vid = document.getElementById('ssVideo');
+  const isVideo = p.media_type === 'video';
 
-  // Animation fade
-  img.style.opacity = '0';
-  img.style.transform = 'scale(0.97)';
-  img.src = p.public_url;
-  img.onload = () => {
-    img.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    img.style.opacity = '1';
-    img.style.transform = 'scale(1)';
-  };
-
-  // Infos
+  // Infos (commun image / vidéo)
   const cat = CATEGORIES.find(c => c.id === p.category);
   document.getElementById('ssName').textContent  = `par ${p.uploader_name || 'Invité'}`;
   document.getElementById('ssTime').textContent  = cat ? `${cat.emoji} ${cat.name}` : '';
   document.getElementById('ssCounter').textContent = `${idx + 1} / ${ssPhotos.length}`;
 
-  // Barre de progression
   const bar = document.getElementById('ssProgress');
-  if (bar) {
-    bar.style.transition = 'none';
-    bar.style.width = '0%';
-    requestAnimationFrame(() => {
-      bar.style.transition = `width ${SS_DURATION}ms linear`;
-      bar.style.width = '100%';
-    });
+
+  if (isVideo) {
+    if (img) { img.style.display = 'none'; img.src = ''; }
+    if (vid) {
+      vid.style.display = 'block';
+      vid.muted = true;                    // autoplay nécessite le mode silencieux
+      vid.src = p.public_url;
+      vid.onended = () => { if (ssPlaying) ssNext(); };       // passe à la suivante à la fin
+      vid.onerror = () => { ssNext(); };                       // vidéo illisible → on saute
+      try { vid.currentTime = 0; } catch(_){}
+      const pr = vid.play(); if (pr && pr.catch) pr.catch(()=>{});
+    }
+    if (bar) { bar.style.transition = 'none'; bar.style.width = '0%'; } // la vidéo dure sa propre durée
+  } else {
+    if (vid) { try { vid.pause(); } catch(_){} vid.onended = null; vid.removeAttribute('src'); vid.style.display = 'none'; }
+    if (img) {
+      img.style.display = 'block';
+      img.style.opacity = '0';
+      img.style.transform = 'scale(0.97)';
+      img.src = p.public_url;
+      img.onload = () => {
+        img.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        img.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+      };
+    }
+    if (bar) {
+      bar.style.transition = 'none';
+      bar.style.width = '0%';
+      requestAnimationFrame(() => {
+        bar.style.transition = `width ${SS_DURATION}ms linear`;
+        bar.style.width = '100%';
+      });
+    }
   }
 }
 
 function ssStartTimer() {
   clearTimeout(ssTimer);
   if (!ssPlaying) return;
+  const p = ssPhotos[ssIndex];
+  if (p && p.media_type === 'video') {
+    // la vidéo avance via 'ended' ; filet de sécurité 30 s si elle ne se termine jamais
+    ssTimer = setTimeout(() => ssNext(), 30000);
+    return;
+  }
   ssTimer = setTimeout(() => ssNext(), SS_DURATION);
 }
 
@@ -3609,14 +3634,18 @@ function ssTogglePlay() {
   ssPlaying = !ssPlaying;
   const btn = document.getElementById('ssPlayBtn');
   if (btn) btn.textContent = ssPlaying ? '⏸' : '▶';
+  const vid = document.getElementById('ssVideo');
+  const cur = ssPhotos[ssIndex];
+  const isVideo = cur && cur.media_type === 'video';
   if (ssPlaying) {
+    if (isVideo && vid) { const pr = vid.play(); if (pr && pr.catch) pr.catch(()=>{}); }
     ssStartTimer();
-    const bar = document.getElementById('ssProgress');
-    if (bar) {
-      bar.style.transition = `width ${SS_DURATION}ms linear`;
-      bar.style.width = '100%';
+    if (!isVideo) {
+      const bar = document.getElementById('ssProgress');
+      if (bar) { bar.style.transition = `width ${SS_DURATION}ms linear`; bar.style.width = '100%'; }
     }
   } else {
+    if (isVideo && vid) { try { vid.pause(); } catch(_){} }
     clearTimeout(ssTimer);
     const bar = document.getElementById('ssProgress');
     if (bar) bar.style.transition = 'none';
@@ -3630,6 +3659,8 @@ function ssClose() {
   document.body.style.overflow = '';
   const img = document.getElementById('ssImg');
   if (img) { img.src = ''; img.style.opacity = '1'; img.style.transform = 'scale(1)'; }
+  const vid = document.getElementById('ssVideo');
+  if (vid) { try { vid.pause(); } catch(_){} vid.onended = null; vid.removeAttribute('src'); vid.style.display = 'none'; }
 }
 
 // ══════════════════════════════════════════
