@@ -2032,7 +2032,7 @@ function stopVideoCamera() {
     try { mediaRecorder.stop(); } catch(e) {}
   }
   isRecording = false;
-  clearTimeout(videoTimer);
+  clearTimeout(videoTimer); clearInterval(videoProgress);
 }
 async function initVideoCamera() {
   _showInAppBrowserNotice();

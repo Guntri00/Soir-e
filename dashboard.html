@@ -1225,6 +1225,16 @@ async function cleanupBrokenMedia(id, tileEl) {
     document.querySelectorAll(`[data-photo-id="${id}"]`).forEach(n => n.remove());
     return;
   }
+
+  // SÉCURITÉ ANTI-PERTE DE DONNÉES : ne supprimer en base QUE si le fichier est VRAIMENT absent (404/410).
+  // Une erreur réseau transitoire (403, 5xx, coupure CDN) ne doit JAMAIS effacer la photo d'un invité.
+  const _verUrl = _p ? getPhotoUrl(_p) : null;
+  let _gone = false;
+  if (_verUrl) {
+    try { const _c = await fetch(_verUrl, { method:'HEAD', mode:'cors', cache:'no-store' }); _gone = (_c.status === 404 || _c.status === 410); } catch(_) { _gone = false; }
+  }
+  if (!_gone) { if (tileEl) tileEl.style.display = 'none'; return; } // accessible ou erreur transitoire → on GARDE la photo
+
   if (_cleanedBrokenIds.size >= _CLEANED_MAX) _cleanedBrokenIds.clear();
   _cleanedBrokenIds.add(id);
 

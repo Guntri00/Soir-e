@@ -1295,6 +1295,16 @@ async function cleanupBrokenMedia(id, tileEl){
     document.querySelectorAll(`[data-photo-id="${id}"]`).forEach(n=>n.remove());
     return;
   }
+
+  // SÉCURITÉ ANTI-PERTE DE DONNÉES : ne supprimer en base QUE si le fichier est VRAIMENT absent (404/410).
+  // Une erreur réseau transitoire (403, 5xx, coupure CDN) ne doit JAMAIS effacer un souvenir.
+  const _verUrl = _p ? getPhotoUrl(_p) : null;
+  let _gone = false;
+  if (_verUrl) {
+    try { const _c = await fetch(_verUrl, { method:'HEAD', mode:'cors', cache:'no-store' }); _gone = (_c.status === 404 || _c.status === 410); } catch(_) { _gone = false; }
+  }
+  if (!_gone) { if (tileEl) tileEl.style.display = 'none'; return; } // accessible ou erreur transitoire → on GARDE le souvenir
+
   if(_cleanedBrokenIds.size >= _CLEANED_MAX) _cleanedBrokenIds.clear();
   _cleanedBrokenIds.add(id);
 
@@ -1448,7 +1458,7 @@ function ssShow(idx) {
 
   // Stopper toute vidéo dans l'ancienne couche
   const oldVid = prevLayer.querySelector('video');
-  if (oldVid) { oldVid.pause(); oldVid.onended = null; oldVid.src = ''; }
+  if (oldVid) { oldVid.pause(); oldVid.onended = null; oldVid.onerror = null; oldVid.src = ''; } /* onerror=null AVANT de vider src : évite une fausse "suppression" lors de la navigation */
 
   // Préparer le contenu de la nouvelle couche
   // Retirer les anciennes classes Ken Burns
@@ -1539,6 +1549,12 @@ function ssShow(idx) {
 function ssStartTimer() {
   clearTimeout(ssTimer);
   if (!ssPlaying) return;
+  const cur = ssPhotos[ssIndex];
+  if (cur && cur.media_type === 'video') {
+    // la vidéo joue jusqu'au bout (avance via 'ended') ; filet de sécurité 25 s si elle se bloque — NE PAS la couper à SS_DUR
+    ssTimer = setTimeout(ssNext, 25000);
+    return;
+  }
   ssTimer = setTimeout(ssNext, SS_DUR);
 }
 function ssNext() {
@@ -1864,7 +1880,7 @@ document.addEventListener('keydown',e=>{
     if(e.key==='ArrowLeft'){ssPrev();ssShowUI();}
     if(e.key===' '){e.preventDefault();ssToggle();ssShowUI();}
     if(e.key==='f'||e.key==='F'){ssToggleFullscreen();}
-    if(e.key==='a'||e.key==='A'){ssToggleAI();ssShowUI();}
+    /* raccourci 'a' (légendes IA) désactivé : le backend /api/caption n'existe pas en hébergement statique (évite des appels 404) */
   }
 });
 
