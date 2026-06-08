@@ -1110,6 +1110,138 @@ header::before{opacity:.62;filter:blur(1px)}
   box-shadow:0 8px 22px rgba(192,52,27,.08);
 }
 @keyframes panelArrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* QR redesign inspire artifact : carte invitation, QR lisible et decor subtil */
+.qr-wrap{padding:22px 12px 36px;gap:18px}
+.qr-invite-card{
+  width:min(100%,380px);min-height:560px;padding:26px 22px 24px;
+  border:none;border-radius:26px;isolation:isolate;
+  background:
+    radial-gradient(circle at 18% 12%,rgba(255,243,224,.72),transparent 22%),
+    radial-gradient(circle at 90% 22%,rgba(255,122,26,.28),transparent 24%),
+    linear-gradient(145deg,#38132f 0%,#65213b 46%,#ff7a1a 145%);
+  box-shadow:0 24px 60px rgba(42,14,34,.28),inset 0 0 0 1px rgba(255,255,255,.14);
+  color:#fff7ec;overflow:hidden;
+}
+.qr-invite-card::before{
+  background:
+    linear-gradient(120deg,rgba(255,255,255,.18),transparent 32%,rgba(255,209,102,.13)),
+    radial-gradient(circle at 50% 0,rgba(255,209,102,.24),transparent 38%);
+  opacity:.9;
+}
+.qr-invite-card::after{
+  content:"";position:absolute;inset:auto 20px 0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,243,224,.65),transparent);
+}
+.qr-orbit{
+  position:absolute;border:1px solid rgba(255,209,102,.18);border-radius:50%;
+  pointer-events:none;z-index:-1;filter:drop-shadow(0 0 18px rgba(255,122,26,.16));
+}
+.qr-orbit-a{width:260px;height:260px;right:-76px;top:-72px;animation:qrOrbit 18s linear infinite}
+.qr-orbit-b{width:180px;height:180px;left:-70px;bottom:120px;border-color:rgba(255,243,224,.14);animation:qrOrbit 22s linear reverse infinite}
+.qr-confetti{
+  position:absolute;width:7px;height:7px;border-radius:2px;z-index:1;pointer-events:none;
+  background:#ffd166;box-shadow:0 0 16px rgba(255,209,102,.55);
+  animation:qrConfettiFloat 5.4s ease-in-out infinite;
+}
+.qr-confetti.q1{left:13%;top:19%;background:#fff3e0;animation-delay:.1s}
+.qr-confetti.q2{right:13%;top:28%;width:5px;height:13px;background:#f0414e;animation-delay:.8s}
+.qr-confetti.q3{left:18%;bottom:31%;border-radius:50%;background:#ff7a1a;animation-delay:1.5s}
+.qr-confetti.q4{right:18%;bottom:25%;width:10px;height:4px;background:#ffd166;animation-delay:2.2s}
+.qr-confetti.q5{left:48%;top:15%;width:4px;height:4px;border-radius:50%;background:#fff3e0;animation-delay:2.9s}
+.qr-confetti.q6{right:31%;bottom:14%;width:6px;height:6px;background:#ff9f68;animation-delay:3.5s}
+.qr-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:7px 13px;border-radius:999px;
+  background:rgba(255,243,224,.12);border:1px solid rgba(255,243,224,.18);
+  backdrop-filter:blur(8px);font-size:9px;letter-spacing:.28em;text-transform:uppercase;
+  color:#ffd166;margin-bottom:18px;
+  box-shadow:0 0 0 0 rgba(255,209,102,.24);
+  animation:qrBadgePulse 3.4s ease-in-out infinite;
+}
+.qr-hero-copy{display:flex;flex-direction:column;align-items:center;margin-bottom:18px;text-align:center}
+.qr-hero-copy span{font-family:'Cormorant Garamond',serif;font-size:30px;font-style:italic;font-weight:300;line-height:1;color:#fff7ec;text-shadow:0 10px 24px rgba(0,0,0,.28)}
+.qr-hero-copy strong{font-family:'Jost',sans-serif;font-size:11px;font-weight:400;letter-spacing:.42em;color:#ffd166;margin-top:4px}
+.qr-phone-stand{
+  position:relative;width:250px;max-width:100%;margin:0 auto 18px;padding:13px;
+  border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.08));
+  box-shadow:0 24px 48px rgba(42,14,34,.32),inset 0 0 0 1px rgba(255,255,255,.2);
+  transform:perspective(900px) rotateX(2deg) rotateY(-3deg);
+  animation:qrCardFloat 7s ease-in-out infinite,qrPhoneGlow 4.6s ease-in-out infinite;
+}
+.qr-phone-stand::before{
+  content:"";position:absolute;left:50%;top:7px;width:46px;height:4px;border-radius:999px;
+  transform:translateX(-50%);background:rgba(42,14,34,.38);
+}
+.qr-phone-stand::after{
+  content:"";position:absolute;left:24%;right:24%;bottom:-18px;height:20px;
+  border-radius:50%;background:radial-gradient(ellipse,rgba(42,14,34,.34),transparent 68%);
+  filter:blur(4px);z-index:-1;
+}
+.qr-screen{
+  position:relative;padding:14px;margin-top:7px;border-radius:22px;background:#fff;
+  box-shadow:inset 0 0 0 1px rgba(138,45,8,.1);
+  overflow:hidden;
+}
+.qr-screen::after{
+  content:"";position:absolute;left:12px;right:12px;top:-18%;height:18%;
+  background:linear-gradient(180deg,transparent,rgba(255,209,102,.22),transparent);
+  animation:qrScanGlow 3.8s ease-in-out infinite;pointer-events:none;
+}
+.qr-screen img{
+  width:100%;height:auto;aspect-ratio:1;display:block;border-radius:12px;margin:0;
+  box-shadow:none;animation:none;image-rendering:auto;
+}
+.qr-invite-card .qr-lbl{
+  color:#fff3e0;font-size:10px;letter-spacing:.24em;font-weight:500;margin-top:12px;
+  text-shadow:0 6px 16px rgba(0,0,0,.28);
+}
+.qr-invite-card .qr-url{
+  display:inline-flex;margin-top:8px;padding:7px 12px;border-radius:999px;
+  color:#2a0e22;background:rgba(255,243,224,.84);font-size:11px;font-weight:500;
+}
+.qr-invite-card .qr-dl{
+  border-radius:999px;background:#ffd166;color:#38132f;font-weight:500;
+  box-shadow:0 14px 28px rgba(42,14,34,.22);padding:12px 24px;margin-top:18px;
+  animation:qrButtonNudge 5.6s ease-in-out infinite;
+}
+.qr-invite-card .qr-dl:hover{background:#fff3e0;color:#38132f;transform:translateY(-2px)}
+.qr-mini-guide{
+  width:min(100%,380px);border:none;border-radius:20px;padding:18px 18px 14px;
+  background:rgba(255,255,255,.78);backdrop-filter:blur(12px);
+  box-shadow:0 14px 34px rgba(192,52,27,.1),inset 0 0 0 1px rgba(255,255,255,.55);
+}
+.qr-mini-guide h3{font-size:20px;text-align:center;color:#38132f}
+.qr-mini-guide .step{align-items:flex-start;color:#5a2a12;font-size:12px;margin-bottom:9px}
+.qr-mini-guide .sn{background:#38132f;color:#ffd166;box-shadow:0 0 0 5px rgba(255,209,102,.13)}
+@keyframes qrCardFloat{
+  0%,100%{transform:perspective(900px) translateY(0) rotateX(2deg) rotateY(-3deg)}
+  50%{transform:perspective(900px) translateY(-7px) rotateX(4deg) rotateY(3deg)}
+}
+@keyframes qrOrbit{to{transform:rotate(360deg)}}
+@keyframes qrConfettiFloat{
+  0%,100%{opacity:.34;transform:translate3d(0,0,0) rotate(0deg) scale(.86)}
+  45%{opacity:.9;transform:translate3d(0,-14px,0) rotate(18deg) scale(1.08)}
+  70%{opacity:.48;transform:translate3d(8px,-8px,0) rotate(32deg) scale(.96)}
+}
+@keyframes qrBadgePulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(255,209,102,.18);transform:translateY(0)}
+  50%{box-shadow:0 0 0 8px rgba(255,209,102,0);transform:translateY(-2px)}
+}
+@keyframes qrPhoneGlow{
+  0%,100%{box-shadow:0 24px 48px rgba(42,14,34,.32),inset 0 0 0 1px rgba(255,255,255,.2)}
+  50%{box-shadow:0 28px 58px rgba(42,14,34,.36),0 0 34px rgba(255,209,102,.18),inset 0 0 0 1px rgba(255,255,255,.28)}
+}
+@keyframes qrScanGlow{
+  0%,28%{transform:translateY(0);opacity:0}
+  45%{opacity:.75}
+  72%,100%{transform:translateY(760%);opacity:0}
+}
+@keyframes qrButtonNudge{
+  0%,82%,100%{transform:translateY(0)}
+  88%{transform:translateY(-3px)}
+  94%{transform:translateY(0)}
+}
 </style>
 <!-- Vercel Web Analytics (sans cookie) -->
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1443,14 +1575,31 @@ header::before{opacity:.62;filter:blur(1px)}
   <!-- QR CODE -->
   <div id="panel-qr" class="panel">
     <div class="qr-wrap">
-      <div class="qr-box">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=https%3A%2F%2Fsoir-e-alpha.vercel.app&margin=16&ecc=Q&color=8a2d08&bgcolor=ffffff"
-          alt="QR code vers soir-e-alpha.vercel.app" onerror="this.onerror=null;this.src='https://quickchart.io/qr?text=https%3A%2F%2Fsoir-e-alpha.vercel.app&dark=8a2d08&light=ffffff&ecLevel=Q&margin=2&size=440'"/>
-        <p class="qr-lbl">Scanner pour partager vos photos</p>
-        <p class="qr-url">https://soir-e-alpha.vercel.app</p>
-        <button class="qr-dl" onclick="downloadQR()">⬇ Télécharger le QR code</button>
+      <div class="qr-box qr-invite-card">
+        <div class="qr-orbit qr-orbit-a"></div>
+        <div class="qr-orbit qr-orbit-b"></div>
+        <span class="qr-confetti q1"></span>
+        <span class="qr-confetti q2"></span>
+        <span class="qr-confetti q3"></span>
+        <span class="qr-confetti q4"></span>
+        <span class="qr-confetti q5"></span>
+        <span class="qr-confetti q6"></span>
+        <div class="qr-badge">Scan & Share</div>
+        <div class="qr-hero-copy">
+          <span>Soirée d'été</span>
+          <strong>CSE IQVIA</strong>
+        </div>
+        <div class="qr-phone-stand">
+          <div class="qr-screen">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=https%3A%2F%2Fsoir-e-alpha.vercel.app&margin=16&ecc=Q&color=8a2d08&bgcolor=ffffff"
+              alt="QR code vers soir-e-alpha.vercel.app" onerror="this.onerror=null;this.src='https://quickchart.io/qr?text=https%3A%2F%2Fsoir-e-alpha.vercel.app&dark=8a2d08&light=ffffff&ecLevel=Q&margin=2&size=440'"/>
+          </div>
+        </div>
+        <p class="qr-lbl">Scannez pour partager vos photos</p>
+        <p class="qr-url">soir-e-alpha.vercel.app</p>
+        <button class="qr-dl" onclick="downloadQR()">⬇ Télécharger</button>
       </div>
-      <div class="qr-steps">
+      <div class="qr-steps qr-mini-guide">
         <h3>Comment utiliser le QR code ?</h3>
         <div class="step"><div class="sn">1</div><span>Imprimez ce QR code ou affichez-le sur un écran lors de l'événement</span></div>
         <div class="step"><div class="sn">2</div><span>Les invités scannent avec leur téléphone — sans application à installer</span></div>
@@ -3158,51 +3307,75 @@ async function downloadPhoto(url, filename) {
   }
 }
 
-// Télécharger toutes les photos de la catégorie une par une
-async function downloadAllPhotos() {
-  // Récupérer la catégorie où se trouve l'utilisateur
-  const catId = document.getElementById('panel-gallery').dataset.currentCat;
-  if (!catId) {
-    showDlToast('⚠️ Aucune catégorie sélectionnée');
-    return;
-  }
+// Chargement à la demande de JSZip (pour le téléchargement groupé)
+let _jszipPromise = null;
+function loadJSZip() {
+  if (window.JSZip) return Promise.resolve(window.JSZip);
+  if (_jszipPromise) return _jszipPromise;
+  _jszipPromise = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = () => res(window.JSZip);
+    s.onerror = rej;
+    document.head.appendChild(s);
+  });
+  return _jszipPromise;
+}
 
-  // Recharger les photos fraîches depuis Supabase
+// Télécharger TOUTES les photos de la catégorie dans un seul fichier ZIP
+// (les navigateurs mobiles bloquent les téléchargements multiples → un seul fichier)
+async function downloadAllPhotos() {
+  const catId = document.getElementById('panel-gallery').dataset.currentCat;
+  if (!catId) { showDlToast('⚠️ Aucune catégorie sélectionnée'); return; }
+
   await refreshAllPhotos();
   const photos = allPhotos.filter(p => p.category === catId);
-
-  if (!photos.length) {
-    showDlToast('Aucune photo dans cette catégorie');
-    return;
-  }
+  if (!photos.length) { showDlToast('Aucune photo dans cette catégorie'); return; }
 
   const btn = document.getElementById('dlAllBtn');
-  if (btn) { btn.classList.add('loading'); btn.innerHTML = '⏳ Téléchargement…'; }
+  if (btn) { btn.classList.add('loading'); btn.innerHTML = '⏳ Préparation…'; }
+  showDlToast(`Préparation de ${photos.length} fichier${photos.length > 1 ? 's' : ''}…`);
 
-  showDlToast(`Téléchargement de ${photos.length} photo${photos.length > 1 ? 's' : ''}…`);
+  try {
+    const JSZip = await loadJSZip();
+    const zip = new JSZip();
+    let done = 0, failed = 0;
 
-  let done = 0;
-  for (const p of photos) {
-    try {
-      const res  = await fetch(p.public_url, { mode:'cors', credentials:'omit' });
-      const blob = await res.blob();
-      const a    = document.createElement('a');
-      const ext  = (p.storage_path || 'photo.jpg').split('.').pop() || 'jpg';
-      a.href     = URL.createObjectURL(blob);
-      a.download = `mementos-${p.category}-${done + 1}.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(a.href);
-      done++;
-      await new Promise(r => setTimeout(r, 500));
-    } catch(e) {
-      log.warn('Download failed:', p.public_url, e);
+    for (const p of photos) {
+      try {
+        const res = await fetch(p.public_url, { mode:'cors', credentials:'omit' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const blob = await res.blob();
+        const isVideo = p.media_type === 'video';
+        const ext  = ((p.storage_path || '').split('.').pop() || (isVideo ? 'webm' : 'jpg')).toLowerCase();
+        const who  = (p.uploader_name || 'invite').replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 20) || 'invite';
+        zip.file(`soiree-${p.category}-${String(done + 1).padStart(2, '0')}-${who}.${ext}`, blob);
+        done++;
+        if (btn) btn.innerHTML = `⏳ ${done}/${photos.length}…`;
+      } catch(e) { failed++; }
     }
-  }
 
-  if (btn) { btn.classList.remove('loading'); btn.innerHTML = '⬇ Tout télécharger'; }
-  showDlToast(`✓ ${done} photo${done > 1 ? 's' : ''} téléchargée${done > 1 ? 's' : ''} !`);
+    if (!done) throw new Error('Aucune photo téléchargeable');
+
+    if (btn) btn.innerHTML = '⏳ Compression…';
+    const content = await zip.generateAsync({ type:'blob' }, (meta) => {
+      if (btn) btn.innerHTML = `⏳ ${Math.round(meta.percent)}%`;
+    });
+
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(content);
+    a.download = `soiree-ete-${catId}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+
+    showDlToast(`✓ ${done} photo${done > 1 ? 's' : ''} dans le ZIP${failed ? ` (${failed} échec${failed > 1 ? 's' : ''})` : ''} !`);
+  } catch(e) {
+    showDlToast('⚠️ Échec du téléchargement groupé — réessayez');
+  } finally {
+    if (btn) { btn.classList.remove('loading'); btn.innerHTML = '⬇ Tout télécharger'; }
+  }
 }
 
 function showDlToast(msg) {
