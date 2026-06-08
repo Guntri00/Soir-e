@@ -954,8 +954,11 @@ html.perf-lite .gitem { box-shadow:none !important; } /* ombres allégées au sc
    L'iPhone garde la vraie 3D. Le preserve-3d + filter:blur animé sont la cause du lag "image par image" sur Android. */
 @keyframes cocktailFloatLite { 0%,100%{transform:translateY(8px) scale(1)} 50%{transform:translateY(-12px) scale(1.012)} }
 html.perf-lite .cocktail-stage { transform-style:flat !important; transform:none !important; }
-html.perf-lite .cocktail-ai-img { animation:cocktailFloatLite 6s ease-in-out infinite !important; will-change:transform !important; backface-visibility:hidden; -webkit-backface-visibility:hidden; } /* couche GPU dédiée → animation fluide même pendant l'init JS */
+html.perf-lite .cocktail-ai-img { animation:none !important; } /* Android : image figée pendant l'intro (zéro coût d'anim pendant l'init JS) */
 html.perf-lite .cocktail-glow-3d { filter:none !important; animation:none !important; opacity:.42 !important; }
+/* Android : fermeture de l'intro en simple FONDU (au lieu du zoom ×8 + filter:blur animé, ruineux sur Android) */
+@keyframes introFadeOut { from{opacity:1} to{opacity:0} }
+html.perf-lite #introScreen.fade-out { animation:introFadeOut .45s ease forwards !important; pointer-events:none !important; }
 
 body::before,body::after{
   content:"";position:fixed;inset:-20%;pointer-events:none;z-index:-1;
