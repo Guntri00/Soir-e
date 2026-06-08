@@ -537,10 +537,14 @@ body.capturing #catRain{display:none}
 .charm{position:fixed;top:-60px;opacity:0;animation:charmFall linear infinite;pointer-events:none;z-index:0;user-select:none}
 /* Pendant la capture photo/vidéo : couper TOUTES les animations de fond (libère le GPU pour la caméra) */
 body.capturing .charm,body.capturing #catRain{display:none!important}
-/* Perf mobile : supprimer le flou (très coûteux sur Android) et alléger le nombre d'emojis de fond */
+/* Pause des animations de fond pendant le défilement (principale source de saccade) */
+body.scrolling .charm,body.scrolling .cat-float{animation-play-state:paused}
+/* Perf mobile : couper le flou + la pluie d'emojis + toutes les micro-animations en boucle */
 @media (max-width:768px){
   [class]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-  .charm:nth-child(n+13){display:none}
+  .charm{display:none}
+  .flip-emoji,.cat-pill-emoji,.cw-emoji,#badge-emoji,#detail-cat-emoji,.flip-wrap,.qr-rotating-square,.dot{animation:none!important}
+  .cat-float{animation-duration:26s}
 }
 .charm:nth-child(1){left:3%;animation-duration:16s;animation-delay:0s;font-size:15px}
 .charm:nth-child(2){left:11%;animation-duration:21s;animation-delay:-4s;font-size:22px}
@@ -2335,13 +2339,21 @@ function switchTab(id, btn) {
 // ══════════════════════════════════════════
 // (flipCard retiré : le clic sur une carte sélectionne directement la catégorie)
 
+// Pause les animations de fond pendant le défilement (anti-saccade)
+let _scrollPauseT;
+window.addEventListener('scroll', () => {
+  document.body.classList.add('scrolling');
+  clearTimeout(_scrollPauseT);
+  _scrollPauseT = setTimeout(() => document.body.classList.remove('scrolling'), 200);
+}, { passive: true });
+
 // Fait flotter doucement l'emoji de la catégorie choisie en fond (masqué en mode caméra/vidéo)
 function startCatFloat(emoji) {
   const layer = document.getElementById('catRain');
   if (!layer) return;
   layer.innerHTML = '';
   if (!emoji) return;
-  const N = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 5 : 9;
+  const N = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 3 : 9;
   for (let i = 0; i < N; i++) {
     const s = document.createElement('span');
     s.className = 'cat-float';
@@ -2635,6 +2647,8 @@ async function loadGallery() {
 }
 
 function startSlider(catId, total) {
+  // Pas de défilement auto sur mobile (fluidité) — les vignettes restent fixes
+  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
   if (sliderIntervals[catId]) clearInterval(sliderIntervals[catId]);
   const THUMB_W=143, DURATION=2800;
   sliderIntervals[catId] = setInterval(() => {
