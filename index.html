@@ -2072,14 +2072,24 @@ async function requestVideoPermission() {
 // Changer de caméra (avant/arrière) en mode vidéo
 async function flipVideoCamera() {
   if (isRecording) { showDlToast('Arrêtez l\'enregistrement avant de changer de caméra'); return; }
-  videoFacingMode = (videoFacingMode === 'environment') ? 'user' : 'environment';
-  // Le flash (torch) n'existe que sur la caméra arrière → on le réinitialise
-  videoFlashEnabled = false;
-  const fb = document.getElementById('videoFlashBtn');
-  if (fb) fb.classList.remove('cam-flash-on');
-  // Couper le flux courant puis relancer avec la nouvelle caméra
-  if (videoStream) { try { videoStream.getTracks().forEach(t => t.stop()); } catch(_){} videoStream = null; }
-  await requestVideoPermission();
+  if (_reacquireBusy) return;          // bascule déjà en cours → on ignore
+  _reacquireBusy = true;               // bloque le watchdog pendant la bascule (évite les conflits/blocages)
+  const flipBtn = document.querySelector('#videoRecorderWrap .cam-flip-btn');
+  if (flipBtn) flipBtn.style.opacity = '.5';
+  try {
+    videoFacingMode = (videoFacingMode === 'environment') ? 'user' : 'environment';
+    // Le flash (torch) n'existe que sur la caméra arrière → on le réinitialise
+    videoFlashEnabled = false;
+    const fb = document.getElementById('videoFlashBtn');
+    if (fb) fb.classList.remove('cam-flash-on');
+    // Couper le flux courant puis relancer avec la nouvelle caméra
+    if (videoStream) { try { videoStream.getTracks().forEach(t => t.stop()); } catch(_){} videoStream = null; }
+    await requestVideoPermission();
+    _videoWasActive = false; _cameraWasActive = false; _stopReacquireRetry(); // pas de reprise auto après une bascule réussie
+  } finally {
+    _reacquireBusy = false;
+    if (flipBtn) flipBtn.style.opacity = '';
+  }
 }
 
 // Activer / couper le flash (torch) en mode vidéo
@@ -2455,13 +2465,52 @@ function stopCamera() {
   }
 }
 
-function flipCamera() {
-  facingMode = facingMode === 'environment' ? 'user' : 'environment';
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(t => t.stop());
-    cameraStream = null;
+async function flipCamera() {
+  if (_reacquireBusy) return;          // une (ré)acquisition est déjà en cours → on ignore (et ça bloque le watchdog)
+  _reacquireBusy = true;               // empêche le watchdog d'interférer pendant la bascule (cause des blocages)
+  const flipBtn = document.querySelector('.cam-flip-btn');
+  if (flipBtn) flipBtn.style.opacity = '.5';
+  const video  = document.getElementById('cameraVideo');
+  const wrapEl = document.getElementById('cameraWrap');
+  const permEl = document.getElementById('cameraPermission');
+  if (permEl) permEl.style.display = 'none';
+  if (wrapEl) wrapEl.style.display = 'block';
+  try {
+    const want = (facingMode === 'environment') ? 'user' : 'environment';
+    // couper le flux courant (l'aperçu garde la dernière image pendant la bascule)
+    if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
+
+    let stream = null;
+    // 1) facingMode exact = bascule nette et rapide quand l'appareil le supporte
+    try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){}
+    // 2) deviceId : caméra dont le libellé correspond au côté voulu (Android multi-caméras)
+    if (!stream) {
+      try {
+        const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+        const re = (want === 'user') ? /front|user|selfie|face|avant/i : /back|rear|environment|world|arri/i;
+        const cam = cams.find(d => re.test(d.label || ''));
+        if (cam) stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: cam.deviceId } }, audio:false });
+      } catch(_){}
+    }
+    // 3) facingMode ideal (dernier recours)
+    if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: want } }, audio:false }); } catch(_){} }
+
+    if (stream) {
+      cameraStream = stream;
+      facingMode = want;
+      try { const fm = stream.getVideoTracks()[0].getSettings().facingMode; if (fm === 'user' || fm === 'environment') facingMode = fm; } catch(_){}
+      if (video) { video.srcObject = stream; try { await video.play(); } catch(_){} }
+      _cameraWasActive = false; _videoWasActive = false; _stopReacquireRetry(); // pas de reprise auto après une bascule réussie
+    } else {
+      // échec total : reprendre la caméra précédente pour ne jamais rester sur un écran figé
+      facingMode = (want === 'environment') ? 'user' : 'environment';
+      try { cameraStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facingMode }, audio:false }); if (video){ video.srcObject = cameraStream; try { await video.play(); } catch(_){} } } catch(_){}
+      showDlToast('Changement de caméra indisponible sur cet appareil');
+    }
+  } finally {
+    _reacquireBusy = false;
+    if (flipBtn) flipBtn.style.opacity = '';
   }
-  startCamera();
 }
 
 async function toggleFlash() {
