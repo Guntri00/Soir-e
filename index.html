@@ -7,6 +7,7 @@
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <title>Soirée d'été — CSE IQVIA</title>
+<script>try{if(/Android/i.test(navigator.userAgent))document.documentElement.classList.add('perf-lite');}catch(e){}</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -931,6 +932,13 @@ body{
     linear-gradient(160deg,#ffd166 0%,#ff8a3d 42%,#f0414e 78%,#2a0e22 125%);
   overflow-x:hidden;
 }
+/* ===== Mode performance ANDROID (html.perf-lite) : coupe les effets GPU coûteux qui font ramer Android.
+   L'iPhone (Safari) n'est PAS concerné et garde le rendu complet. ===== */
+html.perf-lite body::before, html.perf-lite body::after { display:none !important; } /* calques de fond animés plein écran + mix-blend */
+html.perf-lite *, html.perf-lite *::before, html.perf-lite *::after { mix-blend-mode:normal !important; will-change:auto !important; }
+html.perf-lite .gitem::before, html.perf-lite .cw-thumb::before { animation:none !important; } /* shimmer par vignette (multiplié par le nb de photos) */
+html.perf-lite .charm:nth-child(n+9) { display:none !important; } /* 12 -> 8 emojis sur Android (pluie conservée) */
+
 body::before,body::after{
   content:"";position:fixed;inset:-20%;pointer-events:none;z-index:-1;
 }
