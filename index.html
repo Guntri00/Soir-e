@@ -2117,6 +2117,7 @@ async function toggleVideoFlash() {
 function startVideoRecord(e) {
   if (e) e.preventDefault();
   if (isRecording || !videoStream) return;
+  haptic(40);
   isRecording=true; videoChunks=[]; videoBlob=null;
   const btn=document.getElementById('btnRecord'); if(btn) btn.classList.add('recording');
   const ri=document.getElementById('recIndicator'); if(ri) ri.style.display='block';
@@ -2482,6 +2483,7 @@ async function _primeCameraCache(){
 async function flipCamera() {
   if (_reacquireBusy) return;          // une (ré)acquisition est déjà en cours → on ignore (et ça bloque le watchdog)
   _reacquireBusy = true;               // empêche le watchdog d'interférer pendant la bascule (cause des blocages)
+  haptic(12);
   const flipBtn = document.querySelector('.cam-flip-btn');
   if (flipBtn) flipBtn.style.opacity = '.5';
   const video  = document.getElementById('cameraVideo');
@@ -2585,9 +2587,36 @@ async function toggleFlash() {
   }
 }
 
+// Retour haptique léger (vibration) — rend les actions plus agréables et réactives sur mobile
+function haptic(p){ try { if (navigator.vibrate) navigator.vibrate(p); } catch(_){} }
+
+// Petite pluie de confettis aux couleurs de la soirée (moment « partage réussi »)
+function celebrate(){
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!document.getElementById('conf-style')) {
+      const s = document.createElement('style'); s.id = 'conf-style';
+      s.textContent = '@keyframes confFall{to{transform:translateY(112vh) rotate(720deg);opacity:0}}';
+      document.head.appendChild(s);
+    }
+    const colors = ['#FF7A1A','#F0414E','#FFD166','#FF6B6B','#FFCE3A','#FF8A3D'];
+    const layer = document.createElement('div');
+    layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9996;overflow:hidden';
+    for (let i=0;i<26;i++){
+      const c = document.createElement('div');
+      const size = 6 + (i%3)*3;
+      c.style.cssText = 'position:absolute;top:-24px;left:'+((i*3.8)%100)+'%;width:'+size+'px;height:'+size+'px;background:'+colors[i%colors.length]+';border-radius:'+((i%2)?'50%':'2px')+';opacity:.95;transform:rotate('+(i*40)+'deg);animation:confFall '+(1.1+(i%5)*0.25)+'s cubic-bezier(.25,.7,.4,1) '+((i%6)*0.05)+'s forwards';
+      layer.appendChild(c);
+    }
+    document.body.appendChild(layer);
+    setTimeout(()=>{ try { layer.remove(); } catch(_){} }, 2800);
+  } catch(_){}
+}
+
 function takePhoto() {
   const video = document.getElementById('cameraVideo');
   if (!video.srcObject || !video.videoWidth) return; // éviter une capture vide si la caméra n'est pas prête
+  haptic(35); // « clic » de l'obturateur
 
   const track    = cameraStream ? cameraStream.getVideoTracks()[0] : null;
   const hasTorch = track && track.getCapabilities && track.getCapabilities().torch;
@@ -2742,6 +2771,7 @@ function startCatFloat(emoji) {
 }
 
 function selectCategory(id, emoji, name) {
+  haptic(12);
   selectedCategory = { id, emoji, name };
   document.querySelectorAll('.flip-front').forEach(c => c.classList.remove('flip-sel'));
   const _sf = document.getElementById('front-' + id); if (_sf) _sf.classList.add('flip-sel');
@@ -2913,8 +2943,10 @@ async function doUpload() {
   document.getElementById('prog').style.display='none';
 
   if (done>0) {
+    haptic([0,40,60,40]); // petite célébration tactile
+    celebrate();           // confettis « partage réussi »
     selectedFiles=[]; renderPreviews(); setProgress(0,1);
-    showToast(`✦  ${done} photo${done>1?'s':''} partagée${done>1?'s':''} dans ${selectedCategory.emoji} ${selectedCategory.name} — merci !`, false);
+    showToast(`✦  ${done} ${done>1?'souvenirs partagés':'souvenir partagé'} dans ${selectedCategory.emoji} ${selectedCategory.name} — merci ! 🎉`, false);
     // Recharger allPhotos pour que la galerie soit à jour
     refreshAllPhotos();
   }
@@ -3135,6 +3167,7 @@ function setLike(photoId, val) {
 }
 
 async function toggleLike(photoId, btn) {
+  haptic(12);
   const liked    = getLike(photoId);
   const countEl  = document.getElementById('likes-' + photoId);
   const current  = parseInt(countEl ? countEl.textContent : '0') || 0;
