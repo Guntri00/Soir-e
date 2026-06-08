@@ -2028,6 +2028,7 @@ async function initVideoCamera() {
   }
 }
 
+let _videoNoMic = false; // bascule sur caméra seule si le micro est refusé (iOS)
 async function requestVideoPermission() {
   const vid     = document.getElementById('videoLive');
   const permEl  = document.getElementById('videoPermission');
@@ -2036,35 +2037,47 @@ async function requestVideoPermission() {
   if (btn) { btn.disabled = true; btn.textContent = 'Activation…'; }
 
   const f = videoFacingMode;
-  const tries = [
-    { video: { facingMode: f, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30} }, audio: true },
-    { video: { facingMode: f, width:{ideal:1280}, height:{ideal:720},  frameRate:{ideal:30} }, audio: true },
-    { video: { facingMode: f }, audio: true },
-    { video: true, audio: true },
-    { video: true, audio: false }
-  ];
-  for (const c of tries) {
-    try {
-      videoStream  = await navigator.mediaDevices.getUserMedia(c);
-      cameraStream = new MediaStream(videoStream.getVideoTracks());
-      try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
-      videoStream.getTracks().forEach(t => {
-        t.addEventListener('ended', () => {
-          if (document.hidden) return;
-          _videoWasActive = true;
-          _reacquireCameraWithRetry();
-        });
-      });
-      if (permEl)  permEl.style.display = 'none';
-      if (recWrap) recWrap.style.display = 'block';
-      vid.srcObject = videoStream;
-      await vid.play().catch(() => {});
-      if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
-      return;
-    } catch(err) { videoStream = null; }
+  const wantAudio = !_videoNoMic;
+  // iOS n'autorise getUserMedia QUE dans le geste utilisateur → une SEULE demande par tap (pas de boucle hors geste)
+  let stream = null, err = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: f, width:{ideal:1280}, height:{ideal:720}, frameRate:{ideal:30} },
+      audio: wantAudio
+    });
+  } catch(e) { err = e; stream = null; }
+
+  if (!stream) {
+    if (recWrap) recWrap.style.display = 'none';
+    if (permEl)  permEl.style.display = 'flex';
+    if (wantAudio && err && err.name === 'NotAllowedError') {
+      // Permission refusée AVEC le micro → on retentera en caméra SEULE au prochain tap (sans son)
+      _videoNoMic = true;
+      if (btn) { btn.disabled = false; btn.textContent = '📷 Activer la caméra (sans son)'; }
+      showToast('Micro non autorisé. Touchez le bouton pour filmer sans son — ou autorisez le micro dans les Réglages.');
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = 'Réessayer'; }
+      showToast('Caméra momentanément indisponible — touchez « Réessayer ». Sinon : Réglages → Safari → Caméra/Micro.');
+    }
+    return;
   }
+
+  if (_videoNoMic) showDlToast('🎤 Vidéo sans son (micro non autorisé)');
+  videoStream  = stream;
+  cameraStream = new MediaStream(videoStream.getVideoTracks());
+  try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+  videoStream.getTracks().forEach(t => {
+    t.addEventListener('ended', () => {
+      if (document.hidden) return;
+      _videoWasActive = true;
+      _reacquireCameraWithRetry();
+    });
+  });
+  if (permEl)  permEl.style.display = 'none';
+  if (recWrap) recWrap.style.display = 'block';
+  vid.srcObject = videoStream;
+  await vid.play().catch(() => {});
   if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
-  showToast('Caméra non disponible — vérifiez les permissions dans votre navigateur');
 }
 
 // Changer de caméra (avant/arrière) en mode vidéo
