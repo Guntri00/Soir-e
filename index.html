@@ -644,32 +644,24 @@ to{opacity:1;transform:translateY(0)}}
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='none' stroke='%23c8a050' stroke-width='0.6' opacity='0.8'%3E%3Cellipse cx='80' cy='80' rx='28' ry='28'/%3E%3Cellipse cx='80' cy='80' rx='20' ry='20'/%3E%3Cpath d='M80,52 Q90,65 80,70 Q70,65 80,52Z'/%3E%3Cpath d='M80,108 Q90,95 80,90 Q70,95 80,108Z'/%3E%3Cpath d='M52,80 Q65,90 70,80 Q65,70 52,80Z'/%3E%3Cpath d='M108,80 Q95,90 90,80 Q95,70 108,80Z'/%3E%3Cpath d='M60,60 Q70,72 65,78 Q58,72 60,60Z'/%3E%3Cpath d='M100,60 Q90,72 95,78 Q102,72 100,60Z'/%3E%3Cpath d='M60,100 Q70,88 65,82 Q58,88 60,100Z'/%3E%3Cpath d='M100,100 Q90,88 95,82 Q102,88 100,100Z'/%3E%3Cpath d='M80,10 Q88,24 80,30 Q72,24 80,10Z'/%3E%3Cpath d='M80,0 Q80,8 80,12'/%3E%3Cpath d='M74,20 Q80,16 86,20'/%3E%3Cpath d='M80,150 Q88,136 80,130 Q72,136 80,150Z'/%3E%3Cpath d='M80,160 Q80,152 80,148'/%3E%3Cpath d='M74,140 Q80,144 86,140'/%3E%3Cpath d='M10,80 Q24,88 30,80 Q24,72 10,80Z'/%3E%3Cpath d='M0,80 Q8,80 12,80'/%3E%3Cpath d='M20,74 Q16,80 20,86'/%3E%3Cpath d='M150,80 Q136,88 130,80 Q136,72 150,80Z'/%3E%3Cpath d='M160,80 Q152,80 148,80'/%3E%3Cpath d='M140,74 Q144,80 140,86'/%3E%3C/g%3E%3C/svg%3E");
   background-size:160px 160px;
 }
-#cocktail-vector{
+#cocktail-visual{
   position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;
   pointer-events:none;transform:translate3d(var(--mx,0px),var(--my,0px),0);
   transition:transform .35s ease-out;
 }
-.cocktail-svg{
-  width:min(82vw,440px);height:min(74vh,680px);overflow:visible;
-  filter:drop-shadow(0 24px 45px rgba(0,0,0,.36));
-  animation:cocktailFloat 5.8s ease-in-out infinite;
+.cocktail-ai-img{
+  width:min(92vw,500px);height:min(86vh,760px);object-fit:contain;
+  opacity:.94;filter:drop-shadow(0 24px 45px rgba(0,0,0,.38));
+  animation:cocktailFloat 6.2s ease-in-out infinite;
+  transform-origin:50% 52%;
 }
-.cocktail-glow{animation:cocktailGlow 3.8s ease-in-out infinite}
-.cocktail-bubbles circle{animation:bubbleRise 3.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-.cocktail-bubbles circle:nth-child(2){animation-delay:.45s}
-.cocktail-bubbles circle:nth-child(3){animation-delay:.9s}
-.cocktail-bubbles circle:nth-child(4){animation-delay:1.3s}
-.cocktail-bubbles circle:nth-child(5){animation-delay:1.75s}
-.cocktail-bubbles circle:nth-child(6){animation-delay:2.15s}
-.cocktail-sparkles path,.cocktail-sparkles circle{animation:sparklePulse 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-.cocktail-sparkles path:nth-child(2){animation-delay:.6s}
-.cocktail-sparkles circle:nth-child(3){animation-delay:1.15s}
-.cocktail-liquid{animation:liquidWave 4.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
-@keyframes cocktailFloat{0%,100%{transform:translateY(8px) rotate(-1.4deg)}50%{transform:translateY(-14px) rotate(1.4deg)}}
-@keyframes cocktailGlow{0%,100%{opacity:.35;transform:scale(.96)}50%{opacity:.68;transform:scale(1.04)}}
-@keyframes bubbleRise{0%{opacity:0;transform:translateY(22px) scale(.72)}25%{opacity:.72}100%{opacity:0;transform:translateY(-42px) scale(1.08)}}
-@keyframes sparklePulse{0%,100%{opacity:.22;transform:scale(.86) rotate(0deg)}50%{opacity:.85;transform:scale(1.18) rotate(18deg)}}
-@keyframes liquidWave{0%,100%{transform:translateX(-2px) rotate(-.6deg)}50%{transform:translateX(3px) rotate(.6deg)}}
+#cocktail-visual::after{
+  content:"";position:absolute;width:min(68vw,360px);height:min(62vw,360px);
+  border-radius:50%;background:radial-gradient(circle,rgba(255,122,26,.26),transparent 68%);
+  filter:blur(8px);animation:cocktailGlow 4s ease-in-out infinite;z-index:-1;
+}
+@keyframes cocktailFloat{0%,100%{transform:translateY(10px) rotate(-1.2deg) scale(1)}50%{transform:translateY(-16px) rotate(1.2deg) scale(1.015)}}
+@keyframes cocktailGlow{0%,100%{opacity:.32;transform:scale(.94)}50%{opacity:.72;transform:scale(1.08)}}
 .intro-vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 60% 55% at 50% 50%, transparent 30%, rgba(18,12,4,.45) 100%)}
 .intro-edges{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 85% 85% at 50% 50%, transparent 55%, rgba(12,8,2,.55) 100%)}
 .intro-top{position:relative;z-index:3;text-align:center;padding-top:clamp(40px,8vh,80px);animation:fadeDown 1.3s ease .4s both}
@@ -737,7 +729,6 @@ to{opacity:1;transform:translateY(0)}}
   <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png">
   <meta name="msapplication-TileImage" content="/icons/icon-192.png">
   <meta name="msapplication-TileColor" content="#2D3748">
-<script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // Service Worker : register + auto-update quand nouvelle version déployée
@@ -820,7 +811,9 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 <!-- ══ INTRO MEMENTOS ══ -->
 <div id="introScreen" onclick="closeIntro()">
   <div class="intro-damask"></div>
-  <canvas id="ring-canvas"></canvas>
+  <div id="cocktail-visual" aria-hidden="true">
+    <img class="cocktail-ai-img" src="cocktail-intro-ai.png" alt="">
+  </div>
   <div class="intro-edges"></div>
   <div class="intro-vignette"></div>
   <div class="intro-top">
@@ -866,142 +859,16 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 
 </script>
 
-<!-- THREE.JS SUMMER COCKTAIL ANIMATION -->
+<!-- AI COCKTAIL IMAGE ANIMATION -->
 <script>
 (function(){
-  var canvas = document.getElementById('ring-canvas');
-  if (!canvas || typeof THREE === 'undefined') return;
-  var W = window.innerWidth, H = window.innerHeight;
-  var renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:true});
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(W, H);
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 2.8;
-  var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(42, W/H, 0.1, 100);
-  camera.position.z = 6.15;
-  scene.add(new THREE.AmbientLight(0xffffff, 4.5));
-  var key = new THREE.PointLight(0xfff4d6, 220, 30);
-  key.position.set(3, 4, 4); scene.add(key);
-  var fill = new THREE.PointLight(0xffcaa0, 120, 24);
-  fill.position.set(-4, 1, 3); scene.add(fill);
-  var rim = new THREE.PointLight(0xff8a5b, 80, 20);
-  rim.position.set(0, -4, -2); scene.add(rim);
-  var front = new THREE.PointLight(0xffffff, 100, 22);
-  front.position.set(0, 0, 5); scene.add(front);
-  var cocktail = new THREE.Group();
-  cocktail.scale.set(0.86, 0.86, 0.86);
-  cocktail.position.y = -0.08;
-  scene.add(cocktail);
-
-  var glassMat = new THREE.MeshPhysicalMaterial({
-    color:0xffffff, metalness:0, roughness:0.04, transparent:true, opacity:0.28,
-    transmission:0.65, thickness:0.08, clearcoat:1, clearcoatRoughness:0.02
-  });
-  var rimMat = new THREE.MeshStandardMaterial({color:0xfff3e0, metalness:0.18, roughness:0.18, transparent:true, opacity:0.52});
-  var drinkMat = new THREE.MeshPhysicalMaterial({color:0xff7a1a, roughness:0.18, transparent:true, opacity:0.82, transmission:0.1});
-  var iceMat = new THREE.MeshPhysicalMaterial({color:0xdff8ff, roughness:0.08, transparent:true, opacity:0.48, transmission:0.55});
-  var strawMat = new THREE.MeshStandardMaterial({color:0xf0414e, metalness:0.05, roughness:0.32, transparent:true, opacity:0.78});
-  var citrusMat = new THREE.MeshStandardMaterial({color:0xffd166, metalness:0.02, roughness:0.38});
-  var leafMat = new THREE.MeshStandardMaterial({color:0x7dbf7a, metalness:0.02, roughness:0.45});
-
-  var bowl = new THREE.Mesh(new THREE.ConeGeometry(0.98, 1.25, 96, 1, true), glassMat);
-  bowl.position.y = 0.55;
-  bowl.rotation.x = Math.PI;
-  cocktail.add(bowl);
-
-  var rimGlass = new THREE.Mesh(new THREE.TorusGeometry(0.98, 0.035, 24, 128), rimMat);
-  rimGlass.position.y = 1.18;
-  cocktail.add(rimGlass);
-
-  var drink = new THREE.Mesh(new THREE.CylinderGeometry(0.78, 0.58, 0.36, 96), drinkMat);
-  drink.position.y = 0.72;
-  cocktail.add(drink);
-
-  var drinkTop = new THREE.Mesh(new THREE.CircleGeometry(0.78, 96), drinkMat);
-  drinkTop.rotation.x = -Math.PI / 2;
-  drinkTop.position.y = 0.9;
-  cocktail.add(drinkTop);
-
-  var stem = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.08, 1.18, 48), glassMat);
-  stem.position.y = -0.5;
-  cocktail.add(stem);
-
-  var foot = new THREE.Mesh(new THREE.CylinderGeometry(0.58, 0.45, 0.08, 80), rimMat);
-  foot.position.y = -1.12;
-  cocktail.add(foot);
-
-  var straw = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.65, 24), strawMat);
-  straw.position.set(0.54, 0.74, -0.05);
-  straw.rotation.z = -0.32;
-  cocktail.add(straw);
-
-  var strawTop = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.45, 24), strawMat);
-  strawTop.position.set(0.86, 1.38, -0.05);
-  strawTop.rotation.z = -0.95;
-  cocktail.add(strawTop);
-
-  for (var ci=0; ci<4; ci++) {
-    var ice = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.18, 0.22), iceMat);
-    ice.position.set(-0.36 + ci * 0.24, 0.82 + Math.sin(ci) * 0.05, (ci % 2 ? -0.18 : 0.16));
-    ice.rotation.set(ci * 0.6, ci * 0.35, ci * 0.42);
-    cocktail.add(ice);
-  }
-
-  var citrus = new THREE.Mesh(new THREE.TorusGeometry(0.23, 0.055, 16, 64, Math.PI * 1.35), citrusMat);
-  citrus.position.set(-0.76, 1.08, 0.08);
-  citrus.rotation.set(0.35, 0.2, -0.85);
-  cocktail.add(citrus);
-
-  var leaf = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 12), leafMat);
-  leaf.scale.set(1.55, 0.26, 0.55);
-  leaf.position.set(-0.56, 1.22, 0.02);
-  leaf.rotation.z = -0.5;
-  cocktail.add(leaf);
-
-  var glow = new THREE.PointLight(0xff8a3d, 10, 3.2);
-  glow.position.set(0, 0.55, 0.4);
-  cocktail.add(glow);
-
-  var bubbles = [];
-  var bubbleMat = new THREE.MeshStandardMaterial({color:0xfff3e0, roughness:0.2, transparent:true, opacity:0.62});
-  for (var bi=0; bi<18; bi++) {
-    var bubble = new THREE.Mesh(new THREE.SphereGeometry(0.018 + Math.random() * 0.018, 12, 8), bubbleMat);
-    bubble.userData = {baseY:0.56 + Math.random() * 0.38, speed:0.7 + Math.random() * 1.2, phase:Math.random() * 6.28};
-    bubble.position.set((Math.random() - 0.5) * 1.1, bubble.userData.baseY, (Math.random() - 0.5) * 0.42);
-    cocktail.add(bubble);
-    bubbles.push(bubble);
-  }
-  var N = 120, pos = new Float32Array(N*3);
-  for(var pi=0; pi<N; pi++){
-    pos[pi*3]=(Math.random()-.5)*16; pos[pi*3+1]=(Math.random()-.5)*16; pos[pi*3+2]=(Math.random()-.5)*8-1;
-  }
-  var ptGeo = new THREE.BufferGeometry();
-  ptGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  scene.add(new THREE.Points(ptGeo, new THREE.PointsMaterial({color:0xf5b83d, size:0.04, transparent:true, opacity:0.5})));
-  var mx=0, my=0;
+  var visual = document.getElementById('cocktail-visual');
+  if (!visual) return;
   document.addEventListener('mousemove', function(e){
-    mx=(e.clientX/innerWidth-.5)*2; my=-(e.clientY/innerHeight-.5)*2;
-  });
-  var t=0;
-  (function loop(){
-    requestAnimationFrame(loop); t+=0.007;
-    cocktail.rotation.y=t*0.42+mx*0.16;
-    cocktail.rotation.x=Math.sin(t*0.35)*0.12+my*0.08;
-    cocktail.rotation.z=Math.cos(t*0.32)*0.045;
-    cocktail.position.y=Math.sin(t*0.6)*0.12;
-    for (var bj=0; bj<bubbles.length; bj++) {
-      var b = bubbles[bj], offset = (t * b.userData.speed + b.userData.phase) % 0.42;
-      b.position.y = b.userData.baseY + offset;
-      b.material.opacity = 0.32 + Math.sin(t * 3 + b.userData.phase) * 0.16;
-    }
-    key.position.x=Math.sin(t*0.4)*4+2; key.position.y=Math.cos(t*0.32)*2.5+3;
-    glow.intensity=8+Math.sin(t*3.5)*2.2;
-    renderer.render(scene, camera);
-  })();
-  window.addEventListener('resize', function(){
-    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
-    renderer.setSize(innerWidth, innerHeight);
+    var mx = (e.clientX / innerWidth - 0.5) * 18;
+    var my = (e.clientY / innerHeight - 0.5) * 14;
+    visual.style.setProperty('--mx', mx.toFixed(2) + 'px');
+    visual.style.setProperty('--my', my.toFixed(2) + 'px');
   });
 })();
 </script>
