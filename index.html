@@ -529,6 +529,11 @@ footer a{color:var(--gold);text-decoration:none}
 }
 
 /* ─── ANIMATION 🌅✨ ─── */
+/* Emoji de la catégorie choisie qui flotte en fond (masqué pendant la capture photo/vidéo) */
+#catRain{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+body.capturing #catRain{display:none}
+.cat-float{position:fixed;top:-8vh;opacity:0;pointer-events:none;user-select:none;will-change:transform,opacity;animation:catFloatDrift linear infinite}
+@keyframes catFloatDrift{0%{transform:translateY(-8vh) rotate(0);opacity:0}10%{opacity:.20}50%{transform:translateY(52vh) rotate(180deg);opacity:.15}90%{opacity:.10}100%{transform:translateY(116vh) rotate(360deg);opacity:0}}
 .charm{position:fixed;top:-60px;opacity:0;animation:charmFall linear infinite;pointer-events:none;z-index:0;user-select:none;will-change:transform,opacity}
 .charm:nth-child(1){left:3%;animation-duration:16s;animation-delay:0s;font-size:15px}
 .charm:nth-child(2){left:11%;animation-duration:21s;animation-delay:-4s;font-size:22px}
@@ -1272,6 +1277,7 @@ header::before{opacity:.62;filter:blur(1px)}
 <span class="charm">🍓</span><span class="charm">🌞</span><span class="charm">🍦</span>
 <span class="charm">🍍</span><span class="charm">🎊</span><span class="charm">🥳</span>
 <span class="charm">🍾</span><span class="charm">🪅</span>
+<div id="catRain" aria-hidden="true"></div>
 
 <!-- ══ INTRO MEMENTOS ══ -->
 <div id="introScreen" onclick="closeIntro()">
@@ -2043,6 +2049,8 @@ function switchUploadTab(tab) {
     stopCamera();
     stopVideoCamera();
   }
+  // Masquer l'emoji flottant pendant la prise de photo/vidéo
+  document.body.classList.toggle('capturing', tab === 'camera' || tab === 'video');
 }
 
 // ══════════════════════════════════════════
@@ -2305,6 +2313,8 @@ function switchTab(id, btn) {
   document.getElementById('panel-' + id).classList.add('on');
   if (id === 'gallery') loadGallery();
   else { stopAllSliders(); stopCamera(); }
+  // En dehors de l'onglet Partager, on n'est plus en capture → l'emoji peut flotter
+  if (id !== 'upload') document.body.classList.remove('capturing');
 
   // Réinitialiser la galerie à la vue widgets quand on quitte l'onglet
   if (id !== 'gallery') {
@@ -2318,12 +2328,32 @@ function switchTab(id, btn) {
 // ══════════════════════════════════════════
 // (flipCard retiré : le clic sur une carte sélectionne directement la catégorie)
 
+// Fait flotter doucement l'emoji de la catégorie choisie en fond (masqué en mode caméra/vidéo)
+function startCatFloat(emoji) {
+  const layer = document.getElementById('catRain');
+  if (!layer) return;
+  layer.innerHTML = '';
+  if (!emoji) return;
+  const N = 9;
+  for (let i = 0; i < N; i++) {
+    const s = document.createElement('span');
+    s.className = 'cat-float';
+    s.textContent = emoji;
+    s.style.left = (4 + i * 10.5).toFixed(1) + '%';
+    s.style.fontSize = (14 + (i * 7) % 20) + 'px';
+    s.style.animationDuration = (15 + (i * 3) % 9) + 's';
+    s.style.animationDelay = (-(i * 2.3)).toFixed(1) + 's';
+    layer.appendChild(s);
+  }
+}
+
 function selectCategory(id, emoji, name) {
   selectedCategory = { id, emoji, name };
   document.querySelectorAll('.flip-front').forEach(c => c.classList.remove('flip-sel'));
   const _sf = document.getElementById('front-' + id); if (_sf) _sf.classList.add('flip-sel');
   document.getElementById('badge-emoji').textContent = emoji;
   document.getElementById('badge-name').textContent  = name;
+  startCatFloat(emoji);
   setTimeout(() => {
     document.getElementById('step-category').style.display = 'none';
     document.getElementById('step-upload').classList.add('visible');
