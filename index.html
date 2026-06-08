@@ -2489,10 +2489,23 @@ async function flipCamera() {
   const permEl = document.getElementById('cameraPermission');
   if (permEl) permEl.style.display = 'none';
   if (wrapEl) wrapEl.style.display = 'block';
-  // Transition FLUIDE : on floute/atténue l'aperçu pendant le court instant de bascule (masque la coupure)
-  if (video) { video.style.transition = 'filter .26s ease, opacity .26s ease'; video.style.filter = 'blur(14px)'; video.style.opacity = '.55'; }
+  let freezeEl = null;
   try {
     const want = (facingMode === 'environment') ? 'user' : 'environment';
+    // Transition FLUIDE : on FIGE la dernière image (canvas) au-dessus de l'aperçu pendant la bascule.
+    // (Couper le flux vide l'aperçu = écran noir → l'image figée floutée masque ce trou, puis disparaît en fondu.)
+    if (video && video.videoWidth && video.parentNode) {
+      try {
+        if (wrapEl) wrapEl.querySelectorAll('.cam-freeze').forEach(e => e.remove());
+        const cv = document.createElement('canvas');
+        cv.width = video.videoWidth; cv.height = video.videoHeight;
+        cv.getContext('2d').drawImage(video, 0, 0);
+        cv.className = 'cam-freeze';
+        cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(16px);transform:scale(1.08);z-index:4;opacity:1;transition:opacity .32s ease;pointer-events:none';
+        video.parentNode.appendChild(cv);
+        freezeEl = cv;
+      } catch(_){}
+    }
     // mémoriser le deviceId du côté ACTUEL avant de couper (pour revenir vite plus tard)
     try { const s0 = cameraStream && cameraStream.getVideoTracks()[0] && cameraStream.getVideoTracks()[0].getSettings(); if (s0 && s0.deviceId) _camCache[facingMode] = s0.deviceId; } catch(_){}
     if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
@@ -2529,7 +2542,8 @@ async function flipCamera() {
   } finally {
     _reacquireBusy = false;
     if (flipBtn) flipBtn.style.opacity = '';
-    if (video) { video.style.filter = ''; video.style.opacity = '1'; } // ré-apparition nette de la nouvelle caméra
+    // retirer l'image figée en fondu → la nouvelle caméra apparaît en douceur (plus d'écran noir)
+    if (freezeEl) { freezeEl.style.opacity = '0'; const f = freezeEl; setTimeout(() => { try { f.remove(); } catch(_){} }, 360); }
   }
 }
 
