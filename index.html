@@ -11,6 +11,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html{color-scheme:only light;background:#FF8A3D}
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.45s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
 :root{color-scheme:only light;--primary:#FF7A1A;--secondary:#F0414E;--accent:#FFD166;--coral:#FF6B6B;--sand:#FFF3E0;--text:#2D3748;--white:#FFFFFF;--gradient:linear-gradient(135deg,#FF7A1A 0%,#F0414E 50%,#FFD166 100%);--cream:#FFF3E0;--warm:#FFFFFF;--gold:#FF7A1A;--gold-l:#F0414E;--gold-m:#FFD9A0;--dark:#2D3748;--stone:#6B4A2C;--charcoal:#C0341B}
 body{background:linear-gradient(160deg,#FFCE3A 0%,#FF8A3D 50%,#F0414E 100%);background-repeat:no-repeat;font-family:'Jost',sans-serif;font-weight:300;color:var(--dark);min-height:100vh}
 .btn-primary{background:var(--primary);color:var(--white)}
@@ -713,6 +715,57 @@ to{opacity:1;transform:translateY(0)}}
 }
 .cocktail-depth.orbit-a{transform:translateZ(-95px) rotateX(68deg) rotateZ(12deg);animation:orbitSpinA 10s linear infinite}
 .cocktail-depth.orbit-b{inset:16% 14%;border-color:rgba(255,243,224,.2);transform:translateZ(80px) rotateX(72deg) rotateZ(-20deg);animation:orbitSpinB 13s linear infinite}
+.summer-sun-3d{
+  position:absolute;left:50%;top:45%;width:min(74vw,410px);height:min(74vw,410px);
+  border-radius:50%;z-index:0;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 16px,rgba(42,14,34,.32) 16px 19px),
+    radial-gradient(circle at 50% 40%,rgba(255,243,224,.9) 0 6%,rgba(255,209,102,.82) 18%,rgba(255,122,26,.48) 42%,transparent 70%);
+  filter:blur(.2px) drop-shadow(0 0 46px rgba(255,122,26,.32));
+  transform:translate3d(-50%,-50%,-210px) rotateX(6deg);
+  animation:summerSunPulse 7s ease-in-out infinite;
+}
+.summer-floor-3d{
+  position:absolute;left:12%;right:12%;bottom:7%;height:28%;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(rgba(255,209,102,.35) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,122,26,.28) 1px,transparent 1px),
+    radial-gradient(ellipse at 50% 20%,rgba(255,122,26,.24),transparent 68%);
+  background-size:100% 20%,12.5% 100%,100% 100%;
+  border:1px solid rgba(255,209,102,.2);border-radius:8px;
+  transform-origin:50% 100%;transform:translateZ(-58px) rotateX(72deg);
+  animation:floorPulse 3.8s ease-in-out infinite;
+}
+.summer-disco-3d{
+  position:absolute;right:15%;top:14%;width:72px;height:72px;border-radius:50%;z-index:4;pointer-events:none;
+  background:
+    linear-gradient(45deg,rgba(255,255,255,.5) 0 10%,transparent 10% 20%,rgba(255,122,26,.38) 20% 30%,transparent 30% 40%,rgba(255,243,224,.42) 40% 52%,transparent 52%),
+    conic-gradient(from 20deg,#fff3e0,#ffd166,#f0414e,#fff3e0,#ff7a1a,#fff3e0);
+  box-shadow:0 0 24px rgba(255,209,102,.46),inset -10px -12px 18px rgba(42,14,34,.32);
+  transform:translateZ(150px) rotateX(-9deg);
+  animation:discoSpin 6.5s linear infinite;
+}
+.summer-garland-3d{
+  position:absolute;left:2%;right:2%;top:7%;height:70px;z-index:4;pointer-events:none;
+  border-top:1px solid rgba(255,209,102,.34);border-radius:50%;
+  transform:translateZ(105px) rotateX(-8deg);
+}
+.summer-bulb{
+  position:absolute;top:-2px;width:8px;height:8px;border-radius:50%;
+  background:#ffd166;box-shadow:0 0 18px rgba(255,209,102,.8);
+  animation:bulbTwinkle 2.8s ease-in-out infinite;
+}
+.summer-bulb:nth-child(1){left:9%;animation-delay:.1s}.summer-bulb:nth-child(2){left:25%;background:#fff3e0;animation-delay:.6s}
+.summer-bulb:nth-child(3){left:43%;background:#ff7a1a;animation-delay:1.1s}.summer-bulb:nth-child(4){left:61%;background:#fff3e0;animation-delay:1.6s}
+.summer-bulb:nth-child(5){left:78%;animation-delay:2.1s}.summer-bulb:nth-child(6){left:91%;background:#f0414e;animation-delay:2.5s}
+.summer-beam{
+  position:absolute;top:8%;height:74%;width:22%;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,209,102,.2),transparent 72%);
+  filter:blur(10px);opacity:.42;transform-origin:50% 0;
+  animation:beamSweep 8s ease-in-out infinite;
+}
+.summer-beam.beam-a{left:18%;transform:translateZ(-145px) rotateZ(-18deg)}
+.summer-beam.beam-b{right:18%;background:linear-gradient(180deg,rgba(240,65,78,.18),transparent 72%);animation-delay:-3.6s;transform:translateZ(-120px) rotateZ(18deg)}
 .cocktail-glow-3d{
   position:absolute;left:50%;top:50%;width:min(72vw,380px);height:min(66vw,380px);
   border-radius:50%;background:radial-gradient(circle,rgba(255,122,26,.3),transparent 68%);
@@ -758,6 +811,17 @@ to{opacity:1;transform:translateY(0)}}
 }
 @keyframes orbitSpinB{
   to{transform:translateZ(80px) rotateX(72deg) rotateZ(-380deg)}
+}
+@keyframes summerSunPulse{
+  0%,100%{opacity:.72;transform:translate3d(-50%,-50%,-230px) rotateX(6deg) scale(.96)}
+  50%{opacity:.95;transform:translate3d(-50%,-50%,-195px) rotateX(6deg) scale(1.04)}
+}
+@keyframes floorPulse{0%,100%{opacity:.42;filter:saturate(1)}50%{opacity:.78;filter:saturate(1.35)}}
+@keyframes discoSpin{to{transform:translateZ(150px) rotateX(-9deg) rotateY(360deg) rotateZ(18deg)}}
+@keyframes bulbTwinkle{0%,100%{opacity:.45;transform:translateY(0) scale(.78)}50%{opacity:1;transform:translateY(6px) scale(1.12)}}
+@keyframes beamSweep{
+  0%,100%{opacity:.18;rotate:-8deg}
+  50%{opacity:.52;rotate:8deg}
 }
 @keyframes particleDrift{0%,100%{opacity:.15;translate:0 12px}45%{opacity:.85;translate:0 -14px}70%{opacity:.35}}
 .intro-vignette{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse 60% 55% at 50% 50%, transparent 30%, rgba(18,12,4,.45) 100%)}
@@ -895,6 +959,176 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
 .lb-share:hover{background:var(--charcoal)}
 .lb-share:active{transform:scale(.96)}
 .lb-share:disabled{opacity:.6;cursor:default}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SOIREE D'ETE - MOTION REDESIGN GLOBAL
+═══════════════════════════════════════════════════════════════════════════ */
+body{
+  position:relative;
+  background:
+    radial-gradient(circle at 18% 8%,rgba(255,243,224,.7),transparent 26%),
+    radial-gradient(circle at 88% 18%,rgba(240,65,78,.42),transparent 28%),
+    linear-gradient(160deg,#ffd166 0%,#ff8a3d 42%,#f0414e 78%,#2a0e22 125%);
+  overflow-x:hidden;
+}
+body::before,body::after{
+  content:"";position:fixed;inset:-20%;pointer-events:none;z-index:-1;
+}
+body::before{
+  background:
+    repeating-linear-gradient(115deg,rgba(255,255,255,.12) 0 1px,transparent 1px 34px),
+    radial-gradient(circle at 28% 32%,rgba(255,255,255,.22),transparent 10%),
+    radial-gradient(circle at 74% 68%,rgba(255,209,102,.24),transparent 12%);
+  mix-blend-mode:soft-light;animation:summerAurora 18s ease-in-out infinite alternate;
+}
+body::after{
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.42) 0 1px,transparent 2px),
+    radial-gradient(circle,rgba(255,209,102,.38) 0 1px,transparent 2px);
+  background-size:90px 90px,130px 130px;background-position:0 0,28px 40px;
+  animation:summerSparkleField 28s linear infinite;opacity:.48;
+}
+header{position:relative;isolation:isolate}
+header::before{
+  content:"";position:absolute;left:50%;top:22px;width:min(74vw,420px);height:130px;
+  transform:translateX(-50%);z-index:-1;border-radius:50%;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 13px,rgba(192,52,27,.16) 13px 15px),
+    radial-gradient(ellipse at 50% 44%,rgba(255,243,224,.65),rgba(255,209,102,.42) 34%,transparent 70%);
+  filter:blur(.2px);animation:headerSunBreath 7s ease-in-out infinite;
+}
+.orn{animation:ornFloat 5s ease-in-out infinite}
+.od{box-shadow:0 0 16px rgba(255,122,26,.55);animation:diamondPulse 2.8s ease-in-out infinite}
+.tab,.upload-tab,.ubtn,.sbtn,.qr-dl,.dl-all-btn,.flip-btn-3d,.cam-retake,.cam-keep{
+  position:relative;overflow:hidden;
+}
+.tab::after,.upload-tab::after,.ubtn::after,.sbtn::after,.qr-dl::after,.dl-all-btn::after,.flip-btn-3d::after,.cam-retake::after,.cam-keep::after{
+  content:"";position:absolute;inset:0;translate:-120% 0;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.42),transparent);
+  transition:translate .55s ease;pointer-events:none;
+}
+.tab:hover::after,.upload-tab:hover::after,.ubtn:hover::after,.sbtn:hover::after,.qr-dl:hover::after,.dl-all-btn:hover::after,.flip-btn-3d:hover::after,.cam-retake:hover::after,.cam-keep:hover::after{translate:120% 0}
+.tab.on{box-shadow:0 10px 28px rgba(42,14,34,.22),inset 0 0 0 1px rgba(255,255,255,.06)}
+.flip-wrap{perspective:900px;animation:cardBreathe 5.8s ease-in-out infinite}
+.flip-wrap:nth-child(2){animation-delay:.45s}
+.flip-wrap:nth-child(3){animation-delay:.9s}
+.flip-wrap:nth-child(4){animation-delay:1.35s}
+.flip-face{overflow:hidden}
+.flip-front::before,.cat-pill::before,.zone::before,.qr-box::before,.cat-widget::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 18%,rgba(255,209,102,.34),transparent 18%),
+    linear-gradient(135deg,rgba(255,255,255,.42),transparent 42%,rgba(255,122,26,.12));
+  opacity:.65;mix-blend-mode:screen;
+}
+.flip-front::after{
+  content:"";position:absolute;right:-18px;bottom:-20px;width:74px;height:74px;border-radius:50%;
+  border:1px solid rgba(255,122,26,.22);box-shadow:inset 0 0 0 12px rgba(255,209,102,.12);
+  animation:summerSlice 6s linear infinite;pointer-events:none;
+}
+#front-ceremonie::after{border-radius:52% 48% 50% 50%;background:radial-gradient(circle,rgba(255,122,26,.22),transparent 62%)}
+#front-cocktail::after{background:repeating-linear-gradient(45deg,rgba(192,52,27,.18) 0 5px,transparent 5px 10px)}
+#front-diner::after{box-shadow:inset 0 0 0 12px rgba(240,65,78,.12),0 0 18px rgba(240,65,78,.14)}
+#front-danse::after{background:conic-gradient(from 20deg,rgba(255,255,255,.45),rgba(255,209,102,.2),rgba(240,65,78,.2),rgba(255,255,255,.45))}
+.flip-emoji,.cat-pill-emoji,.cw-emoji,#badge-emoji,#detail-cat-emoji{filter:drop-shadow(0 8px 12px rgba(192,52,27,.18));animation:emojiBob 4.4s ease-in-out infinite}
+.zone{
+  position:relative;overflow:hidden;border-radius:14px;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,243,224,.92)),
+    radial-gradient(circle at 20% 0,rgba(255,209,102,.3),transparent 30%);
+}
+.zone::after{
+  content:"";position:absolute;left:-10%;right:-10%;bottom:-22px;height:58px;
+  background:
+    radial-gradient(ellipse at 16% 0,rgba(255,122,26,.18),transparent 42%),
+    radial-gradient(ellipse at 48% 0,rgba(255,209,102,.2),transparent 42%),
+    radial-gradient(ellipse at 82% 0,rgba(240,65,78,.15),transparent 42%);
+  animation:waveDrift 5s ease-in-out infinite;pointer-events:none;
+}
+.uico{position:relative;box-shadow:0 10px 24px rgba(255,122,26,.18);animation:iconFloat 4s ease-in-out infinite}
+.uico::after{
+  content:"";position:absolute;inset:-7px;border:1px solid rgba(255,122,26,.2);border-radius:50%;
+  animation:rippleRing 2.8s ease-out infinite;
+}
+.camera-wrap,#videoWrap{
+  box-shadow:0 20px 50px rgba(42,14,34,.28),0 0 0 1px rgba(255,209,102,.18);
+}
+.camera-frame{
+  border-color:rgba(255,209,102,.8);
+  box-shadow:0 0 0 9999px rgba(42,14,34,.16),0 0 24px rgba(255,122,26,.24),inset 0 0 28px rgba(255,209,102,.16);
+  animation:cameraFrameGlow 3.4s ease-in-out infinite;
+}
+.cam-shoot-btn,#btnRecord{
+  box-shadow:0 0 0 8px rgba(255,209,102,.12),0 12px 32px rgba(42,14,34,.28);
+  animation:shootPulse 3.2s ease-in-out infinite;
+}
+.cat-widget,.qr-box,.qr-steps,.modal{
+  position:relative;overflow:hidden;border-radius:14px;
+  box-shadow:0 14px 34px rgba(192,52,27,.12),0 0 0 1px rgba(255,255,255,.35);
+}
+.cat-widget:hover{transform:translateY(-4px) rotateX(1deg);box-shadow:0 18px 42px rgba(192,52,27,.18)}
+.cw-slider::before{background:linear-gradient(90deg,#fff7ec,transparent)}
+.cw-slider::after{background:linear-gradient(270deg,#fff7ec,transparent)}
+.cw-thumb::before,.gitem::before{
+  background:linear-gradient(105deg,transparent 0%,rgba(255,209,102,.42) 44%,rgba(255,255,255,.5) 50%,transparent 60%);
+  animation:shimmer 1.4s ease-in-out infinite;
+}
+.gitem{
+  border-radius:10px;box-shadow:0 8px 24px rgba(42,14,34,.12);
+  transition:transform .35s cubic-bezier(.22,.61,.36,1),box-shadow .35s;
+}
+.gitem:hover{transform:translateY(-4px) scale(1.015) rotate(.4deg);box-shadow:0 18px 38px rgba(42,14,34,.2)}
+.gitem img,.cw-thumb img{transition:opacity .3s ease,transform .7s ease,filter .7s ease}
+.gitem:hover img,.cw-thumb:hover img{transform:scale(1.08);filter:saturate(1.1) contrast(1.03)}
+.react-anim{animation:summerReaction .9s ease forwards}
+.qr-box{
+  background:
+    radial-gradient(circle at 15% 12%,rgba(255,209,102,.24),transparent 24%),
+    linear-gradient(180deg,#fff,#fff3e0);
+}
+.qr-box img{
+  box-shadow:0 0 0 10px rgba(255,209,102,.16),0 16px 34px rgba(42,14,34,.12);
+  animation:qrHover 5s ease-in-out infinite;
+}
+.qr-steps .sn{box-shadow:0 0 0 6px rgba(255,122,26,.12);animation:stepPulse 3s ease-in-out infinite}
+.slideshow-img{animation:summerSlideIn .55s cubic-bezier(.22,.61,.36,1)}
+.lb.open img{animation:lightboxBloom .45s ease both}
+.toast{box-shadow:0 14px 34px rgba(42,14,34,.16);animation:toastRiseInline .35s ease both}
+.dl-toast{box-shadow:0 14px 34px rgba(42,14,34,.22);animation:toastRise .35s ease both}
+.charm{
+  text-shadow:0 8px 20px rgba(42,14,34,.18);
+  animation-name:summerCharmFall;
+}
+@keyframes summerAurora{from{transform:translate3d(-2%,0,0) rotate(-1deg)}to{transform:translate3d(2%,-2%,0) rotate(1deg)}}
+@keyframes summerSparkleField{to{background-position:0 900px,28px 1180px}}
+@keyframes headerSunBreath{0%,100%{opacity:.52;transform:translateX(-50%) scale(.96)}50%{opacity:.9;transform:translateX(-50%) scale(1.04)}}
+@keyframes ornFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes diamondPulse{0%,100%{opacity:.75;transform:rotate(45deg) scale(1)}50%{opacity:1;transform:rotate(45deg) scale(1.22)}}
+@keyframes cardBreathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes summerSlice{to{transform:rotate(360deg)}}
+@keyframes emojiBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-2deg)}}
+@keyframes waveDrift{0%,100%{transform:translateX(-4%) translateY(0)}50%{transform:translateX(4%) translateY(-4px)}}
+@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes rippleRing{0%{opacity:.65;transform:scale(.88)}100%{opacity:0;transform:scale(1.28)}}
+@keyframes cameraFrameGlow{0%,100%{opacity:.78}50%{opacity:1}}
+@keyframes shootPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+@keyframes summerReaction{0%{opacity:1;transform:translateY(0) scale(.9) rotate(-8deg)}100%{opacity:0;transform:translateY(-64px) scale(1.55) rotate(14deg)}}
+@keyframes qrHover{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(.6deg)}}
+@keyframes stepPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes summerSlideIn{from{opacity:0;transform:translateY(12px) scale(.96) rotate(-.4deg)}to{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+@keyframes lightboxBloom{from{opacity:0;transform:scale(.94);filter:blur(5px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
+@keyframes toastRise{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes toastRiseInline{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes summerCharmFall{
+  0%{transform:translate3d(0,-70px,0) rotate(0deg) scale(.8);opacity:0}
+  10%{opacity:.26}
+  50%{transform:translate3d(20px,52vh,0) rotate(180deg) scale(1);opacity:.18}
+  90%{opacity:.1}
+  100%{transform:translate3d(-10px,110vh,0) rotate(360deg) scale(.75);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
+}
 </style>
 <!-- Vercel Web Analytics (sans cookie) -->
 <script defer src="/_vercel/insights/script.js"></script>
@@ -915,6 +1149,19 @@ footer{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
   <div class="intro-damask"></div>
   <div id="cocktail-visual" aria-hidden="true">
     <div class="cocktail-stage">
+      <div class="summer-sun-3d"></div>
+      <div class="summer-beam beam-a"></div>
+      <div class="summer-beam beam-b"></div>
+      <div class="summer-floor-3d"></div>
+      <div class="summer-disco-3d"></div>
+      <div class="summer-garland-3d">
+        <span class="summer-bulb"></span>
+        <span class="summer-bulb"></span>
+        <span class="summer-bulb"></span>
+        <span class="summer-bulb"></span>
+        <span class="summer-bulb"></span>
+        <span class="summer-bulb"></span>
+      </div>
       <div class="cocktail-glow-3d"></div>
       <div class="cocktail-depth orbit-a"></div>
       <div class="cocktail-depth orbit-b"></div>

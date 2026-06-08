@@ -10,6 +10,8 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html{color-scheme:only light;background:#FF8A3D}
+@view-transition{navigation:auto}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.45s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
 :root{
   --primary:#FF7A1A;--secondary:#F0414E;--accent:#FFD166;--coral:#FF6B6B;
   --sand:#FFF3E0;--text:#2D3748;--white:#FFFFFF;
