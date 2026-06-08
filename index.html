@@ -2681,6 +2681,7 @@ function takePhoto() {
 }
 
 function captureFrame(video, isSelfie) {
+  if (!video || !video.videoWidth) return; // caméra plus prête (passée en arrière-plan, etc.) → on annule proprement
   const canvas = document.createElement('canvas');
   canvas.width  = video.videoWidth;
   canvas.height = video.videoHeight;
@@ -2694,6 +2695,7 @@ function captureFrame(video, isSelfie) {
   ctx.drawImage(video, 0, 0);
 
   canvas.toBlob(blob => {
+    if (!blob) return;
     capturedBlob = blob;
     const img = document.getElementById('camPreviewImg');
     // Révoquer l'URL précédente pour éviter le memory-leak
@@ -3254,7 +3256,7 @@ function buildPhotoItem(p) {
            <span style="font-size:40px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.8))">▶</span>
          </div>
        </div>`
-    : `<img src="${imgUrl(p,'grid')}" alt="Photo de ${(p.uploader_name||'Invité').replace(/'/g,'')}" width="600" height="600" loading="lazy" decoding="async"
+    : `<img src="${imgUrl(p,'grid')}" alt="Photo de ${(p.uploader_name||'Invité').replace(/[<>"'&]/g,'')}" width="600" height="600" loading="lazy" decoding="async"
             onload="this.closest('.gitem').classList.add('loaded')"
             onerror="this.closest('.gitem').classList.add('loaded');this.closest('.gitem').style.display='none'">`;
 
@@ -3454,6 +3456,7 @@ async function startRealtimeFull() {
       event: '*', schema: 'public', table: 'photos',
       filter: `event_id=eq.${EVENT_ID}`
     }, (payload) => {
+     try {
       if (payload.eventType === 'INSERT') {
         const p = payload.new;
         if (!allPhotos.find(x => x.id === p.id)) {
@@ -3496,15 +3499,22 @@ async function startRealtimeFull() {
         if (id) {
           const cat = (allPhotos.find(x => x.id === id) || {}).category;
           allPhotos = allPhotos.filter(x => x.id !== id);
+          // Sync multi-appareils : retirer la photo du DOM si elle est affichée
+          const node = document.getElementById('photo-' + id);
+          if (node) node.remove();
           if (cat) {
             const cnt = allPhotos.filter(x => x.category === cat).length;
             const el = document.getElementById('cnt-' + cat);
             if (el) el.textContent = cnt === 0 ? 'Aucune photo encore' : cnt + ' photo' + (cnt > 1 ? 's' : '');
+            const dt = document.getElementById('detail-title');
+            const pg = document.getElementById('panel-gallery');
+            if (dt && pg && pg.dataset.currentCat === cat) dt.innerHTML = '<span style="color:var(--gold)">' + cnt + '</span>&nbsp;photo' + (cnt !== 1 ? 's' : '');
           }
           const total = document.getElementById('totalCount');
           if (total) total.textContent = allPhotos.length;
         }
       }
+     } catch(e) { /* ne jamais casser l'abonnement temps réel */ }
     })
     .on('postgres_changes', {
       event: 'UPDATE', schema: 'public', table: 'events',
@@ -3715,6 +3725,7 @@ async function startSlideshowAll() {
   ssStartTimer();
 }
 
+let _ssErrStreak = 0; // évite une boucle si plusieurs vidéos d'affilée sont illisibles (ex. webm sur iOS)
 function ssShow(idx) {
   if (!ssPhotos.length) return;
   const p   = ssPhotos[idx];
@@ -3737,8 +3748,13 @@ function ssShow(idx) {
       vid.muted = false;                   // lecture AVEC le son
       vid.volume = 1;
       vid.src = p.public_url;
-      vid.onended = () => { if (ssPlaying) ssNext(); };       // passe à la suivante à la fin
-      vid.onerror = () => { ssNext(); };                       // vidéo illisible → on saute
+      vid.onended = () => { _ssErrStreak = 0; if (ssPlaying) ssNext(); };   // passe à la suivante à la fin
+      vid.onplaying = () => { _ssErrStreak = 0; };                          // lecture OK → compteur remis à zéro
+      vid.onerror = () => {                                                 // vidéo illisible → on saute SANS boucler
+        _ssErrStreak++;
+        if (_ssErrStreak >= ssPhotos.length) { _ssErrStreak = 0; ssPlaying = false; clearTimeout(ssTimer); showDlToast('Aucun média lisible dans le diaporama'); return; }
+        setTimeout(() => { if (ssPlaying) ssNext(); }, 60);
+      };
       try { vid.currentTime = 0; } catch(_){}
       const pr = vid.play();
       if (pr && pr.catch) pr.catch(() => {
@@ -3756,6 +3772,7 @@ function ssShow(idx) {
       img.style.transform = 'scale(0.97)';
       img.src = p.public_url;
       img.onload = () => {
+        _ssErrStreak = 0;
         img.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
         img.style.opacity = '1';
         img.style.transform = 'scale(1)';
@@ -4216,7 +4233,7 @@ window.addEventListener('pagehide',    _onHidden);
 window.addEventListener('pageshow',    () => _onVisible());
 // (blur retiré volontairement : il se déclenche très souvent sur Android — la moindre perte de focus
 //  libérait la caméra et faisait réapparaître l'écran d'autorisation/« Reprise ». visibilitychange + pagehide suffisent.)
-window.addEventListener('focus',       _onVisible);
+// (focus retiré : se déclenchait trop souvent — clavier, barre d'URL… — et relançait la caméra inutilement. visibilitychange + pageshow suffisent.)
 window.addEventListener('beforeunload', () => {
   if (_cameraWatchdogId) { clearInterval(_cameraWatchdogId); _cameraWatchdogId = null; }
   _stopReacquireRetry();
