@@ -2000,6 +2000,7 @@ function stopVideoCamera() {
   clearTimeout(videoTimer);
 }
 async function initVideoCamera() {
+  _showInAppBrowserNotice();
   const vid     = document.getElementById('videoLive');
   const permEl  = document.getElementById('videoPermission');
   const recWrap = document.getElementById('videoRecorderWrap');
@@ -2280,6 +2281,43 @@ const EVENT_ID = 'soiree-ete-2026';
 const BUCKET   = 'photos';
 const DELETE_WINDOW_MS = 120 * 1000; // 2 minutes
 
+// ── Compatibilité TOUS navigateurs : getUserMedia ancien/préfixé + détection navigateur in-app ──
+(function(){
+  if (navigator.mediaDevices === undefined) navigator.mediaDevices = {};
+  if (navigator.mediaDevices.getUserMedia === undefined) {
+    const legacy = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    navigator.mediaDevices.getUserMedia = function(c){
+      if (!legacy) return Promise.reject(new Error('getUserMedia indisponible sur ce navigateur'));
+      return new Promise((res, rej) => legacy.call(navigator, c, res, rej));
+    };
+  }
+  if (navigator.mediaDevices.enumerateDevices === undefined) {
+    navigator.mediaDevices.enumerateDevices = function(){ return Promise.resolve([]); };
+  }
+})();
+
+// Navigateur intégré à une appli (WhatsApp, Instagram, Facebook, Messenger, TikTok…) → caméra souvent bloquée
+function _isInAppBrowser(){
+  const ua = navigator.userAgent || '';
+  return /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Line\/|Twitter|WhatsApp|Snapchat|Messenger|MicroMessenger|TikTok|musical_ly|Pinterest|LinkedInApp/i.test(ua)
+      || (/Android/i.test(ua) && /; wv\)/i.test(ua)); // WebView Android générique
+}
+function _showInAppBrowserNotice(){
+  if (!_isInAppBrowser()) return;
+  try { if (localStorage.getItem('inapp_notice_x') === '1') return; } catch(_){}
+  if (document.getElementById('inappNotice')) return;
+  const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+  const tip = isiOS
+    ? "Touchez l'icône <b>···</b> (en bas ou en haut à droite) puis <b>« Ouvrir dans Safari »</b>."
+    : "Touchez le menu <b>⋮</b> (en haut à droite) puis <b>« Ouvrir dans le navigateur »</b> (Chrome).";
+  const bar = document.createElement('div');
+  bar.id = 'inappNotice';
+  bar.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9997;background:#2D3748;color:#fff;font-family:Jost,sans-serif;font-size:12.5px;line-height:1.55;padding:13px 16px calc(13px + env(safe-area-inset-bottom,0px));box-shadow:0 -2px 14px rgba(0,0,0,.35);text-align:center';
+  bar.innerHTML = '📷 Pour prendre des <b>photos &amp; vidéos</b>, ouvrez ce lien dans votre navigateur.<br>' + tip +
+    ' <button type="button" onclick="this.parentNode.remove();try{localStorage.setItem(\'inapp_notice_x\',\'1\')}catch(e){}" style="margin-top:8px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:10px;padding:7px 16px;font-family:inherit;font-size:12px;cursor:pointer">J\'ai compris</button>';
+  document.body.appendChild(bar);
+}
+
 // Prénom mémorisé
 function saveName(v){ try{ localStorage.setItem('mementos_name', v); }catch(e){} }
 function loadName(){ try{ return localStorage.getItem('mementos_name')||''; }catch(e){ return ''; } }
@@ -2338,6 +2376,7 @@ let flashEnabled   = false;
 let capturedBlob   = null;
 
 async function startCamera() {
+  _showInAppBrowserNotice();
   const video     = document.getElementById('cameraVideo');
   const errEl     = document.getElementById('cameraError');
   const wrapEl    = document.getElementById('cameraWrap');
