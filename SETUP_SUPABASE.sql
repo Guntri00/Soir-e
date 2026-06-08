@@ -162,6 +162,18 @@ create policy soiree_storage_delete on storage.objects
   using (bucket_id = 'photos');
 
 -- ─────────────────────────────────────────────
+-- 7b) REALTIME — pousser les nouvelles photos/vidéos aux invités EN DIRECT
+--     SANS ÇA, il faut rafraîchir la page pour voir les photos des autres.
+--     (idempotent : peut être ré-exécuté sans erreur)
+-- ─────────────────────────────────────────────
+alter table public.photos replica identity full;
+do $$
+begin
+  alter publication supabase_realtime add table public.photos;
+exception when duplicate_object then null;  -- déjà publiée : on ignore
+end $$;
+
+-- ─────────────────────────────────────────────
 -- 8) L'ÉVÉNEMENT DE LA SOIRÉE
 -- ─────────────────────────────────────────────
 insert into public.events
