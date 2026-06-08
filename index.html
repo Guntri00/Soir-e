@@ -542,8 +542,7 @@ body.scrolling .charm,body.scrolling .cat-float{animation-play-state:paused}
 /* Perf mobile : couper le flou + la pluie d'emojis + toutes les micro-animations en boucle */
 @media (max-width:768px){
   [class]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-  .charm{display:none}
-  .flip-emoji,.cat-pill-emoji,.cw-emoji,#badge-emoji,#detail-cat-emoji,.flip-wrap,.qr-rotating-square,.dot{animation:none!important}
+  .charm:nth-child(n+13){display:none} /* 22 -> 12 emojis sur mobile (pluie conservée) */
   .cat-float{animation-duration:26s}
 }
 .charm:nth-child(1){left:3%;animation-duration:16s;animation-delay:0s;font-size:15px}
