@@ -2806,7 +2806,7 @@ function buildPhotoItem(p) {
     <div class="gitem" id="photo-${p.id}" onclick="${clickFn}">
       ${mediaEl}
       <div class="gmeta">par ${esc(p.uploader_name||'Invité')}</div>
-      <button class="dl-btn" aria-label="Télécharger la photo" onclick="event.stopPropagation();downloadPhoto('${safeUrl}','soiree-${String(p.id).substr(0,6)}.${dlExt}')" title="Télécharger">⬇️</button>
+      <button class="dl-btn" aria-label="Enregistrer dans mes photos" onclick="event.stopPropagation();downloadPhoto('${safeUrl}','soiree-${String(p.id).substr(0,6)}.${dlExt}')" title="Enregistrer dans mes photos">⬇️</button>
       <div class="reactions">
         <button class="react-btn ${isLiked?'liked':''}" id="like-btn-${p.id}" aria-label="J'aime cette photo" aria-pressed="${isLiked?'true':'false'}" onclick="event.stopPropagation();toggleLike('${p.id}',this)">
           ❤️ <span class="react-count" id="likes-${p.id}">${likeCount}</span>
@@ -3307,19 +3307,44 @@ function ssClose() {
 // ══════════════════════════════════════════
 
 // Télécharger une photo (forcer le download même cross-origin)
+// Enregistrer une photo/vidéo.
+// Mobile : feuille de partage native → « Enregistrer l'image / la vidéo » = va dans la GALERIE du téléphone.
+// Ordinateur (pas de partage de fichier) : téléchargement classique.
 async function downloadPhoto(url, filename) {
+  if (!url) return;
+  const isVideo = /\.(webm|mp4|mov|m4v)(\?|$)/i.test(url) || /\.(webm|mp4|mov|m4v)$/i.test(filename || '');
   try {
-    showDlToast('Téléchargement…');
+    showDlToast('Préparation…');
     const res  = await fetch(url, { mode:'cors', credentials:'omit' });
     const blob = await res.blob();
-    const a    = document.createElement('a');
-    a.href     = URL.createObjectURL(blob);
-    a.download = filename || 'photo-mementos.jpg';
+
+    if (navigator.canShare) {
+      let ext = (blob.type.split('/')[1] || (isVideo ? 'mp4' : 'jpg'));
+      if (ext === 'jpeg') ext = 'jpg';
+      if (ext === 'quicktime') ext = 'mov';
+      const file = new File([blob], filename || ('soiree-ete.' + ext),
+                            { type: blob.type || (isVideo ? 'video/mp4' : 'image/jpeg') });
+      if (navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: "Soirée d'été — CSE IQVIA" });
+          showDlToast(isVideo ? '✓ « Enregistrer la vidéo » → galerie' : '✓ « Enregistrer l\'image » → galerie');
+          return;
+        } catch (e) {
+          if (e && e.name === 'AbortError') return; // partage annulé par l'utilisateur
+          // sinon : on bascule sur le téléchargement classique ci-dessous
+        }
+      }
+    }
+
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename || (isVideo ? 'soiree-ete.mp4' : 'photo-soiree.jpg');
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(a.href);
-    showDlToast('✓ Photo téléchargée !');
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    showDlToast('✓ Téléchargé !');
   } catch(e) {
-    // Fallback : ouvrir dans un nouvel onglet
     window.open(url, '_blank');
   }
 }
