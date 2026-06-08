@@ -951,6 +951,7 @@ html.perf-lite .qr-phone-stand, html.perf-lite .qr-badge, html.perf-lite .qr-box
 }
 html.perf-lite .gitem { box-shadow:none !important; } /* ombres allégées au scroll de galerie */
 html.perf-lite .qr-rotating-square { will-change:transform !important; } /* QR : rotation pure fluide (couche GPU) même sur Android */
+html.perf-lite .cw-track { will-change:transform !important; } /* défilement auto des aperçus : fluide (couche GPU) même sur Android */
 /* Intro 3D : version ALLÉGÉE sur Android (contexte aplati + flottement 2D + lueur statique sans flou animé).
    L'iPhone garde la vraie 3D. Le preserve-3d + filter:blur animé sont la cause du lag "image par image" sur Android. */
 @keyframes cocktailFloatLite { 0%,100%{transform:translateY(8px) scale(1)} 50%{transform:translateY(-12px) scale(1.012)} }
