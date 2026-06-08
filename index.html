@@ -2050,6 +2050,7 @@ async function requestVideoPermission() {
       videoStream  = await navigator.mediaDevices.getUserMedia(c);
       cameraStream = new MediaStream(videoStream.getVideoTracks());
       try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+      _primeCameraCache();
       videoStream.getTracks().forEach(t => {
         t.addEventListener('ended', () => {
           if (document.hidden) return;
@@ -2429,6 +2430,7 @@ async function requestCameraPermission() {
       await video.play().catch(() => {});
       // Succès → mémoriser définitivement
       try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+      _primeCameraCache();
       // Succès → cacher la demande, montrer la caméra
       if (permEl) permEl.style.display = 'none';
       wrapEl.style.display = 'block';
@@ -2465,6 +2467,18 @@ function stopCamera() {
   }
 }
 
+let _camCache = {};  // deviceId mémorisé par côté { user, environment } → bascules suivantes quasi instantanées
+// Pré-mémorise les caméras avant/arrière en arrière-plan dès le démarrage → la 1re bascule est déjà rapide
+async function _primeCameraCache(){
+  try {
+    const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+    cams.forEach(d => {
+      const l = d.label || '';
+      if (!_camCache.user        && /front|user|selfie|face|avant/i.test(l)) _camCache.user = d.deviceId;
+      if (!_camCache.environment && /back|rear|environment|world|arri/i.test(l)) _camCache.environment = d.deviceId;
+    });
+  } catch(_){}
+}
 async function flipCamera() {
   if (_reacquireBusy) return;          // une (ré)acquisition est déjà en cours → on ignore (et ça bloque le watchdog)
   _reacquireBusy = true;               // empêche le watchdog d'interférer pendant la bascule (cause des blocages)
@@ -2475,15 +2489,20 @@ async function flipCamera() {
   const permEl = document.getElementById('cameraPermission');
   if (permEl) permEl.style.display = 'none';
   if (wrapEl) wrapEl.style.display = 'block';
+  // Transition FLUIDE : on floute/atténue l'aperçu pendant le court instant de bascule (masque la coupure)
+  if (video) { video.style.transition = 'filter .26s ease, opacity .26s ease'; video.style.filter = 'blur(14px)'; video.style.opacity = '.55'; }
   try {
     const want = (facingMode === 'environment') ? 'user' : 'environment';
-    // couper le flux courant (l'aperçu garde la dernière image pendant la bascule)
+    // mémoriser le deviceId du côté ACTUEL avant de couper (pour revenir vite plus tard)
+    try { const s0 = cameraStream && cameraStream.getVideoTracks()[0] && cameraStream.getVideoTracks()[0].getSettings(); if (s0 && s0.deviceId) _camCache[facingMode] = s0.deviceId; } catch(_){}
     if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
 
     let stream = null;
-    // 1) facingMode exact = bascule nette et rapide quand l'appareil le supporte
-    try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){}
-    // 2) deviceId : caméra dont le libellé correspond au côté voulu (Android multi-caméras)
+    // 1) deviceId mémorisé du côté voulu = LE PLUS RAPIDE (un seul appel) → bascules suivantes quasi instantanées
+    if (_camCache[want]) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: _camCache[want] } }, audio:false }); } catch(_){ _camCache[want] = null; } }
+    // 2) facingMode exact = bascule nette quand l'appareil le supporte
+    if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){} }
+    // 3) deviceId : caméra dont le libellé correspond au côté voulu (Android multi-caméras)
     if (!stream) {
       try {
         const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
@@ -2492,13 +2511,13 @@ async function flipCamera() {
         if (cam) stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: cam.deviceId } }, audio:false });
       } catch(_){}
     }
-    // 3) facingMode ideal (dernier recours)
+    // 4) facingMode ideal (dernier recours)
     if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: want } }, audio:false }); } catch(_){} }
 
     if (stream) {
       cameraStream = stream;
       facingMode = want;
-      try { const fm = stream.getVideoTracks()[0].getSettings().facingMode; if (fm === 'user' || fm === 'environment') facingMode = fm; } catch(_){}
+      try { const st = stream.getVideoTracks()[0].getSettings(); if (st.facingMode === 'user' || st.facingMode === 'environment') facingMode = st.facingMode; if (st.deviceId) _camCache[facingMode] = st.deviceId; } catch(_){}
       if (video) { video.srcObject = stream; try { await video.play(); } catch(_){} }
       _cameraWasActive = false; _videoWasActive = false; _stopReacquireRetry(); // pas de reprise auto après une bascule réussie
     } else {
@@ -2510,6 +2529,7 @@ async function flipCamera() {
   } finally {
     _reacquireBusy = false;
     if (flipBtn) flipBtn.style.opacity = '';
+    if (video) { video.style.filter = ''; video.style.opacity = '1'; } // ré-apparition nette de la nouvelle caméra
   }
 }
 
@@ -4000,6 +4020,7 @@ async function _reacquireMediaStream(wantAudio) {
     try {
       const s = await navigator.mediaDevices.getUserMedia(c);
       try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+      _primeCameraCache();
       s.getTracks().forEach(t => {
         t.addEventListener('ended', () => {
           if (document.hidden) return;
