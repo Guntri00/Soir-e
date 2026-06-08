@@ -1560,7 +1560,6 @@ footer{
     setTimeout(function() {
       s.style.display = 'none';
       document.body.style.overflow = '';
-      if (!charteAccepted()) openCharte(true); // acceptation unique de la charte, après l'intro
     }, 1300);
   }
 
@@ -1946,7 +1945,7 @@ footer{
       <h4>6. Acceptation</h4>
       <p>L'utilisation de ce site et l'envoi de tout contenu valent acceptation de la présente charte.</p>
     </div>
-    <div class="modal-btns"><button class="modal-confirm" onclick="acceptCharte()">J'ai lu et j'accepte ✓</button></div>
+    <div class="modal-btns"><button class="modal-confirm" onclick="dismissCharte()">Fermer</button></div>
   </div>
 </div>
 
@@ -2741,7 +2740,6 @@ async function compressImage(file) {
 
 async function doUpload() {
   if (!selectedFiles.length || !selectedCategory) return;
-  if (!charteAccepted()) { openCharte(true); return; }
   const btn = document.getElementById('sbtn');
   const uploaderName = document.getElementById('uname').value.trim() || 'Invité';
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Envoi en cours…';
