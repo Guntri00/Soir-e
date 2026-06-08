@@ -1676,7 +1676,7 @@ header::before{opacity:.62;filter:blur(1px)}
   </div>
 </div>
 
-<footer><p>Propulsé par <a href="#">Mementos</a> &nbsp;·&nbsp; vos souvenirs, centralisés</p></footer>
+<footer><p>Soirée d'été — CSE IQVIA &nbsp;·&nbsp; vos souvenirs, centralisés</p></footer>
 
 <script>
 
@@ -2316,11 +2316,7 @@ function switchTab(id, btn) {
 // ══════════════════════════════════════════
 //  CATÉGORIE
 // ══════════════════════════════════════════
-function flipCard(catId) {
-  var card = document.getElementById('card-' + catId);
-  if (!card) return;
-  card.classList.toggle('flipped');
-}
+// (flipCard retiré : le clic sur une carte sélectionne directement la catégorie)
 
 function selectCategory(id, emoji, name) {
   selectedCategory = { id, emoji, name };

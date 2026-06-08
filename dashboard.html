@@ -494,7 +494,7 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
       <div class="section-actions">
         <button class="btn btn-outline" onclick="refreshPhotos()">↻ Actualiser</button>
         <button class="btn-select-mode" id="btnSelectMode" onclick="toggleSelectMode()">☑ Sélectionner</button>
-        <button class="btn btn-dark" id="dlAllZipBtn" onclick="downloadZip('all')">⬇ ZIP complet</button>
+        <button class="btn btn-dark" id="dlAllZipBtn" onclick="downloadZip('all', this)">⬇ ZIP complet</button>
       </div>
     </div>
     <div class="select-bar" id="selectBar">
@@ -528,10 +528,10 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
 
     <!-- ZIP PAR CAT -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
-      <button class="btn btn-outline btn-sm" onclick="downloadZip('ceremonie')">⬇ ZIP Apéro</button>
-      <button class="btn btn-outline btn-sm" onclick="downloadZip('cocktail')">⬇ ZIP Barbecue</button>
-      <button class="btn btn-outline btn-sm" onclick="downloadZip('diner')">⬇ ZIP Cocktail</button>
-      <button class="btn btn-outline btn-sm" onclick="downloadZip('danse')">⬇ ZIP Dance Floor</button>
+      <button class="btn btn-outline btn-sm" onclick="downloadZip('ceremonie', this)">⬇ ZIP Apéro</button>
+      <button class="btn btn-outline btn-sm" onclick="downloadZip('cocktail', this)">⬇ ZIP Barbecue</button>
+      <button class="btn btn-outline btn-sm" onclick="downloadZip('diner', this)">⬇ ZIP Cocktail</button>
+      <button class="btn btn-outline btn-sm" onclick="downloadZip('danse', this)">⬇ ZIP Dance Floor</button>
     </div>
 
     <!-- ZIP PROGRESS -->
@@ -734,6 +734,7 @@ async function doLogin() {
 
 function doLogout() {
   sessionStorage.removeItem('mementos_auth');
+  if (autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
   document.getElementById('loginWrap').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
 }
@@ -1117,7 +1118,7 @@ async function dlPhoto(url, path) {
   } catch(e) { window.open(url,'_blank'); }
 }
 
-async function downloadZip(catFilter) {
+async function downloadZip(catFilter, btnEl) {
   const items = catFilter === 'all'
     ? allPhotos
     : allPhotos.filter(p => p.category === catFilter);
@@ -1128,7 +1129,7 @@ async function downloadZip(catFilter) {
   const bar   = document.getElementById('zipBar');
   const label = document.getElementById('zipLabel');
   const pct   = document.getElementById('zipPct');
-  const btn   = document.getElementById('dlAllZipBtn');
+  const btn   = btnEl || document.getElementById('dlAllZipBtn');
 
   prog.classList.add('show');
   if (btn) btn.disabled = true;

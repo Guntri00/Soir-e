@@ -1655,10 +1655,15 @@ function ssToggleFullscreen() {
   ssShowUI();
 }
 // Mettre à jour l'icône quand le navigateur sort du fullscreen
-document.addEventListener('fullscreenchange', () => {
-  const btn = document.getElementById('ssFsBtn');
-  if (btn) btn.textContent = document.fullscreenElement ? '⛶' : '⛶';
-});
+['fullscreenchange', 'webkitfullscreenchange'].forEach(ev =>
+  document.addEventListener(ev, () => {
+    const btn = document.getElementById('ssFsBtn');
+    if (!btn) return;
+    const fs = document.fullscreenElement || document.webkitFullscreenElement;
+    btn.textContent = fs ? '⤢' : '⛶';
+    btn.title = fs ? 'Quitter le plein écran' : 'Plein écran';
+  })
+);
 
 // ── Auto-hide UI ──
 function ssShowUI() {
