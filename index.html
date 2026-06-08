@@ -1168,6 +1168,7 @@ header::before{opacity:.62;filter:blur(1px)}
   box-shadow:0 24px 48px rgba(42,14,34,.32),inset 0 0 0 1px rgba(255,255,255,.2);
   transform:perspective(900px) rotateX(2deg) rotateY(-3deg);
   animation:qrCardFloat 7s ease-in-out infinite,qrPhoneGlow 4.6s ease-in-out infinite;
+  isolation:isolate;
 }
 .qr-phone-stand::before{
   content:"";position:absolute;left:50%;top:7px;width:46px;height:4px;border-radius:999px;
@@ -1178,8 +1179,18 @@ header::before{opacity:.62;filter:blur(1px)}
   border-radius:50%;background:radial-gradient(ellipse,rgba(42,14,34,.34),transparent 68%);
   filter:blur(4px);z-index:-1;
 }
+.qr-rotating-square{
+  position:absolute;left:50%;top:52%;width:86%;aspect-ratio:1;z-index:0;
+  border-radius:18px;transform:translate(-50%,-50%) rotate(12deg);
+  background:
+    linear-gradient(135deg,rgba(255,243,224,.18),rgba(255,209,102,.08)),
+    conic-gradient(from 0deg,rgba(255,209,102,.8),rgba(255,122,26,.35),rgba(240,65,78,.45),rgba(255,243,224,.72),rgba(255,209,102,.8));
+  box-shadow:0 0 24px rgba(255,209,102,.22),inset 0 0 0 1px rgba(255,255,255,.28);
+  opacity:.72;filter:blur(.1px);
+  animation:qrSquareSpin 13s linear infinite;
+}
 .qr-screen{
-  position:relative;padding:14px;margin-top:7px;border-radius:22px;background:#fff;
+  position:relative;z-index:2;padding:14px;margin-top:7px;border-radius:22px;background:#fff;
   box-shadow:inset 0 0 0 1px rgba(138,45,8,.1);
   overflow:hidden;
 }
@@ -1231,6 +1242,11 @@ header::before{opacity:.62;filter:blur(1px)}
 @keyframes qrPhoneGlow{
   0%,100%{box-shadow:0 24px 48px rgba(42,14,34,.32),inset 0 0 0 1px rgba(255,255,255,.2)}
   50%{box-shadow:0 28px 58px rgba(42,14,34,.36),0 0 34px rgba(255,209,102,.18),inset 0 0 0 1px rgba(255,255,255,.28)}
+}
+@keyframes qrSquareSpin{
+  0%{transform:translate(-50%,-50%) rotate(12deg) scale(.98);opacity:.58}
+  50%{transform:translate(-50%,-50%) rotate(192deg) scale(1.04);opacity:.78}
+  100%{transform:translate(-50%,-50%) rotate(372deg) scale(.98);opacity:.58}
 }
 @keyframes qrScanGlow{
   0%,28%{transform:translateY(0);opacity:0}
@@ -1590,6 +1606,7 @@ header::before{opacity:.62;filter:blur(1px)}
           <strong>CSE IQVIA</strong>
         </div>
         <div class="qr-phone-stand">
+          <div class="qr-rotating-square"></div>
           <div class="qr-screen">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=440x440&data=https%3A%2F%2Fsoir-e-alpha.vercel.app&margin=16&ecc=Q&color=8a2d08&bgcolor=ffffff"
               alt="QR code vers soir-e-alpha.vercel.app" onerror="this.onerror=null;this.src='https://quickchart.io/qr?text=https%3A%2F%2Fsoir-e-alpha.vercel.app&dark=8a2d08&light=ffffff&ecLevel=Q&margin=2&size=440'"/>
