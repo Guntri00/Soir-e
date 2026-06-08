@@ -1,6 +1,6 @@
 // Soirée d'été — CSE IQVIA — Service Worker
-const CACHE_STATIC = 'soiree-ete-static-v1';
-const CACHE_PHOTOS = 'soiree-ete-photos-v1';
+const CACHE_STATIC = 'soiree-ete-static-v2';
+const CACHE_PHOTOS = 'soiree-ete-photos-v2';
 
 const STATIC_ASSETS = [
   '/',
