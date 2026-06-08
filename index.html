@@ -1513,7 +1513,7 @@ header::before{opacity:.62;filter:blur(1px)}
               <div class="rec-dot"></div>
             </div>
           </div>
-          <p style="text-align:center;font-family:Jost,sans-serif;font-size:11px;color:#9e8a7a;letter-spacing:.1em;text-transform:uppercase;margin:0">Maintenir appuyé · 20s max</p>
+          <p style="text-align:center;font-family:Jost,sans-serif;font-size:11px;color:#9e8a7a;letter-spacing:.1em;text-transform:uppercase;margin:0">Touchez pour démarrer / arrêter · 20s max</p>
         </div>
         <div id="videoPreviewWrap" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%">
           <div style="position:relative;width:100%;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:9/16;max-height:72vh">
@@ -1658,7 +1658,7 @@ header::before{opacity:.62;filter:blur(1px)}
 <!-- LIGHTBOX -->
 <div class="lb" id="lb" onclick="closeLB()">
   <button class="lb-x" aria-label="Fermer l'image" onclick="closeLB()">✕</button>
-  <button class="lb-share" id="lbShareBtn" aria-label="Envoyer par mail" onclick="event.stopPropagation();shareCurrentMedia()">✉️ Envoyer par mail</button>
+  <button class="lb-share" id="lbShareBtn" aria-label="Partager ce souvenir" onclick="event.stopPropagation();shareCurrentMedia()">📤 Partager</button>
   <img id="lbImg" src="" alt="" loading="lazy" style="display:block">
   <video id="lbVideo" src="" controls playsinline style="display:none;max-width:100%;max-height:90vh;border-radius:8px"></video>
 </div>
@@ -3101,8 +3101,19 @@ function showWidgets() {
 // ══════════════════════════════════════════
 //  QR + LIGHTBOX
 // ══════════════════════════════════════════
-function downloadQR() {
-  window.open('https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=https%3A%2F%2Fsoir-e-alpha.vercel.app&margin=20&ecc=Q&color=8a2d08&bgcolor=ffffff','_blank');
+async function downloadQR() {
+  const url = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=https%3A%2F%2Fsoir-e-alpha.vercel.app&margin=20&ecc=Q&color=8a2d08&bgcolor=ffffff';
+  try {
+    const res  = await fetch(url);
+    const blob = await res.blob();
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = 'qr-soiree-ete.png';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  } catch(e) {
+    window.open(url, '_blank');
+  }
 }
 // ── Envoyer / partager le média affiché ──
 // Mobile : feuille de partage native → « Mail » avec le fichier attaché (et WhatsApp, AirDrop…)
@@ -3126,14 +3137,14 @@ async function shareCurrentMedia() {
       const file = new File([blob], 'soiree-ete-cse-iqvia.' + ext, { type: blob.type });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: "Soirée d'été — CSE IQVIA", text: text });
-        if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Envoyer par mail'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '📤 Partager'; }
         return;
       }
     } catch (e) {
-      if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Envoyer par mail'; }
+      if (btn) { btn.disabled = false; btn.innerHTML = '📤 Partager'; }
       if (e && e.name === 'AbortError') return; // l'utilisateur a annulé le partage
     }
-    if (btn) { btn.disabled = false; btn.innerHTML = '✉️ Envoyer par mail'; }
+    if (btn) { btn.disabled = false; btn.innerHTML = '📤 Partager'; }
   }
 
   // Secours : application mail avec le lien

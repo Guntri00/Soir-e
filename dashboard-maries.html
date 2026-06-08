@@ -917,7 +917,8 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
       <button class="ss-btn" onclick="event.stopPropagation();ssPrev()">‹</button>
       <button class="ss-btn" id="ssPlayBtn" onclick="event.stopPropagation();ssToggle()">⏸</button>
       <button class="ss-btn" onclick="event.stopPropagation();ssNext()">›</button>
-      <button class="ss-btn" id="ssAiBtn" onclick="event.stopPropagation();ssToggleAI()" title="Légendes IA">✨</button>
+      <!-- Légendes IA masquées : nécessitent un backend /api/caption (absent en hébergement statique). Retirer style display:none pour réactiver. -->
+      <button class="ss-btn" id="ssAiBtn" onclick="event.stopPropagation();ssToggleAI()" title="Légendes IA" style="display:none">✨</button>
       <button class="ss-btn" id="ssFsBtn" onclick="event.stopPropagation();ssToggleFullscreen()" title="Plein écran">⛶</button>
       <button class="ss-btn" onclick="event.stopPropagation();ssClose()">✕</button>
     </div>

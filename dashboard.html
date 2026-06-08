@@ -629,6 +629,27 @@ async function loadVideoToggle() {
   } catch(e) { console.warn('loadVideoToggle:', e); }
 }
 
+async function loadUploadToggle() {
+  try {
+    const r = await fetch(
+      `${SB_URL}/rest/v1/events?id=eq.${EVENT_ID}&select=uploads_enabled`,
+      { headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Accept':'application/json' } }
+    );
+    if (!r.ok) return;
+    const d = await r.json();
+    const enabled = d[0] ? d[0].uploads_enabled : true;
+    const chk    = document.getElementById('uploadToggle');
+    const status = document.getElementById('toggleStatus');
+    if (chk) chk.checked = enabled;
+    if (status) {
+      status.textContent = enabled
+        ? '● Actif — les invités peuvent partager'
+        : '● Désactivé — galerie verrouillée';
+      status.className = 'toggle-status ' + (enabled ? 'on' : 'off');
+    }
+  } catch(e) { console.warn('loadUploadToggle:', e); }
+}
+
 async function toggleVideo() {
   const chk     = document.getElementById('videoToggle');
   const lbl     = document.getElementById('videoToggleStatus');
@@ -732,7 +753,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════════════
 async function loadDashboard() {
   try {
-    const [_, __] = await Promise.all([refreshPhotos(), loadVideoToggle()]);
+    await Promise.all([refreshPhotos(), loadVideoToggle(), loadUploadToggle()]);
     startAutoRefresh();
     startRealtimeAdmin();
   } catch(e) {
