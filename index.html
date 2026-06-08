@@ -2225,6 +2225,7 @@ async function useVideo() {
     {type:videoBlob.type,lastModified:Date.now()});
   file._fromCamera=true; file._isVideo=true;
   retakeVideo(); switchUploadTab('gallery'); addFiles([file]);
+  showToast('✓ Vidéo ajoutée ! Touchez « Partager mes photos » plus bas pour publier 👇', false);
 }
 
 
@@ -2731,6 +2732,7 @@ function keepPhoto() {
   capturedBlob = null;
   // Passer sur l'onglet galerie pour voir la prévisualisation + envoyer
   switchUploadTab('gallery');
+  showToast('✓ Ajouté ! Touchez « Partager mes photos » plus bas pour publier 👇', false);
 }
 
 function switchTab(id, btn) {
@@ -3046,7 +3048,7 @@ async function loadGallery() {
           ? '<div style="width:100%;height:100%;background:#2a1f10;display:flex;align-items:center;justify-content:center;font-size:28px;color:#FF7A1A;border-radius:4px">▶</div>'
           : `<img src="${imgUrl(p,'thumb')}" alt="" width="143" height="143" loading="lazy" decoding="async" fetchpriority="low"
                onload="this.parentElement.classList.add('loaded')"
-               onerror="this.parentElement.classList.add('loaded')">`;
+               onerror="if(!this._fb){this._fb=1;this.src=this.src.replace('/render/image/public/','/object/public/').split('?')[0];}else{this.parentElement.classList.add('loaded');}">`;
         return `<div class="cw-thumb ${p.media_type==='video'?'loaded':''}" id="th-${p.id}">${thumb}</div>`;
       }).join('');
 
@@ -3266,7 +3268,7 @@ function buildPhotoItem(p) {
        </div>`
     : `<img src="${imgUrl(p,'grid')}" alt="Photo de ${(p.uploader_name||'Invité').replace(/[<>"'&]/g,'')}" width="600" height="600" loading="lazy" decoding="async"
             onload="this.closest('.gitem').classList.add('loaded')"
-            onerror="this.closest('.gitem').classList.add('loaded');this.closest('.gitem').style.display='none'">`;
+            onerror="if(!this._fb){this._fb=1;this.src=this.src.replace('/render/image/public/','/object/public/').split('?')[0];}else{this.closest('.gitem').classList.add('loaded');this.closest('.gitem').style.display='none';}">`;
 
   return `
     <div class="gitem" id="photo-${p.id}" onclick="${clickFn}">

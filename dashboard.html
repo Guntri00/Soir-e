@@ -1296,7 +1296,7 @@ async function toggleUploads() {
     : '● Désactivé — galerie verrouillée';
   status.className = 'toggle-status ' + (enabled ? 'on' : 'off');
   try {
-    await fetch(`${SB_URL}/rest/v1/events?id=eq.${EVENT_ID}`, {
+    const res = await fetch(`${SB_URL}/rest/v1/events?id=eq.${EVENT_ID}`, {
       method: 'PATCH',
       headers: {
         'apikey': SB_KEY,
@@ -1306,10 +1306,18 @@ async function toggleUploads() {
       },
       body: JSON.stringify({ uploads_enabled: enabled })
     });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    toast(enabled ? '✓ Uploads activés' : '✓ Uploads désactivés');
   } catch(e) {
-    console.warn('Toggle uploads sync failed:', e);
+    // Échec réseau → rétablir l'état réel (l'app invité n'a pas changé) pour ne pas afficher un faux statut
+    const cb = document.getElementById('uploadToggle');
+    if (cb) cb.checked = !enabled;
+    status.textContent = !enabled
+      ? '● Actif — les invités peuvent partager'
+      : '● Désactivé — galerie verrouillée';
+    status.className = 'toggle-status ' + (!enabled ? 'on' : 'off');
+    toast('⚠️ Échec — réessayez (réseau ?)');
   }
-  toast(enabled ? '✓ Uploads activés' : '✓ Uploads désactivés');
 }
 
 // ══════════════════════════════════════════
