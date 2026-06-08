@@ -432,6 +432,14 @@ h1 em{font-style:italic;color:var(--gold)}
 .lb-x{position:absolute;top:20px;right:20px;background:none;border:1px solid rgba(253,250,246,.3);color:var(--warm);width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 footer{text-align:center;padding:24px;font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,.95);font-weight:500;text-transform:uppercase}
 footer a{color:var(--gold);text-decoration:none}
+.consent{margin:2px 0 14px;font-size:12px;color:var(--stone);line-height:1.5}
+.consent input{margin-right:7px;vertical-align:middle;accent-color:var(--primary)}
+.consent a{color:var(--gold);text-decoration:underline}
+.charte-modal{max-width:480px;width:100%;text-align:left}
+.charte-text{text-align:left;font-size:12.5px;line-height:1.62;color:var(--dark);max-height:56vh;overflow-y:auto;margin:8px 0 16px;-webkit-overflow-scrolling:touch}
+.charte-text h4{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:15px;margin:13px 0 3px;color:var(--charcoal)}
+.charte-text p{margin:0 0 7px}
+.charte-text a{color:var(--gold)}
 .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;margin-right:7px;vertical-align:middle}
 @keyframes sp{to{transform:rotate(360deg)}}
 
@@ -1562,6 +1570,9 @@ header::before{opacity:.62;filter:blur(1px)}
         <label>Votre prénom (optionnel)</label>
         <input id="uname" type="text" placeholder="ex : Sophie" oninput="saveName(this.value)">
       </div>
+      <div class="consent">
+        <label><input type="checkbox" id="consentChk" onchange="onConsentChange()"> J'ai lu et j'accepte la <a href="#" onclick="event.preventDefault();openCharte();return false;">charte d'utilisation &amp; le droit à l'image</a>.</label>
+      </div>
       <div class="prog" id="prog" style="display:none">
         <div class="prog-row"><span id="prog-lbl">Envoi…</span><span id="prog-pct">0%</span></div>
         <div class="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
@@ -1692,7 +1703,34 @@ header::before{opacity:.62;filter:blur(1px)}
   </div>
 </div>
 
-<footer><p>Soirée d'été — CSE IQVIA &nbsp;·&nbsp; vos souvenirs, centralisés</p></footer>
+<!-- Charte d'utilisation & droit à l'image -->
+<div class="modal-bg" id="charteModal" onclick="closeCharte()">
+  <div class="modal charte-modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Charte d'utilisation &amp; droit à l'image</div>
+    <div class="charte-text">
+      <h4>1. Objet</h4>
+      <p>Ce site permet aux participants de l'événement de partager leurs photos et vidéos entre eux, en souvenir.</p>
+      <h4>2. Droit à l'image</h4>
+      <p>En publiant un contenu, vous certifiez avoir obtenu l'accord des personnes identifiables qui y figurent. Toute personne peut, à tout moment, demander le retrait d'un contenu sur lequel elle apparaît.</p>
+      <h4>3. Bon usage</h4>
+      <p>Seuls les contenus respectueux sont autorisés. Sont notamment interdits les contenus offensants, discriminatoires, à caractère sexuel, violents, diffamatoires, ou portant atteinte à la dignité, à la vie privée ou à la réputation d'autrui. Tout comportement de harcèlement est proscrit.</p>
+      <h4>4. Données personnelles (RGPD)</h4>
+      <p><strong>Responsable :</strong> l'organisateur de l'événement.<br>
+      <strong>Finalité :</strong> permettre le partage de souvenirs entre les participants.<br>
+      <strong>Base légale :</strong> votre consentement.<br>
+      <strong>Destinataires :</strong> les participants ayant accès au site.<br>
+      <strong>Conservation :</strong> les contenus sont conservés le temps de l'événement, puis supprimés à sa clôture.<br>
+      <strong>Vos droits</strong> (accès, rectification, effacement, opposition) et tout signalement : <a href="mailto:mabroukchamseddine@gmail.com">mabroukchamseddine@gmail.com</a>.</p>
+      <h4>5. Usage réservé</h4>
+      <p>Les photos et vidéos sont destinées au cadre privé de l'événement. Toute rediffusion publique ou usage commercial est interdit sans accord.</p>
+      <h4>6. Acceptation</h4>
+      <p>L'utilisation de ce site et l'envoi de tout contenu valent acceptation de la présente charte.</p>
+    </div>
+    <div class="modal-btns"><button class="modal-confirm" onclick="closeCharte()">J'ai compris</button></div>
+  </div>
+</div>
+
+<footer><p>Soirée d'été — CSE IQVIA &nbsp;·&nbsp; <a href="#" onclick="event.preventDefault();openCharte();return false;">Charte &amp; droit à l'image</a></p></footer>
 
 <script>
 
@@ -2483,6 +2521,8 @@ async function compressImage(file) {
 
 async function doUpload() {
   if (!selectedFiles.length || !selectedCategory) return;
+  const _consent = document.getElementById('consentChk');
+  if (_consent && !_consent.checked) { showToast("Merci d'accepter la charte avant de partager"); return; }
   const btn = document.getElementById('sbtn');
   const uploaderName = document.getElementById('uname').value.trim() || 'Invité';
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Envoi en cours…';
@@ -3238,6 +3278,8 @@ function closeLB() {
 // Fermeture des overlays au clavier (Échap) — accessibilité
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
+  const ch = document.getElementById('charteModal');
+  if (ch && ch.classList.contains('open')) { closeCharte(); return; }
   const lb = document.getElementById('lb');
   if (lb && lb.classList.contains('open')) { closeLB(); return; }
   const mb = document.getElementById('modalBg');
@@ -3245,6 +3287,13 @@ document.addEventListener('keydown', function(e){
   const intro = document.getElementById('introScreen');
   if (intro && intro.style.display !== 'none') { closeIntro(); }
 });
+
+// ── Charte d'utilisation & droit à l'image ──
+function openCharte(){ const m=document.getElementById('charteModal'); if(m) m.classList.add('open'); }
+function closeCharte(){ const m=document.getElementById('charteModal'); if(m) m.classList.remove('open'); }
+function onConsentChange(){ try{ localStorage.setItem('charteOK', document.getElementById('consentChk').checked ? '1':'0'); }catch(_){} }
+// Restaurer le consentement déjà donné sur cet appareil
+(function(){ try{ const c=document.getElementById('consentChk'); if(c && localStorage.getItem('charteOK')==='1') c.checked=true; }catch(_){} })();
 
 // ══════════════════════════════════════════
 //  DIAPORAMA — TOUTES CATÉGORIES
