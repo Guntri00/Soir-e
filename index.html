@@ -1873,7 +1873,7 @@ footer{
   </div>
   <div class="ss-counter" id="ssCounter"></div>
   <img class="slideshow-img" id="ssImg" src="" alt="" loading="lazy">
-  <video class="slideshow-img" id="ssVideo" style="display:none" playsinline muted></video>
+  <video class="slideshow-img" id="ssVideo" style="display:none" playsinline>
   <div class="slideshow-bar">
     <div class="ss-info">
       <strong id="ssName"></strong>
@@ -3572,12 +3572,18 @@ function ssShow(idx) {
     if (img) { img.style.display = 'none'; img.src = ''; }
     if (vid) {
       vid.style.display = 'block';
-      vid.muted = true;                    // autoplay nécessite le mode silencieux
+      vid.muted = false;                   // lecture AVEC le son
+      vid.volume = 1;
       vid.src = p.public_url;
       vid.onended = () => { if (ssPlaying) ssNext(); };       // passe à la suivante à la fin
       vid.onerror = () => { ssNext(); };                       // vidéo illisible → on saute
       try { vid.currentTime = 0; } catch(_){}
-      const pr = vid.play(); if (pr && pr.catch) pr.catch(()=>{});
+      const pr = vid.play();
+      if (pr && pr.catch) pr.catch(() => {
+        // Son bloqué par le navigateur (politique autoplay) → on rejoue en muet pour ne pas bloquer le diaporama
+        vid.muted = true;
+        vid.play().catch(()=>{});
+      });
     }
     if (bar) { bar.style.transition = 'none'; bar.style.width = '0%'; } // la vidéo dure sa propre durée
   } else {
