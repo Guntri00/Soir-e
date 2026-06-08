@@ -18,7 +18,7 @@ create table if not exists public.events (
   couple_name        text,
   wedding_date       text,
   venue              text,
-  primary_color      text         default '#1FB6C1',
+  primary_color      text         default '#FF7A1A',
   admin_secret_hash  text,
   expires_at         timestamptz,
   allowed_categories text[]       default '{}',
@@ -171,7 +171,7 @@ values
   ('soiree-ete-2026',
    'Soirée d''été — CSE IQVIA',
    true, true, false, 500,
-   'Soirée d''été', 'Jeudi 11 Juin 2026', 'CSE IQVIA', '#1FB6C1',
+   'Soirée d''été', 'Jeudi 11 Juin 2026', 'CSE IQVIA', '#FF7A1A',
    '2026-06-30 23:59:00+00')
 on conflict (id) do update
   set name          = excluded.name,
