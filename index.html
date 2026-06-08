@@ -866,9 +866,9 @@ to{opacity:1;transform:translateY(0)}}
 /* ── Mementos 3D : Flip cards ── */
 .cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:4px 0 20px}
 .flip-wrap{perspective:700px;height:160px;cursor:pointer}
-.flip-card{width:100%;height:100%;transform-style:preserve-3d;transition:transform .58s cubic-bezier(.4,.2,.2,1);position:relative}
+.flip-card{width:100%;height:100%;-webkit-transform-style:preserve-3d;transform-style:preserve-3d;transition:transform .58s cubic-bezier(.4,.2,.2,1);position:relative;will-change:transform}
 .flip-card.flipped{transform:rotateY(180deg)}
-.flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.flip-face{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .flip-front{background:var(--warm);border:1.5px solid var(--gold-m);box-shadow:0 4px 16px rgba(255,122,26,.08);transition:border-color .3s,box-shadow .3s}
 .flip-front:hover{border-color:var(--gold);box-shadow:0 8px 28px rgba(255,122,26,.14)}
 .flip-front.flip-sel{background:linear-gradient(135deg,#FFF0D6,#FFE2CE);border-color:var(--gold);box-shadow:0 8px 28px rgba(255,122,26,.18)}
@@ -1031,8 +1031,7 @@ header::before{
 #front-diner::after{box-shadow:inset 0 0 0 12px rgba(240,65,78,.12),0 0 18px rgba(240,65,78,.14)}
 #front-danse::after{background:conic-gradient(from 20deg,rgba(255,255,255,.45),rgba(255,209,102,.2),rgba(240,65,78,.2),rgba(255,255,255,.45))}
 .cat-pill-emoji,.cw-emoji,#badge-emoji,#detail-cat-emoji{filter:drop-shadow(0 8px 12px rgba(192,52,27,.18));animation:emojiBob 4.4s ease-in-out infinite}
-/* Emoji des cartes (contexte 3D preserve-3d) : pas de filter/transform anime -> evite le "pop" pendant le flip */
-.flip-emoji{transform:translateZ(0)}
+/* Emoji des cartes : pas de filter ni d'animation (evite les artefacts dans le contexte 3D du flip) */
 .zone{
   position:relative;overflow:hidden;border-radius:14px;
   background:
