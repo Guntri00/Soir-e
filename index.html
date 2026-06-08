@@ -704,7 +704,7 @@ to{opacity:1;transform:translateY(0)}}
 }
 .cocktail-ai-img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;
-  opacity:.96;filter:contrast(1.06) saturate(1.06) drop-shadow(0 28px 52px rgba(0,0,0,.44));
+  opacity:.96;filter:drop-shadow(0 16px 30px rgba(0,0,0,.4));
   animation:cocktailFloat 6.2s ease-in-out infinite;
   transform-origin:50% 52%;
 }
@@ -1129,6 +1129,62 @@ header::before{
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
 }
+
+/* Variante plus respirable : plus de finesse, moins de bruit visuel */
+body::before{opacity:.58}
+body::after{opacity:.22;background-size:150px 150px,210px 210px;animation-duration:46s}
+header::before{opacity:.62;filter:blur(1px)}
+.charm{opacity:0!important;filter:saturate(.85);animation-duration:28s!important}
+.charm:nth-child(-n+10){opacity:1!important}
+.charm:nth-child(2n){display:none}
+.summer-sun-3d{opacity:.58;filter:blur(1px) drop-shadow(0 0 32px rgba(255,122,26,.22))}
+.summer-floor-3d{opacity:.34;filter:saturate(.8)}
+.summer-disco-3d{width:54px;height:54px;right:17%;top:17%;opacity:.62;filter:saturate(.85)}
+.summer-garland-3d{opacity:.68;top:8%}
+.summer-bulb{width:6px;height:6px;box-shadow:0 0 12px rgba(255,209,102,.62)}
+.summer-beam{opacity:.2;filter:blur(16px)}
+.cocktail-depth{opacity:.56}
+.cocktail-particle{opacity:.56;width:3px;height:3px;box-shadow:0 0 10px rgba(255,122,26,.5)}
+.cocktail-particle.p4,.cocktail-particle.p5{display:none}
+.cocktail-stage::before{opacity:.24}
+.cocktail-stage::after{opacity:.2}
+.cocktail-glow-3d{opacity:.58}
+.flip-wrap{animation-duration:8s}
+.flip-front::before,.cat-pill::before,.zone::before,.qr-box::before,.cat-widget::before{opacity:.36}
+.flip-front::after{opacity:.46;width:58px;height:58px;right:-15px;bottom:-16px;animation-duration:12s}
+.flip-emoji,.cat-pill-emoji,.cw-emoji,#badge-emoji,#detail-cat-emoji{animation-duration:6.5s}
+.zone::after{opacity:.46;height:42px;bottom:-18px;animation-duration:8s}
+.uico{animation-duration:6s}
+.uico::after{opacity:.56;animation-duration:4.2s}
+.camera-frame{animation-duration:5.5s;box-shadow:0 0 0 9999px rgba(42,14,34,.14),0 0 18px rgba(255,122,26,.16),inset 0 0 22px rgba(255,209,102,.12)}
+.cam-shoot-btn,#btnRecord{animation:none}
+.cat-widget,.qr-box,.qr-steps,.modal{box-shadow:0 12px 28px rgba(192,52,27,.09),0 0 0 1px rgba(255,255,255,.32)}
+.cat-widget:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(192,52,27,.14)}
+.gitem{box-shadow:0 8px 20px rgba(42,14,34,.09)}
+.gitem:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 14px 30px rgba(42,14,34,.16)}
+.gitem:hover img,.cw-thumb:hover img{transform:scale(1.045);filter:saturate(1.06) contrast(1.02)}
+.qr-box img{animation-duration:8s;box-shadow:0 0 0 8px rgba(255,209,102,.1),0 12px 26px rgba(42,14,34,.1)}
+.qr-steps .sn{animation-duration:5s}
+
+/* Petits plus discrets : reflets premium sur surfaces clés */
+.panel.on{animation:panelArrive .42s ease both}
+.cat-widget::after,.qr-box::after,.zone::before{
+  content:"";position:absolute;pointer-events:none;
+}
+.cat-widget::after,.qr-box::after{
+  left:14px;right:14px;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.72),transparent);
+  opacity:.7;
+}
+.zone:focus-within,.zone:hover,.cat-widget:hover,.qr-box:hover{
+  outline:1px solid rgba(255,209,102,.34);
+  outline-offset:2px;
+}
+.tab:not(.on):hover,.upload-tab:not(.on):hover{
+  background:rgba(255,243,224,.86);
+  box-shadow:0 8px 22px rgba(192,52,27,.08);
+}
+@keyframes panelArrive{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 <!-- Vercel Web Analytics (sans cookie) -->
 <script defer src="/_vercel/insights/script.js"></script>
@@ -1149,30 +1205,8 @@ header::before{
   <div class="intro-damask"></div>
   <div id="cocktail-visual" aria-hidden="true">
     <div class="cocktail-stage">
-      <div class="summer-sun-3d"></div>
-      <div class="summer-beam beam-a"></div>
-      <div class="summer-beam beam-b"></div>
-      <div class="summer-floor-3d"></div>
-      <div class="summer-disco-3d"></div>
-      <div class="summer-garland-3d">
-        <span class="summer-bulb"></span>
-        <span class="summer-bulb"></span>
-        <span class="summer-bulb"></span>
-        <span class="summer-bulb"></span>
-        <span class="summer-bulb"></span>
-        <span class="summer-bulb"></span>
-      </div>
       <div class="cocktail-glow-3d"></div>
-      <div class="cocktail-depth orbit-a"></div>
-      <div class="cocktail-depth orbit-b"></div>
-      <span class="cocktail-particle p1"></span>
-      <span class="cocktail-particle p2"></span>
-      <span class="cocktail-particle p3"></span>
-      <span class="cocktail-particle p4"></span>
-      <span class="cocktail-particle p5"></span>
-      <img class="cocktail-layer-img cocktail-volume-img" src="cocktail-intro-ai.png" alt="">
-      <img class="cocktail-layer-img cocktail-rim-img" src="cocktail-intro-ai.png" alt="">
-      <img class="cocktail-ai-img" src="cocktail-intro-ai.png" alt="">
+      <img class="cocktail-ai-img" src="cocktail-intro-ai.png" alt="" decoding="async" fetchpriority="high">
     </div>
   </div>
   <div class="intro-edges"></div>
@@ -1238,13 +1272,13 @@ header::before{
       stage.style.setProperty('--rx', rx.toFixed(2) + 'deg');
     }
   }
-  document.addEventListener('mousemove', function(e){
-    setDepth(e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5);
-  });
-  window.addEventListener('deviceorientation', function(e){
-    if (typeof e.gamma !== 'number' || typeof e.beta !== 'number') return;
-    setDepth(Math.max(-0.5, Math.min(0.5, e.gamma / 45)), Math.max(-0.5, Math.min(0.5, (e.beta - 45) / 60)));
-  });
+  // Parallaxe léger réservé au desktop (souris). Pas de gyroscope sur mobile : il
+  // recomposait la scène ~60×/s et faisait planter les téléphones.
+  if (window.matchMedia && window.matchMedia('(pointer:fine)').matches) {
+    document.addEventListener('mousemove', function(e){
+      setDepth(e.clientX / innerWidth - 0.5, e.clientY / innerHeight - 0.5);
+    }, { passive:true });
+  }
 })();
 </script>
 
