@@ -1131,7 +1131,7 @@ header::before{opacity:.62;filter:blur(1px)}
   <div id="cocktail-visual" aria-hidden="true">
     <div class="cocktail-stage">
       <div class="cocktail-glow-3d"></div>
-      <img class="cocktail-ai-img" src="cocktail-intro-ai.png" alt="" decoding="async" fetchpriority="high">
+      <img class="cocktail-ai-img" src="cocktail-intro-ai.jpg" alt="" decoding="async" fetchpriority="high">
     </div>
   </div>
   <div class="intro-edges"></div>
@@ -1231,9 +1231,9 @@ header::before{opacity:.62;filter:blur(1px)}
     <div id="step-category">
       <p class="cat-title">Dans quel moment êtes-vous ?</p>
       <p class="cat-sub">Choisissez une catégorie pour mieux organiser vos souvenirs</p>
-      <p class="flip-hint">Retournez la carte pour choisir</p>
+      <p class="flip-hint">Touchez une catégorie pour commencer</p>
       <div class="cards-grid">
-        <div class="flip-wrap" onclick="flipCard('ceremonie')">
+        <div class="flip-wrap" onclick="selectCategory('ceremonie','🍹','Apéro &amp; Jeux')">
           <div class="flip-card" id="card-ceremonie">
             <div class="flip-face flip-front" id="front-ceremonie">
               <div class="flip-emoji">🍹</div>
@@ -1246,7 +1246,7 @@ header::before{opacity:.62;filter:blur(1px)}
             </div>
           </div>
         </div>
-        <div class="flip-wrap" onclick="flipCard('cocktail')">
+        <div class="flip-wrap" onclick="selectCategory('cocktail','🍖','Barbecue')">
           <div class="flip-card" id="card-cocktail">
             <div class="flip-face flip-front" id="front-cocktail">
               <div class="flip-emoji">🍖</div>
@@ -1259,7 +1259,7 @@ header::before{opacity:.62;filter:blur(1px)}
             </div>
           </div>
         </div>
-        <div class="flip-wrap" onclick="flipCard('diner')">
+        <div class="flip-wrap" onclick="selectCategory('diner','🍸','Cocktail')">
           <div class="flip-card" id="card-diner">
             <div class="flip-face flip-front" id="front-diner">
               <div class="flip-emoji">🍸</div>
@@ -1272,7 +1272,7 @@ header::before{opacity:.62;filter:blur(1px)}
             </div>
           </div>
         </div>
-        <div class="flip-wrap" onclick="flipCard('danse')">
+        <div class="flip-wrap" onclick="selectCategory('danse','🪩','Dance Floor')">
           <div class="flip-card" id="card-danse">
             <div class="flip-face flip-front" id="front-danse">
               <div class="flip-emoji">🪩</div>
