@@ -2029,7 +2029,6 @@ async function initVideoCamera() {
   }
 }
 
-let _videoNoMic = false; // bascule sur caméra seule si le micro est refusé (iOS)
 async function requestVideoPermission() {
   const vid     = document.getElementById('videoLive');
   const permEl  = document.getElementById('videoPermission');
@@ -2038,47 +2037,36 @@ async function requestVideoPermission() {
   if (btn) { btn.disabled = true; btn.textContent = 'Activation…'; }
 
   const f = videoFacingMode;
-  const wantAudio = !_videoNoMic;
-  // iOS n'autorise getUserMedia QUE dans le geste utilisateur → une SEULE demande par tap (pas de boucle hors geste)
-  let stream = null, err = null;
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: f, width:{ideal:1280}, height:{ideal:720}, frameRate:{ideal:30} },
-      audio: wantAudio
-    });
-  } catch(e) { err = e; stream = null; }
-
-  if (!stream) {
-    if (recWrap) recWrap.style.display = 'none';
-    if (permEl)  permEl.style.display = 'flex';
-    if (wantAudio && err && err.name === 'NotAllowedError') {
-      // Permission refusée AVEC le micro → on retentera en caméra SEULE au prochain tap (sans son)
-      _videoNoMic = true;
-      if (btn) { btn.disabled = false; btn.textContent = '📷 Activer la caméra (sans son)'; }
-      showToast('Micro non autorisé. Touchez le bouton pour filmer sans son — ou autorisez le micro dans les Réglages.');
-    } else {
-      if (btn) { btn.disabled = false; btn.textContent = 'Réessayer'; }
-      showToast('Caméra momentanément indisponible — touchez « Réessayer ». Sinon : Réglages → Safari → Caméra/Micro.');
-    }
-    return;
+  // Plusieurs tentatives (la dernière sans micro) → robuste sur Android : si une contrainte échoue, on enchaîne
+  const tries = [
+    { video: { facingMode: f, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30} }, audio: true },
+    { video: { facingMode: f, width:{ideal:1280}, height:{ideal:720},  frameRate:{ideal:30} }, audio: true },
+    { video: { facingMode: f }, audio: true },
+    { video: true, audio: true },
+    { video: true, audio: false }
+  ];
+  for (const c of tries) {
+    try {
+      videoStream  = await navigator.mediaDevices.getUserMedia(c);
+      cameraStream = new MediaStream(videoStream.getVideoTracks());
+      try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+      videoStream.getTracks().forEach(t => {
+        t.addEventListener('ended', () => {
+          if (document.hidden) return;
+          _videoWasActive = true;
+          _reacquireCameraWithRetry();
+        });
+      });
+      if (permEl)  permEl.style.display = 'none';
+      if (recWrap) recWrap.style.display = 'block';
+      vid.srcObject = videoStream;
+      await vid.play().catch(() => {});
+      if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
+      return;
+    } catch(err) { videoStream = null; }
   }
-
-  if (_videoNoMic) showDlToast('🎤 Vidéo sans son (micro non autorisé)');
-  videoStream  = stream;
-  cameraStream = new MediaStream(videoStream.getVideoTracks());
-  try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
-  videoStream.getTracks().forEach(t => {
-    t.addEventListener('ended', () => {
-      if (document.hidden) return;
-      _videoWasActive = true;
-      _reacquireCameraWithRetry();
-    });
-  });
-  if (permEl)  permEl.style.display = 'none';
-  if (recWrap) recWrap.style.display = 'block';
-  vid.srcObject = videoStream;
-  await vid.play().catch(() => {});
   if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
+  showToast('Caméra non disponible — vérifiez les permissions dans votre navigateur');
 }
 
 // Changer de caméra (avant/arrière) en mode vidéo
@@ -2467,65 +2455,13 @@ function stopCamera() {
   }
 }
 
-let _flipping   = false;   // verrou : empêche les appuis multiples de se chevaucher
-let _camDevices = {};      // deviceId mémorisé par côté { user, environment } → flips suivants instantanés
-async function flipCamera() {
-  if (_flipping) return;   // un flip est déjà en cours → on ignore le tap
-  _flipping = true;
-  const fbtn = document.querySelector('.cam-flip-btn');
-  if (fbtn) fbtn.style.opacity = '.45';
-  try {
-    const video  = document.getElementById('cameraVideo');
-    const wrapEl = document.getElementById('cameraWrap');
-    const permEl = document.getElementById('cameraPermission');
-    if (permEl) permEl.style.display = 'none';
-    if (wrapEl) wrapEl.style.display = 'block';
-
-    const want = (facingMode === 'environment') ? 'user' : 'environment';
-
-    // mémoriser le deviceId du côté ACTUEL avant de couper
-    try { const st = cameraStream && cameraStream.getVideoTracks()[0] && cameraStream.getVideoTracks()[0].getSettings(); if (st && st.deviceId) _camDevices[facingMode] = st.deviceId; } catch(_){}
-
-    // couper le flux courant (l'aperçu garde la dernière image figée pendant la bascule, pas d'écran noir)
-    if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
-
-    // deviceId de la caméra voulue : cache → sinon détection par libellé (avant/arrière), SANS acquérir chaque caméra
-    let targetId = _camDevices[want] || null;
-    if (!targetId) {
-      try {
-        const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
-        const re = (want === 'user') ? /front|user|selfie|avant/i : /back|rear|environment|arri/i;
-        const m = cams.find(d => re.test(d.label || ''));
-        if (m) targetId = m.deviceId;
-      } catch(_){}
-    }
-
-    let stream = null;
-    // 1) deviceId direct = le plus RAPIDE (un seul appel)
-    if (targetId) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: targetId } }, audio:false }); } catch(_){ if (_camDevices[want] === targetId) _camDevices[want] = null; } }
-    // 2) facingMode exact
-    if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){} }
-    // 3) facingMode ideal
-    if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: want } }, audio:false }); } catch(_){} }
-
-    if (!stream) {
-      showDlToast('Impossible de changer de caméra');
-      try { cameraStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facingMode }, audio:false }); if (video){ video.srcObject = cameraStream; await video.play().catch(()=>{}); } } catch(_){}
-      return;
-    }
-
-    cameraStream = stream;
-    try {
-      const st = stream.getVideoTracks()[0].getSettings();
-      facingMode = (st.facingMode === 'user' || st.facingMode === 'environment') ? st.facingMode : want;
-      if (st.deviceId) _camDevices[facingMode] = st.deviceId;   // mémoriser → prochains flips instantanés
-    } catch(_) { facingMode = want; }
-    if (video) { video.srcObject = stream; await video.play().catch(()=>{}); }
-  } finally {
-    _flipping = false;
-    const fb = document.querySelector('.cam-flip-btn');
-    if (fb) fb.style.opacity = '';
+function flipCamera() {
+  facingMode = facingMode === 'environment' ? 'user' : 'environment';
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
   }
+  startCamera();
 }
 
 async function toggleFlash() {
