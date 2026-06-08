@@ -838,7 +838,7 @@ body.scrolling .charm,body.scrolling .cat-float{animation-play-state:paused}
   <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png">
   <meta name="msapplication-TileImage" content="/icons/icon-192.png">
   <meta name="msapplication-TileColor" content="#2D3748">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // Service Worker : register + auto-update quand nouvelle version déployée
 if ('serviceWorker' in navigator) {
@@ -856,10 +856,12 @@ if ('serviceWorker' in navigator) {
           }
         });
       });
-      // Reload auto quand le SW actif change (après skipWaiting)
+      // Recharger UNIQUEMENT lors d'une vraie mise à jour (la page était déjà contrôlée),
+      // PAS au tout premier passage — sinon le SW prend le contrôle et l'intro se relance.
+      const hadController = !!navigator.serviceWorker.controller;
       let reloaded = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (reloaded) return;
+        if (!hadController || reloaded) return;
         reloaded = true;
         window.location.reload();
       });
@@ -1555,7 +1557,7 @@ footer{
   window.closeIntro = closeIntro;
 
   // Auto-fermeture après 6s
-  setTimeout(closeIntro, 6000);
+  setTimeout(closeIntro, 3500);
 })();
 
 </script>
