@@ -343,17 +343,17 @@ footer{text-align:center;padding:24px;font-size:10px;letter-spacing:.18em;color:
 
 /* ── Toggle vidéo ── */
 .toggle-video-card {
-  background:var(--card-bg,#2a1f16);
-  border:1px solid rgba(255,122,26,.2);
+  background:var(--warm);
+  border:1px solid var(--gold-m);
   border-radius:10px;padding:14px 18px;
   display:flex;align-items:center;justify-content:space-between;
   gap:12px;margin-bottom:12px;
 }
 .toggle-video-card .tlabel {
-  font-size:13px;font-weight:500;color:#e8d5b5;letter-spacing:.03em;
+  font-size:13px;font-weight:500;color:var(--dark);letter-spacing:.03em;
 }
 .toggle-video-card .tsub {
-  font-size:11px;color:#9e8a7a;margin-top:2px;letter-spacing:.02em;
+  font-size:11px;color:var(--stone);margin-top:2px;letter-spacing:.02em;
 }
 @media (max-width:768px){
   [class]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
@@ -373,7 +373,7 @@ body{-webkit-tap-highlight-color:transparent;overflow-x:hidden}
 a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
 @media(max-width:600px){ input,select,textarea{font-size:16px!important} }
 .select-bar{top:calc(68px + env(safe-area-inset-top,0px))}
-@media(hover:none){ .photo-card .photo-dl-btn,.photo-card .photo-select-cb,.photo-card .del-btn{opacity:1} }
+@media(hover:none){ .photo-card .photo-card-actions,.photo-card .photo-dl-btn,.photo-card .photo-del-btn,.photo-card .photo-select-cb{opacity:1} }
 </style>
 </head>
 <body>
@@ -382,7 +382,7 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
 <div class="login-wrap" id="loginWrap">
   <div class="login-box">
     <div class="login-logo">
-      <h1>Memen<em>tos</em></h1>
+      <h1>Soirée <em>d'été</em></h1>
       <p>Espace organisateur</p>
     </div>
     <div class="login-field">
@@ -403,7 +403,7 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
 
   <header class="dash-header">
     <div class="dash-logo">
-      Memen<em>tos</em>
+      Soirée <em>d'été</em>
       <span>Dashboard organisateur</span>
     </div>
     <div class="dash-actions">
@@ -484,7 +484,7 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
           <input type="checkbox" id="videoToggle" onchange="toggleVideo()">
           <span class="toggle-slider"></span>
         </label>
-        <span id="videoToggleStatus" style="font-size:10px;color:#9e8a7a;letter-spacing:.04em">OFF</span>
+        <span id="videoToggleStatus" style="font-size:10px;color:var(--stone);letter-spacing:.04em">OFF</span>
       </div>
     </div>
 

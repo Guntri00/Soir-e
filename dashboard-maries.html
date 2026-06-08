@@ -165,7 +165,7 @@ body::after{
 }
 .hero::after{
   content:'';position:absolute;bottom:0;left:0;right:0;height:60px;
-  background:linear-gradient(transparent,rgba(42,18,38,.1));pointer-events:none;
+  background:linear-gradient(transparent,rgba(45,55,72,.1));pointer-events:none;
 }
 
 /* Pétales hero */
@@ -243,7 +243,7 @@ body::after{
   display:flex;align-items:center;justify-content:space-between;
   gap:20px;flex-wrap:wrap;margin-bottom:40px;
   position:relative;overflow:hidden;
-  box-shadow:0 12px 40px rgba(42,18,38,.2);
+  box-shadow:0 12px 40px rgba(45,55,72,.2);
 }
 .ss-card::before{
   content:'';position:absolute;
@@ -396,21 +396,21 @@ body::after{
   background:var(--rose);cursor:pointer;
   transition:all .3s;
 }
-.photo-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(42,18,38,.15)}
+.photo-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(45,55,72,.15)}
 .photo-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
-.video-thumb{position:relative;width:100%;aspect-ratio:1;background:#1E0A1A;overflow:hidden}
+.video-thumb{position:relative;width:100%;aspect-ratio:1;background:#2D3748;overflow:hidden}
 .video-thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .video-thumb .vplay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.video-thumb .vplay span{width:48px;height:48px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.5);font-size:20px;padding-left:4px;color:#1E0A1A}
+.video-thumb .vplay span{width:48px;height:48px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.5);font-size:20px;padding-left:4px;color:#2D3748}
 .photo-card-meta{
-  padding:8px 10px;background:rgba(42,18,38,.6);
+  padding:8px 10px;background:rgba(45,55,72,.6);
   border-top:1px solid rgba(255,122,26,.15);
 }
 .photo-meta-name{font-size:11px;color:rgba(253,243,241,.9)}
 .photo-meta-time{font-size:10px;color:rgba(255,255,255,.6)}
 .photo-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(transparent 50%,rgba(42,18,38,.6));
+  background:linear-gradient(transparent 50%,rgba(45,55,72,.6));
   opacity:0;transition:opacity .25s;
   display:flex;align-items:flex-end;justify-content:flex-end;
   padding:10px;
@@ -438,7 +438,7 @@ body::after{
 
 /* LIGHTBOX */
 .lb{
-  position:fixed;inset:0;background:rgba(42,18,38,.95);
+  position:fixed;inset:0;background:rgba(45,55,72,.95);
   z-index:200;display:none;align-items:center;justify-content:center;padding:20px;
 }
 .lb.open{display:flex;animation:fadeIn .3s ease}
@@ -506,7 +506,7 @@ body::after{
 }
 .ss-num{
   position:absolute;top:18px;right:18px;z-index:10;
-  background:rgba(42,18,38,.6);backdrop-filter:blur(12px);
+  background:rgba(45,55,72,.6);backdrop-filter:blur(12px);
   color:rgba(255,255,255,.7);font-size:11px;padding:6px 16px;border-radius:14px;
   font-family:'Lato',sans-serif;
 }
@@ -574,7 +574,7 @@ body::after{
   padding:12px 24px;border-radius:24px;
   font-size:12px;letter-spacing:.08em;
   z-index:400;opacity:0;transition:opacity .3s;
-  white-space:nowrap;box-shadow:0 8px 32px rgba(42,18,38,.4);
+  white-space:nowrap;box-shadow:0 8px 32px rgba(45,55,72,.4);
   pointer-events:none;border:1px solid rgba(255,122,26,.2);
 }
 .toast.show{opacity:1}
@@ -776,8 +776,8 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
 
     <!-- CITATION DU JOUR -->
     <div class="message-card">
-      <p id="quoteText">L'amour ne se regarde pas l'un l'autre, il regarde ensemble dans la même direction.</p>
-      <cite id="quoteAuthor">— Antoine de Saint-Exupéry</cite>
+      <p id="quoteText">Les plus beaux souvenirs sont ceux qu'on partage.</p>
+      <cite id="quoteAuthor">— Soirée d'été</cite>
     </div>
 
     <!-- DIAPORAMA -->
@@ -786,7 +786,7 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
       <span>🎬</span>
       <div class="sec-divider-line"></div>
     </div>
-    <h2 class="sec-title">Revivez <em>votre journée</em></h2>
+    <h2 class="sec-title">Revivez <em>votre soirée</em></h2>
     <p class="sec-sub">Toutes vos photos défilent en plein écran avec la musique du souvenir</p>
 
     <div class="ss-card">
@@ -941,13 +941,13 @@ const CATS = {
   danse:    {emoji:'🪩',name:'Dance Floor'},
 };
 
-// Citations romantiques
+// Citations conviviales
 const QUOTES = [
-  {text:"L'amour ne se regarde pas l'un l'autre, il regarde ensemble dans la même direction.", author:"Antoine de Saint-Exupéry"},
-  {text:"Un grand amour, c'est un espace où les deux amoureux peuvent grandir sans jamais se perdre.", author:"Simone de Beauvoir"},
-  {text:"Le bonheur, c'est d'être aimé pour ce que l'on est.", author:"Gustave Flaubert"},
-  {text:"Aimer, c'est trouver sa richesse hors de soi.", author:"Alain"},
-  {text:"Les plus belles histoires d'amour sont celles qui durent toute une vie.", author:"Proverbe"},
+  {text:"Les plus beaux souvenirs sont ceux qu'on partage.", author:"Soirée d'été"},
+  {text:"L'été, c'est le bonheur en plein air et entre collègues.", author:"Soirée d'été"},
+  {text:"Une belle soirée se vit ensemble et se savoure longtemps.", author:"Soirée d'été"},
+  {text:"Ce sont les gens qui font les grands moments.", author:"Soirée d'été"},
+  {text:"Capturez l'instant, partagez la joie.", author:"Soirée d'été"},
 ];
 
 // ── Échappement HTML ──
