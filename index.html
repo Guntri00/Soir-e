@@ -2428,64 +2428,65 @@ function stopCamera() {
   }
 }
 
+let _flipping   = false;   // verrou : empêche les appuis multiples de se chevaucher
+let _camDevices = {};      // deviceId mémorisé par côté { user, environment } → flips suivants instantanés
 async function flipCamera() {
-  const video  = document.getElementById('cameraVideo');
-  const wrapEl = document.getElementById('cameraWrap');
-  const permEl = document.getElementById('cameraPermission');
-  if (permEl) permEl.style.display = 'none';
-  if (wrapEl) wrapEl.style.display = 'block';
+  if (_flipping) return;   // un flip est déjà en cours → on ignore le tap
+  _flipping = true;
+  const fbtn = document.querySelector('.cam-flip-btn');
+  if (fbtn) fbtn.style.opacity = '.45';
+  try {
+    const video  = document.getElementById('cameraVideo');
+    const wrapEl = document.getElementById('cameraWrap');
+    const permEl = document.getElementById('cameraPermission');
+    if (permEl) permEl.style.display = 'none';
+    if (wrapEl) wrapEl.style.display = 'block';
 
-  // deviceId de la caméra ACTUELLE (pour en choisir une AUTRE de façon fiable)
-  let currentId = null;
-  try { const tr = cameraStream && cameraStream.getVideoTracks()[0]; if (tr && tr.getSettings) currentId = tr.getSettings().deviceId || null; } catch(_){}
+    const want = (facingMode === 'environment') ? 'user' : 'environment';
 
-  // libérer le flux courant
-  if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
-  if (video) { try { video.srcObject = null; } catch(_){} }
+    // mémoriser le deviceId du côté ACTUEL avant de couper
+    try { const st = cameraStream && cameraStream.getVideoTracks()[0] && cameraStream.getVideoTracks()[0].getSettings(); if (st && st.deviceId) _camDevices[facingMode] = st.deviceId; } catch(_){}
 
-  const want = (facingMode === 'environment') ? 'user' : 'environment';
-  let stream = null;
+    // couper le flux courant (l'aperçu garde la dernière image figée pendant la bascule, pas d'écran noir)
+    if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
 
-  // 1) facingMode exact : garantit le bon côté (avant/arrière) quand l'appareil le supporte
-  try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){}
+    // deviceId de la caméra voulue : cache → sinon détection par libellé (avant/arrière), SANS acquérir chaque caméra
+    let targetId = _camDevices[want] || null;
+    if (!targetId) {
+      try {
+        const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+        const re = (want === 'user') ? /front|user|selfie|avant/i : /back|rear|environment|arri/i;
+        const m = cams.find(d => re.test(d.label || ''));
+        if (m) targetId = m.deviceId;
+      } catch(_){}
+    }
 
-  // 2) facingMode ideal MAIS on vérifie qu'il a réellement basculé (sinon on rejette)
-  if (!stream) {
+    let stream = null;
+    // 1) deviceId direct = le plus RAPIDE (un seul appel)
+    if (targetId) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: targetId } }, audio:false }); } catch(_){ if (_camDevices[want] === targetId) _camDevices[want] = null; } }
+    // 2) facingMode exact
+    if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){} }
+    // 3) facingMode ideal
+    if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: want } }, audio:false }); } catch(_){} }
+
+    if (!stream) {
+      showDlToast('Impossible de changer de caméra');
+      try { cameraStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facingMode }, audio:false }); if (video){ video.srcObject = cameraStream; await video.play().catch(()=>{}); } } catch(_){}
+      return;
+    }
+
+    cameraStream = stream;
     try {
-      const s = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: want } }, audio:false });
-      if (s.getVideoTracks()[0].getSettings().facingMode === want) stream = s;
-      else s.getTracks().forEach(t => t.stop());
-    } catch(_){}
+      const st = stream.getVideoTracks()[0].getSettings();
+      facingMode = (st.facingMode === 'user' || st.facingMode === 'environment') ? st.facingMode : want;
+      if (st.deviceId) _camDevices[facingMode] = st.deviceId;   // mémoriser → prochains flips instantanés
+    } catch(_) { facingMode = want; }
+    if (video) { video.srcObject = stream; await video.play().catch(()=>{}); }
+  } finally {
+    _flipping = false;
+    const fb = document.querySelector('.cam-flip-btn');
+    if (fb) fb.style.opacity = '';
   }
-
-  // 3) Repli par deviceId : choisir la caméra dont le facing correspond VRAIMENT à "want"
-  if (!stream) {
-    try {
-      const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
-      let anyOther = null;
-      for (const cam of cams) {
-        try {
-          const s = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: cam.deviceId } }, audio:false });
-          const fm = s.getVideoTracks()[0].getSettings().facingMode;
-          if (fm === want) { stream = s; break; }
-          if (!fm && cam.deviceId !== currentId && !anyOther) { anyOther = s; continue; } // facing inconnu : garder comme repli
-          s.getTracks().forEach(t => t.stop());
-        } catch(_){}
-      }
-      if (!stream && anyOther) stream = anyOther;
-    } catch(_){}
-  }
-
-  if (!stream) {
-    showDlToast('Impossible de changer de caméra');
-    // ne pas rester sans flux : reprendre la caméra actuelle
-    try { cameraStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: facingMode }, audio:false }); if (video){ video.srcObject = cameraStream; await video.play().catch(()=>{}); } } catch(_){}
-    return;
-  }
-
-  cameraStream = stream;
-  try { const fm = stream.getVideoTracks()[0].getSettings().facingMode; facingMode = (fm === 'user' || fm === 'environment') ? fm : want; } catch(_) { facingMode = want; }
-  if (video) { video.srcObject = stream; await video.play().catch(()=>{}); }
 }
 
 async function toggleFlash() {
