@@ -267,7 +267,7 @@ h1 em{font-style:italic;color:var(--gold)}
 .previews{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
 .prev{aspect-ratio:1;border-radius:3px;overflow:hidden;position:relative;background:var(--gold-m)}
 .prev img{width:100%;height:100%;object-fit:cover}
-.prev .rm{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(45,55,72,.75);border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.prev .rm{position:absolute;top:4px;right:4px;width:28px;height:28px;background:rgba(45,55,72,.75);border:none;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .prog{margin-top:18px}
 .prog-row{display:flex;justify-content:space-between;font-size:11px;color:var(--stone);margin-bottom:7px}
 .prog-bar{height:2px;background:var(--gold-m);border-radius:1px;overflow:hidden}
@@ -650,7 +650,7 @@ body.scrolling .charm,body.scrolling .cat-float{animation-play-state:paused}
 }
 .cocktail-ai-img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:2;
-  opacity:.96;filter:drop-shadow(0 16px 30px rgba(0,0,0,.4));
+  opacity:.96;
   animation:cocktailFloat 6.2s ease-in-out infinite;
   transform-origin:50% 52%;
 }
@@ -1222,8 +1222,7 @@ header::before{opacity:.62;filter:blur(1px)}
     linear-gradient(135deg,rgba(255,243,224,.18),rgba(255,209,102,.08)),
     conic-gradient(from 0deg,rgba(255,209,102,.8),rgba(255,122,26,.35),rgba(240,65,78,.45),rgba(255,243,224,.72),rgba(255,209,102,.8));
   box-shadow:0 0 24px rgba(255,209,102,.22),inset 0 0 0 1px rgba(255,255,255,.28);
-  opacity:.72;filter:blur(.1px);
-  animation:qrSquareSpin 13s linear infinite;
+  opacity:.55;
 }
 .qr-screen{
   position:relative;z-index:2;padding:14px;margin-top:7px;border-radius:22px;background:#fff;
@@ -1601,9 +1600,6 @@ footer{
 </script>
 
 <header>
-  <div style="text-align:right;padding:12px 20px 0">
-    <a href="dashboard-maries.html" style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#8A3A12;font-weight:600;text-decoration:none;transition:color .2s" onmouseover="this.style.color='#2D3748'" onmouseout="this.style.color='#8A3A12'">Connexion</a>
-  </div>
   <div class="orn"><div class="ol"></div><div class="od"></div><div class="ol or"></div></div>
   <p class="lbl">Soirée d'été — Galerie photos</p>
   <h1>Soirée <em>d'été</em></h1>
@@ -1720,7 +1716,7 @@ footer{
             <span class="cam-preview-label">Aperçu</span>
             <button class="cam-keep" onclick="keepPhoto()">Garder ✓</button>
           </div>
-          <img id="camPreviewImg" style="width:100%;border-radius:4px;display:block">
+          <img id="camPreviewImg" alt="Aperçu de la photo prise" style="width:100%;border-radius:4px;display:block">
         </div>
         <!-- Message si caméra non disponible -->
         <div id="cameraError" style="display:none" class="cam-error">
@@ -1898,7 +1894,7 @@ footer{
 
 <div class="dl-toast" id="dlToast"></div>
 <!-- BANNIÈRE OFFLINE -->
-<div id="offlineBanner" role="status" aria-live="polite" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#C0341B;color:#FFFFFF;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.15em;text-transform:uppercase;text-align:center;padding:10px 16px;box-shadow:0 2px 10px rgba(0,0,0,.25)">
+<div id="offlineBanner" role="status" aria-live="polite" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:#C0341B;color:#FFFFFF;font-family:'Jost',sans-serif;font-size:12px;letter-spacing:.15em;text-transform:uppercase;text-align:center;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;box-shadow:0 2px 10px rgba(0,0,0,.25)">
   ⚠︎ Connexion perdue — vos actions reprendront dès le retour du réseau
 </div>
 <!-- LIGHTBOX -->
@@ -1906,7 +1902,7 @@ footer{
   <button class="lb-x" aria-label="Fermer l'image" onclick="closeLB()">✕</button>
   <button class="lb-share" id="lbShareBtn" aria-label="Partager ce souvenir" onclick="event.stopPropagation();shareCurrentMedia()">📤 Partager</button>
   <img id="lbImg" src="" alt="" loading="lazy" style="display:block">
-  <video id="lbVideo" src="" controls playsinline style="display:none;max-width:100%;max-height:90vh;border-radius:8px"></video>
+  <video id="lbVideo" src="" controls playsinline style="display:none;max-width:100%;max-height:90dvh;border-radius:8px"></video>
 </div>
 
 <!-- MODAL CONFIRMATION SUPPRESSION -->
@@ -2419,13 +2415,28 @@ function stopCamera() {
   }
 }
 
-function flipCamera() {
+async function flipCamera() {
   facingMode = facingMode === 'environment' ? 'user' : 'environment';
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(t => t.stop());
-    cameraStream = null;
+  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  const video  = document.getElementById('cameraVideo');
+  const wrapEl = document.getElementById('cameraWrap');
+  const permEl = document.getElementById('cameraPermission');
+  if (permEl) permEl.style.display = 'none';
+  if (wrapEl) wrapEl.style.display = 'block';
+  // Caméra déjà autorisée → on récupère directement le nouveau flux, SANS réafficher l'écran d'autorisation
+  const tries = [
+    { video: { facingMode: { exact: facingMode } }, audio:false },
+    { video: { facingMode: facingMode }, audio:false },
+    { video: true, audio:false }
+  ];
+  for (const c of tries) {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia(c);
+      if (video) { video.srcObject = cameraStream; await video.play().catch(()=>{}); }
+      return;
+    } catch(_){}
   }
-  startCamera();
+  showDlToast('Impossible de changer de caméra');
 }
 
 async function toggleFlash() {
@@ -2468,7 +2479,7 @@ async function toggleFlash() {
 
 function takePhoto() {
   const video = document.getElementById('cameraVideo');
-  if (!video.srcObject) return;
+  if (!video.srcObject || !video.videoWidth) return; // éviter une capture vide si la caméra n'est pas prête
 
   const track    = cameraStream ? cameraStream.getVideoTracks()[0] : null;
   const hasTorch = track && track.getCapabilities && track.getCapabilities().torch;
@@ -2763,11 +2774,12 @@ async function doUpload() {
       });
       if (!uploadRes.ok) throw new Error(`Storage ${uploadRes.status}: ${await uploadRes.text()}`);
       const publicUrl = `${SB_URL}/storage/v1/object/public/${BUCKET}/${filename}`;
-      await fetch(`${SB_URL}/rest/v1/photos`, {
+      const insRes = await fetch(`${SB_URL}/rest/v1/photos`, {
         method:'POST', mode:'cors', credentials:'omit', signal: ctrl.signal,
         headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal' },
         body:JSON.stringify({ event_id:EVENT_ID, uploader_name:uploaderName, category:selectedCategory.id, storage_path:filename, public_url:publicUrl, uploaded_at:new Date().toISOString(), media_type: file._isVideo ? 'video' : 'image' })
       });
+      if (!insRes.ok) throw new Error(`Enregistrement ${insRes.status}: ${await insRes.text()}`);
       done++;
       setProgress(done, total, `Photo ${done} / ${total}`);
     } catch(err) {
@@ -3774,7 +3786,7 @@ async function downloadAllPhotos() {
     if (!done) throw new Error('Aucune photo téléchargeable');
 
     if (btn) btn.innerHTML = '⏳ Compression…';
-    const content = await zip.generateAsync({ type:'blob' }, (meta) => {
+    const content = await zip.generateAsync({ type:'blob', compression:'STORE' }, (meta) => {
       if (btn) btn.innerHTML = `⏳ ${Math.round(meta.percent)}%`;
     });
 
@@ -3942,8 +3954,8 @@ function _startCameraWatchdog() {
         wrapEl && wrapEl.style.display === 'block' && photoVid) {
       const streamDead = !hasCam || !cameraStream.active ||
                          cameraStream.getVideoTracks().every(t => t.readyState === 'ended');
-      const videoDead  = photoVid.paused || photoVid.readyState === 0 || photoVid.videoWidth === 0;
-      if (streamDead || videoDead) {
+      // Ne relancer QUE si le flux est réellement mort (pas juste un aperçu à 0px) → évite la « Reprise » en boucle
+      if (streamDead) {
         if (await _wasCameraEverGranted()) { _cameraWasActive = true; _reacquireCameraOnce(); }
       }
     }
@@ -4068,7 +4080,8 @@ document.addEventListener('visibilitychange', () => {
 });
 window.addEventListener('pagehide',    _onHidden);
 window.addEventListener('pageshow',    () => _onVisible());
-window.addEventListener('blur',        _onHidden);
+// (blur retiré volontairement : il se déclenche très souvent sur Android — la moindre perte de focus
+//  libérait la caméra et faisait réapparaître l'écran d'autorisation/« Reprise ». visibilitychange + pagehide suffisent.)
 window.addEventListener('focus',       _onVisible);
 window.addEventListener('beforeunload', () => {
   if (_cameraWatchdogId) { clearInterval(_cameraWatchdogId); _cameraWatchdogId = null; }
