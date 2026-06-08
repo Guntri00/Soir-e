@@ -182,7 +182,7 @@ insert into public.events
 values
   ('soiree-ete-2026',
    'Soirée d''été — CSE IQVIA',
-   true, true, false, 500,
+   true, true, true, 500,
    'Soirée d''été', 'Jeudi 11 Juin 2026', 'CSE IQVIA', '#FF7A1A',
    '2026-06-30 23:59:00+00')
 on conflict (id) do update
@@ -190,6 +190,7 @@ on conflict (id) do update
       couple_name   = excluded.couple_name,
       wedding_date  = excluded.wedding_date,
       venue         = excluded.venue,
+      video_enabled = excluded.video_enabled,
       primary_color = excluded.primary_color,
       expires_at    = excluded.expires_at;
 

@@ -918,6 +918,7 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
     <div class="ss-btns">
       <button class="ss-btn" onclick="event.stopPropagation();ssPrev()">‹</button>
       <button class="ss-btn" id="ssPlayBtn" onclick="event.stopPropagation();ssToggle()">⏸</button>
+      <button class="ss-btn" id="ssSoundBtn" onclick="event.stopPropagation();ssToggleSound()" title="Son des vidéos">🔊</button>
       <button class="ss-btn" onclick="event.stopPropagation();ssNext()">›</button>
       <!-- Légendes IA masquées : nécessitent un backend /api/caption (absent en hébergement statique). Retirer style display:none pour réactiver. -->
       <button class="ss-btn" id="ssAiBtn" onclick="event.stopPropagation();ssToggleAI()" title="Légendes IA" style="display:none">✨</button>
@@ -1404,6 +1405,7 @@ function observeLazyImages(){
 //  Crossfade + Ken Burns + Fullscreen API
 // ══════════════════════════════════════════
 let ssActiveLayer = 0;        // 0 ou 1 (alternance des couches)
+let ssMuted = false;          // son des vidéos du diaporama (🔊 activé par défaut, bouton 🔇 pour couper)
 let ssUITimer     = null;     // auto-hide des contrôles
 const KB_CLASSES  = ['kb1','kb2','kb3'];
 
@@ -1456,14 +1458,15 @@ function ssShow(idx) {
     const vid = document.createElement('video');
     vid.src = url;
     vid.playsinline = true;
-    vid.muted   = true;
+    vid.muted   = ssMuted;          // son selon le réglage 🔊/🔇
+    vid.volume  = 1;
     vid.playsInline = true;
     vid.setAttribute('playsinline', '');
     vid.style.cssText = 'max-width:100vw;max-height:100vh;object-fit:contain';
     nextLayer.innerHTML = '';
     nextLayer.appendChild(vid);
     vid.load();
-    vid.play().catch(() => {});
+    vid.play().catch(() => { vid.muted = true; vid.play().catch(() => {}); }); // son bloqué par le navigateur → on rejoue en muet
     vid.onended = () => { clearTimeout(ssTimer); ssNext(); };
     // Média cassé (404/supprimé) : nettoyer puis retirer du diaporama
     vid.onerror = () => {
@@ -1547,6 +1550,15 @@ function ssPrev() {
   ssIndex = (ssIndex - 1 + ssPhotos.length) % ssPhotos.length;
   ssShow(ssIndex);
   ssStartTimer();
+}
+function ssToggleSound() {
+  ssMuted = !ssMuted;
+  const btn = document.getElementById('ssSoundBtn');
+  if (btn) btn.textContent = ssMuted ? '🔇' : '🔊';
+  // appliquer immédiatement à la vidéo en cours (couche visible)
+  const layer = document.getElementById('ssLayer' + (1 - ssActiveLayer));
+  const vid = layer ? layer.querySelector('video') : null;
+  if (vid) { vid.muted = ssMuted; if (!ssMuted) { vid.volume = 1; const pr = vid.play(); if (pr && pr.catch) pr.catch(()=>{}); } }
 }
 function ssToggle() {
   ssPlaying = !ssPlaying;
