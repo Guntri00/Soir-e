@@ -2646,8 +2646,6 @@ async function loadGallery() {
 }
 
 function startSlider(catId, total) {
-  // Pas de défilement auto sur mobile (fluidité) — les vignettes restent fixes
-  if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
   if (sliderIntervals[catId]) clearInterval(sliderIntervals[catId]);
   const THUMB_W=143, DURATION=2800;
   sliderIntervals[catId] = setInterval(() => {
@@ -2844,7 +2842,7 @@ function buildPhotoItem(p) {
            <span style="font-size:40px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.8))">▶</span>
          </div>
        </div>`
-    : `<img src="${p.public_url}" alt="Photo de ${(p.uploader_name||'Invité').replace(/'/g,'')}" width="600" height="600" loading="lazy" decoding="async"
+    : `<img src="${imgUrl(p,'grid')}" alt="Photo de ${(p.uploader_name||'Invité').replace(/'/g,'')}" width="600" height="600" loading="lazy" decoding="async"
             onload="this.closest('.gitem').classList.add('loaded')"
             onerror="this.closest('.gitem').classList.add('loaded');this.closest('.gitem').style.display='none'">`;
 
@@ -3128,8 +3126,14 @@ function clearCategoryBadge(catId) {
 // Optimiser URL image selon le contexte (thumb ou full)
 
 function imgUrl(p, size) {
-  // Les photos sont déjà compressées à l'upload — URL directe
-  return p.public_url || '';
+  const full = (p && p.public_url) || '';
+  // Pas de transformation pour les vidéos / URL inattendue → pleine taille
+  if (!full || (p && p.media_type === 'video')) return full;
+  const render = full.replace('/object/public/', '/render/image/public/');
+  if (render === full) return full;
+  if (size === 'thumb') return render + '?width=300&quality=55&resize=cover'; // bandes d'aperçu
+  if (size === 'grid')  return render + '?width=600&quality=60&resize=cover'; // grille galerie
+  return full; // pleine résolution : lightbox, téléchargement
 }
 
 function showWidgets() {
