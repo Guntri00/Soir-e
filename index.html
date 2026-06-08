@@ -184,7 +184,7 @@ h1 em{font-style:italic;color:var(--gold)}
 .ss-info strong{color:#fff;font-weight:400;font-family:'Cormorant Garamond',serif;font-size:16px;display:block;margin-bottom:2px}
 .ss-controls{display:flex;align-items:center;gap:12px}
 .ss-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;
-  width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;
+  width:46px;height:46px;border-radius:50%;font-size:19px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all .2s;backdrop-filter:blur(4px)}
 .ss-btn:hover{background:rgba(255,255,255,.25)}
 .ss-progress{
@@ -878,7 +878,16 @@ if ('serviceWorker' in navigator) {
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{-webkit-tap-highlight-color:transparent;overflow-x:hidden;overscroll-behavior-y:contain}
 /* Hauteur dynamique : évite le saut quand la barre d'adresse iOS apparaît/disparaît */
-@supports(height:100dvh){body{min-height:100dvh}}
+@supports(height:100dvh){
+  body{min-height:100dvh}
+  .slideshow-img{max-height:85dvh}
+  .lb img{max-height:90dvh}
+  .camera-wrap,#videoWrap{max-height:72dvh}
+  .charte-text{max-height:56dvh}
+  .cocktail-stage{height:min(86dvh,760px)}
+}
+/* iPhone : empêcher le zoom auto au focus d'un champ (police < 16px) */
+@media(max-width:768px){ input,select,textarea{font-size:16px!important} }
 /* Supprime le délai de tap (300 ms) sur les éléments cliquables */
 a,button,.tab,.flip-wrap,.flip-btn-3d,.ubtn,.sbtn,.upload-tab,.cat-pill,.react-btn,.del-btn,.dl-btn,.qr-dl,.back-btn,.g-back,.cam-shoot-btn,.cam-flip-btn{touch-action:manipulation}
 /* iOS : empêche le zoom automatique au focus d'un champ (police < 16px) */
