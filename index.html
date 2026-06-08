@@ -2416,27 +2416,49 @@ function stopCamera() {
 }
 
 async function flipCamera() {
-  facingMode = facingMode === 'environment' ? 'user' : 'environment';
-  if (cameraStream) { cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
   const video  = document.getElementById('cameraVideo');
   const wrapEl = document.getElementById('cameraWrap');
   const permEl = document.getElementById('cameraPermission');
   if (permEl) permEl.style.display = 'none';
   if (wrapEl) wrapEl.style.display = 'block';
-  // Caméra déjà autorisée → on récupère directement le nouveau flux, SANS réafficher l'écran d'autorisation
-  const tries = [
-    { video: { facingMode: { exact: facingMode } }, audio:false },
-    { video: { facingMode: facingMode }, audio:false },
-    { video: true, audio:false }
-  ];
-  for (const c of tries) {
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia(c);
-      if (video) { video.srcObject = cameraStream; await video.play().catch(()=>{}); }
-      return;
-    } catch(_){}
+
+  // deviceId de la caméra ACTUELLE (pour en choisir une AUTRE de façon fiable)
+  let currentId = null;
+  try { const tr = cameraStream && cameraStream.getVideoTracks()[0]; if (tr && tr.getSettings) currentId = tr.getSettings().deviceId || null; } catch(_){}
+
+  // libérer le flux courant
+  if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
+  if (video) { try { video.srcObject = null; } catch(_){} }
+
+  let stream = null;
+
+  // 1) Bascule FIABLE par deviceId : prendre une caméra physiquement différente de l'actuelle (Android)
+  try {
+    const cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
+    if (cams.length > 1 && currentId) {
+      const next = cams.find(d => d.deviceId && d.deviceId !== currentId);
+      if (next) stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: next.deviceId } }, audio: false });
+    }
+  } catch(_){}
+
+  // 2) Repli par facingMode (iOS / si l'énumération échoue) — SANS {video:true} qui retombait sur la frontale
+  if (!stream) {
+    const want = (facingMode === 'environment') ? 'user' : 'environment';
+    for (const c of [{ video:{ facingMode:{ exact: want } }, audio:false }, { video:{ facingMode: want }, audio:false }]) {
+      try { stream = await navigator.mediaDevices.getUserMedia(c); break; } catch(_){}
+    }
   }
-  showDlToast('Impossible de changer de caméra');
+
+  if (!stream) { showDlToast('Impossible de changer de caméra'); return; }
+
+  cameraStream = stream;
+  // synchroniser facingMode (miroir selfie) depuis la caméra réellement obtenue
+  try {
+    const fm = stream.getVideoTracks()[0].getSettings().facingMode;
+    facingMode = (fm === 'user' || fm === 'environment') ? fm : ((facingMode === 'environment') ? 'user' : 'environment');
+  } catch(_) { facingMode = (facingMode === 'environment') ? 'user' : 'environment'; }
+
+  if (video) { video.srcObject = stream; await video.play().catch(()=>{}); }
 }
 
 async function toggleFlash() {
