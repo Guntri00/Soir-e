@@ -938,6 +938,18 @@ html.perf-lite body::before, html.perf-lite body::after { display:none !importan
 html.perf-lite *, html.perf-lite *::before, html.perf-lite *::after { mix-blend-mode:normal !important; will-change:auto !important; }
 html.perf-lite .gitem::before, html.perf-lite .cw-thumb::before { animation:none !important; } /* shimmer par vignette (multiplié par le nb de photos) */
 html.perf-lite .charm:nth-child(n+9) { display:none !important; } /* 12 -> 8 emojis sur Android (pluie conservée) */
+/* Coupe les micro-animations décoratives CONTINUES (glints sur pseudo-éléments + respiration/flottement/lueur) :
+   invisibles à l'usage, mais coûteuses en permanence sur Android. On GARDE la pluie d'emojis, les spinners,
+   l'emoji flottant (.cat-float) et les confettis (éléments réels, non ciblés ici). */
+html.perf-lite *::before, html.perf-lite *::after { animation:none !important; }
+html.perf-lite .flip-wrap,
+html.perf-lite .cat-pill-emoji, html.perf-lite .cw-emoji, html.perf-lite #badge-emoji, html.perf-lite #detail-cat-emoji,
+html.perf-lite .uico, html.perf-lite .orn, html.perf-lite .od, html.perf-lite .dot,
+html.perf-lite .qr-orbit-a, html.perf-lite .qr-orbit-b, html.perf-lite .qr-confetti,
+html.perf-lite .qr-phone-stand, html.perf-lite .qr-badge, html.perf-lite .qr-box, html.perf-lite .qr-box img {
+  animation:none !important;
+}
+html.perf-lite .gitem { box-shadow:none !important; } /* ombres allégées au scroll de galerie */
 
 body::before,body::after{
   content:"";position:fixed;inset:-20%;pointer-events:none;z-index:-1;
