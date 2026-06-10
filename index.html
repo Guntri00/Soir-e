@@ -2561,6 +2561,9 @@ async function flipCamera() {
     }
     // mémoriser le deviceId du côté ACTUEL avant de couper (pour revenir vite plus tard)
     try { const s0 = cameraStream && cameraStream.getVideoTracks()[0] && cameraStream.getVideoTracks()[0].getSettings(); if (s0 && s0.deviceId) _camCache[facingMode] = s0.deviceId; } catch(_){}
+    // Arrêt VOLONTAIRE de la caméra pour la bascule → on supprime la reprise auto, sinon l'event `ended`
+    // de la piste stoppée relance getUserMedia en concurrence et redéclenche le pop-up d'autorisation (Android).
+    _pauseCamRecovery(3000);
     if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
 
     let stream = null;
