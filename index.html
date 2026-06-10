@@ -3226,7 +3226,10 @@ function setLike(photoId, val) {
   } catch(e) {}
 }
 
+const _likeBusy = new Set();
 async function toggleLike(photoId, btn) {
+  if (_likeBusy.has(photoId)) return; // anti double-clic → évite le drift du compteur de likes
+  _likeBusy.add(photoId);
   haptic(12);
   const liked    = getLike(photoId);
   const countEl  = document.getElementById('likes-' + photoId);
@@ -3266,6 +3269,8 @@ async function toggleLike(photoId, btn) {
     if (btn) btn.classList.toggle('liked', liked);
     if (countEl) countEl.textContent = current;
     log.warn('Like update failed:', e);
+  } finally {
+    _likeBusy.delete(photoId);
   }
 }
 
@@ -3729,6 +3734,8 @@ document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   const ch = document.getElementById('charteModal');
   if (ch && ch.classList.contains('open')) { dismissCharte(); return; }
+  const sso = document.getElementById('slideshowOverlay');
+  if (sso && sso.classList.contains('open')) { ssClose(); return; }
   const lb = document.getElementById('lb');
   if (lb && lb.classList.contains('open')) { closeLB(); return; }
   const mb = document.getElementById('modalBg');
