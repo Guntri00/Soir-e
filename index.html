@@ -1792,7 +1792,7 @@ footer{
         </div>
         <div id="videoPreviewWrap" style="display:none;flex-direction:column;align-items:center;gap:12px;width:100%">
           <div style="position:relative;width:100%;border-radius:8px;overflow:hidden;background:#000;aspect-ratio:9/16;max-height:72vh">
-            <video id="videoPreviewEl" controls playsinline style="width:100%;height:100%;object-fit:cover"></video>
+            <video id="videoPreviewEl" controls playsinline controlsList="nofullscreen noplaybackrate nodownload" disablePictureInPicture disableRemotePlayback style="width:100%;height:100%;object-fit:cover"></video>
           </div>
           <div class="video-preview-actions">
             <button class="btn-retake" onclick="retakeVideo()">↺ Reprendre</button>
@@ -2883,7 +2883,7 @@ function renderPreviews() {
     const burl = URL.createObjectURL(f);
     _previewUrls.push(burl);
     const media = f._isVideo
-      ? `<video src="${burl}" controls playsinline muted style="width:100%;height:100%;object-fit:cover;border-radius:8px"></video>`
+      ? `<video src="${burl}" controls playsinline muted controlsList="nofullscreen noplaybackrate nodownload" disablePictureInPicture disableRemotePlayback style="width:100%;height:100%;object-fit:cover;border-radius:8px"></video>`
       : `<img src="${burl}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`;
     return `<div class="prev">${media}<button class="rm" aria-label="Retirer ce fichier" onclick="removeFile(${i})">✕</button></div>`;
   }).join('');
