@@ -2075,6 +2075,7 @@ async function requestVideoPermission() {
   const f = videoFacingMode;
   // Plusieurs tentatives (la dernière sans micro) → robuste sur Android : si une contrainte échoue, on enchaîne
   const tries = [
+    ...(_isIOS() ? [{ video: { facingMode: { exact: f } }, audio: true }] : []),
     { video: { facingMode: f, width:{ideal:1920}, height:{ideal:1080}, frameRate:{ideal:30} }, audio: true },
     { video: { facingMode: f, width:{ideal:1280}, height:{ideal:720},  frameRate:{ideal:30} }, audio: true },
     { video: { facingMode: f }, audio: true },
@@ -2086,6 +2087,7 @@ async function requestVideoPermission() {
       videoStream  = await navigator.mediaDevices.getUserMedia(c);
       cameraStream = new MediaStream(videoStream.getVideoTracks());
       try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+      _cameraDeniedThisSession = false;
       _primeCameraCache();
       videoStream.getTracks().forEach(t => {
         t.addEventListener('ended', () => {
@@ -2104,7 +2106,10 @@ async function requestVideoPermission() {
       await vid.play().catch(() => {});
       if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
       return;
-    } catch(err) { videoStream = null; }
+    } catch(err) {
+      videoStream = null;
+      if (_isPermissionDenied(err)) { _cameraDeniedThisSession = true; break; }
+    }
   }
   if (btn) { btn.disabled = false; btn.textContent = 'Activer'; }
   showToast('Caméra non disponible — vérifiez les permissions dans votre navigateur');
@@ -2474,6 +2479,7 @@ async function requestCameraPermission() {
       await video.play().catch(() => {});
       // Succès → mémoriser définitivement
       try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+      _cameraDeniedThisSession = false;
       _primeCameraCache();
       // Succès → cacher la demande, montrer la caméra
       if (permEl) permEl.style.display = 'none';
@@ -2482,6 +2488,8 @@ async function requestCameraPermission() {
       return;
     } catch (err) {
       cameraStream = null;
+      // Refus explicite → on coupe toute relance auto jusqu'au refresh
+      if (_isPermissionDenied(err)) { _cameraDeniedThisSession = true; break; }
     }
   }
 
@@ -2556,8 +2564,10 @@ async function flipCamera() {
     if (cameraStream) { try { cameraStream.getTracks().forEach(t => t.stop()); } catch(_){} cameraStream = null; }
 
     let stream = null;
+    // 0) iOS : facingMode exact EN PREMIER (le plus fiable sur Safari ; le deviceId y bascule mal/garde la même caméra)
+    if (_isIOS()) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){} }
     // 1) deviceId mémorisé du côté voulu = LE PLUS RAPIDE (un seul appel) → bascules suivantes quasi instantanées
-    if (_camCache[want]) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: _camCache[want] } }, audio:false }); } catch(_){ _camCache[want] = null; } }
+    if (!stream && _camCache[want]) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ deviceId:{ exact: _camCache[want] } }, audio:false }); } catch(_){ _camCache[want] = null; } }
     // 2) facingMode exact = bascule nette quand l'appareil le supporte
     if (!stream) { try { stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ exact: want } }, audio:false }); } catch(_){} }
     // 3) deviceId : caméra dont le libellé correspond au côté voulu (Android multi-caméras)
@@ -2574,6 +2584,7 @@ async function flipCamera() {
 
     if (stream) {
       cameraStream = stream;
+      _cameraDeniedThisSession = false;
       facingMode = want;
       try { const st = stream.getVideoTracks()[0].getSettings(); if (st.facingMode === 'user' || st.facingMode === 'environment') facingMode = st.facingMode; if (st.deviceId) _camCache[facingMode] = st.deviceId; } catch(_){}
       if (video) { video.srcObject = stream; try { await video.play(); } catch(_){} }
@@ -4092,6 +4103,11 @@ let _reacquireRetryId  = null;
 let _suppressRecovery  = false;   // pendant un arrêt VOLONTAIRE (bascule photo↔vidéo, flip), on n'enclenche pas de reprise auto
 let _suppressRecoveryTimer = null;
 function _pauseCamRecovery(ms){ _suppressRecovery = true; clearTimeout(_suppressRecoveryTimer); _suppressRecoveryTimer = setTimeout(() => { _suppressRecovery = false; }, ms || 900); }
+// Refus caméra mémorisé pour la SESSION (en mémoire → remis à zéro au rafraîchissement de page).
+// Tant qu'il est vrai : aucune relance auto du pop-up (retry, watchdog, visibilitychange).
+let _cameraDeniedThisSession = false;
+function _isPermissionDenied(err){ return !!err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError'); }
+function _isIOS(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
 
 async function _attachStreamToVideo(videoEl, stream) {
   if (!videoEl) return;
@@ -4131,6 +4147,7 @@ async function _reacquireMediaStream(wantAudio) {
     try {
       const s = await navigator.mediaDevices.getUserMedia(c);
       try { localStorage.setItem('mementos_cam_granted','1'); } catch(_){}
+      _cameraDeniedThisSession = false;
       _primeCameraCache();
       s.getTracks().forEach(t => {
         t.addEventListener('ended', () => {
@@ -4144,7 +4161,10 @@ async function _reacquireMediaStream(wantAudio) {
         });
       });
       return s;
-    } catch(e) {}
+    } catch(e) {
+      // Refus explicite → stopper toute relance auto pour la session
+      if (_isPermissionDenied(e)) { _cameraDeniedThisSession = true; break; }
+    }
   }
   return null;
 }
@@ -4198,6 +4218,7 @@ function _showReacquireOverlay(show) {
 }
 
 async function _wasCameraEverGranted() {
+  if (_cameraDeniedThisSession) return false; // refus session → pas de relance auto
   try {
     if (navigator.permissions && navigator.permissions.query) {
       const st = await navigator.permissions.query({ name: 'camera' });
@@ -4235,6 +4256,7 @@ function _stopReacquireRetry() {
 }
 
 async function _reacquireCameraOnce() {
+  if (_cameraDeniedThisSession) return false;
   if (_reacquireBusy) return false;
   if (!_cameraWasActive && !_videoWasActive) return true;
   if (document.hidden) return false;
@@ -4264,9 +4286,11 @@ async function _reacquireCameraOnce() {
 
 async function _reacquireCameraWithRetry() {
   _stopReacquireRetry();
+  if (_cameraDeniedThisSession) return; // refus session → aucune relance auto
   if (await _reacquireCameraOnce()) return;
   _reacquireRetryId = setInterval(async () => {
     if (document.hidden) { _stopReacquireRetry(); return; }
+    if (_cameraDeniedThisSession) { _stopReacquireRetry(); return; }
     if (!_cameraWasActive && !_videoWasActive) { _stopReacquireRetry(); return; }
     if (await _reacquireCameraOnce()) _stopReacquireRetry();
   }, 1500);
