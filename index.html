@@ -826,8 +826,11 @@ body.scrolling .charm,body.scrolling .cat-float{animation-play-state:paused}
 .flip-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:var(--dark)}
 .flip-desc{font-size:11px;color:rgba(45,55,72,.8);line-height:1.5;margin-bottom:11px}
 .flip-btn-3d{padding:8px 20px;border-radius:20px;background:var(--dark);color:var(--warm);font-family:'Jost',sans-serif;font-size:9px;letter-spacing:.2em;text-transform:uppercase;border:none;cursor:pointer;font-weight:500}
-.flip-hint{padding:0 0 10px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#6B3414;font-weight:500;text-align:center}</style>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌅</text></svg>">
+.flip-hint{padding:0 0 10px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#6B3414;font-weight:500;text-align:center}
+/* Logo Memento (header + footer) */
+.brand-logo{width:54px;height:54px;display:block;margin:0 auto 12px;border-radius:14px;box-shadow:0 10px 26px rgba(42,14,34,.28),0 0 0 1px rgba(255,209,102,.3)}
+.brand-logo-foot{width:20px;height:20px;border-radius:5px;vertical-align:-5px;margin-right:6px}</style>
+<link rel="icon" type="image/svg+xml" href="/logo-memento.svg">
 
   <!-- ══ PWA ══ -->
   <link rel="manifest" href="/manifest.json">
@@ -1637,6 +1640,7 @@ footer{
 
 <header>
   <div class="orn"><div class="ol"></div><div class="od"></div><div class="ol or"></div></div>
+  <img src="/logo-memento.svg" alt="Memento" class="brand-logo" width="54" height="54">
   <p class="lbl">Soirée d'été — Galerie photos</p>
   <h1>Soirée <em>d'été</em></h1>
   <p class="date">Jeudi 11 Juin 2026 · CSE IQVIA</p>
@@ -1981,7 +1985,7 @@ footer{
   </div>
 </div>
 
-<footer><p>Soirée d'été — CSE IQVIA &nbsp;·&nbsp; <a href="#" onclick="event.preventDefault();openCharte();return false;">Charte &amp; droit à l'image</a></p></footer>
+<footer><p><img src="/logo-memento.svg" alt="" class="brand-logo-foot" width="20" height="20">Soirée d'été — CSE IQVIA &nbsp;·&nbsp; <a href="#" onclick="event.preventDefault();openCharte();return false;">Charte &amp; droit à l'image</a></p></footer>
 
 <script>
 
