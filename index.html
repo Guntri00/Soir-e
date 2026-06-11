@@ -829,7 +829,23 @@ body.scrolling .charm,body.scrolling .cat-float{animation-play-state:paused}
 .flip-hint{padding:0 0 10px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#6B3414;font-weight:500;text-align:center}
 /* Logo Memento (header + footer) */
 .brand-logo{width:54px;height:54px;display:block;margin:0 auto 12px;border-radius:14px;box-shadow:0 10px 26px rgba(42,14,34,.28),0 0 0 1px rgba(255,209,102,.3)}
-.brand-logo-foot{width:20px;height:20px;border-radius:5px;vertical-align:-5px;margin-right:6px}</style>
+.brand-logo-foot{width:20px;height:20px;border-radius:5px;vertical-align:-5px;margin-right:6px}
+/* Bouton + carte Contact (haut droite) */
+.contact-btn{position:fixed;top:14px;right:14px;z-index:900;border:none;cursor:pointer;
+  padding:9px 16px;border-radius:999px;font-family:'Jost',sans-serif;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;font-weight:500;color:#2D3748;
+  background:rgba(255,255,255,.9);box-shadow:0 8px 22px rgba(42,14,34,.18),inset 0 0 0 1px rgba(255,209,102,.5);
+  transition:transform .15s ease}
+.contact-btn:active{transform:scale(.95)}
+.contact-pop{position:fixed;top:56px;right:14px;z-index:900;display:none;flex-direction:column;
+  gap:9px;align-items:center;text-align:center;padding:18px 20px;border-radius:18px;background:#fff;
+  box-shadow:0 18px 46px rgba(42,14,34,.3),inset 0 0 0 1px rgba(255,209,102,.45);
+  font-family:'Jost',sans-serif;font-size:13px;max-width:calc(100vw - 28px)}
+.contact-pop.open{display:flex;animation:toastRiseInline .25s ease both}
+.contact-pop img{width:36px;height:36px;border-radius:9px;display:block}
+.contact-pop .cp-brand{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:600;font-size:18px;color:#8a2d08}
+.contact-pop a{color:#C0341B;text-decoration:none;letter-spacing:.04em}
+.contact-pop a:hover{text-decoration:underline}</style>
 <link rel="icon" type="image/svg+xml" href="/logo-memento.svg">
 
   <!-- ══ PWA ══ -->
@@ -1637,6 +1653,15 @@ footer{
   }
 })();
 </script>
+
+<!-- Contact memento.memorie (bouton haut droite + carte) -->
+<button class="contact-btn" id="contactBtn" aria-haspopup="dialog" aria-expanded="false" onclick="toggleContact(event)">✉️ Contact</button>
+<div class="contact-pop" id="contactPop" role="dialog" aria-label="Coordonnées de contact">
+  <img src="/logo-memento.svg" alt="">
+  <div class="cp-brand">memento.memorie</div>
+  <a href="mailto:mementos.memorie@gmail.com">📧&nbsp;mementos.memorie@gmail.com</a>
+  <a href="tel:+33634044117">📞&nbsp;06&nbsp;34&nbsp;04&nbsp;41&nbsp;17</a>
+</div>
 
 <header>
   <div class="orn"><div class="ol"></div><div class="od"></div><div class="ol or"></div></div>
@@ -3783,9 +3808,34 @@ function closeLB() {
   if (lbImg) lbImg.removeAttribute('src');
 }
 
+// ── Carte Contact (bouton haut droite) ──
+function toggleContact(e){
+  if (e) e.stopPropagation();
+  const pop = document.getElementById('contactPop');
+  const btn = document.getElementById('contactBtn');
+  if (!pop) return;
+  const open = !pop.classList.contains('open');
+  pop.classList.toggle('open', open);
+  if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function closeContact(){
+  const pop = document.getElementById('contactPop');
+  const btn = document.getElementById('contactBtn');
+  if (pop) pop.classList.remove('open');
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+document.addEventListener('click', function(ev){
+  const pop = document.getElementById('contactPop');
+  if (!pop || !pop.classList.contains('open')) return;
+  if (pop.contains(ev.target) || (ev.target.closest && ev.target.closest('#contactBtn'))) return;
+  closeContact();
+});
+
 // Fermeture des overlays au clavier (Échap) — accessibilité
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
+  const pop = document.getElementById('contactPop');
+  if (pop && pop.classList.contains('open')) { closeContact(); return; }
   const ch = document.getElementById('charteModal');
   if (ch && ch.classList.contains('open')) { dismissCharte(); return; }
   const sso = document.getElementById('slideshowOverlay');
