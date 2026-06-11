@@ -950,6 +950,7 @@ html.perf-lite .qr-phone-stand, html.perf-lite .qr-badge, html.perf-lite .qr-box
   animation:none !important;
 }
 html.perf-lite .gitem { box-shadow:none !important; } /* ombres allégées au scroll de galerie */
+html.perf-lite .camera-frame { animation:none !important; } /* lueur du cadre caméra : ombre plein écran animée, coûteuse pendant la capture */
 html.perf-lite .qr-rotating-square { will-change:transform !important; } /* QR : rotation pure fluide (couche GPU) même sur Android */
 html.perf-lite .cw-track { will-change:transform !important; } /* défilement auto des aperçus : fluide (couche GPU) même sur Android */
 /* Intro 3D : version ALLÉGÉE sur Android (contexte aplati + flottement 2D + lueur statique sans flou animé).
@@ -1129,6 +1130,7 @@ header::before{opacity:.62;filter:blur(1px)}
 .charm{opacity:0!important;filter:saturate(.85);animation-duration:28s!important}
 .charm:nth-child(-n+10){opacity:1!important}
 .charm:nth-child(2n){display:none}
+.charm:nth-child(n+11){display:none} /* au-delà de 10 : opacity 0 en continu → on coupe l'animation inutile */
 .summer-sun-3d{opacity:.58;filter:blur(1px) drop-shadow(0 0 32px rgba(255,122,26,.22))}
 .summer-floor-3d{opacity:.34;filter:saturate(.8)}
 .summer-disco-3d{width:54px;height:54px;right:17%;top:17%;opacity:.62;filter:saturate(.85)}
@@ -1819,7 +1821,7 @@ footer{
       <div class="previews" id="previews"></div>
 <div class="nfield">
         <label for="uname">Votre prénom (optionnel)</label>
-        <input id="uname" type="text" placeholder="ex : Sophie" oninput="saveName(this.value)">
+        <input id="uname" type="text" maxlength="50" placeholder="ex : Sophie" oninput="saveName(this.value)">
       </div>
       <div class="prog" id="prog" style="display:none">
         <div class="prog-row"><span id="prog-lbl">Envoi…</span><span id="prog-pct">0%</span></div>
@@ -2040,6 +2042,16 @@ async function initVideoCamera() {
   const permEl  = document.getElementById('videoPermission');
   const recWrap = document.getElementById('videoRecorderWrap');
   if (!vid) return;
+
+  // Une vidéo vient d'être enregistrée et attend validation → garder l'aperçu,
+  // sans rallumer la caméra (évite recorder + aperçu affichés en même temps)
+  const prevWrap = document.getElementById('videoPreviewWrap');
+  if (videoBlob && prevWrap && prevWrap.style.display !== 'none') {
+    if (recWrap) recWrap.style.display = 'none';
+    if (permEl)  permEl.style.display  = 'none';
+    return;
+  }
+  if (prevWrap) prevWrap.style.display = 'none';
 
   if (videoStream && videoStream.active) {
     if (permEl)  permEl.style.display = 'none';
@@ -2313,6 +2325,10 @@ const SB_KEY   = 'sb_publishable_RqfsxW6HW7Zg95xG2R-sng_ILRjYtfU';
 
 // ── Helpers généraux ──────────────────────────────────
 function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+// URL injectée dans un attribut HTML (src…) : neutralise quotes/chevrons (anti-XSS via lignes insérées en base)
+function urlAttr(s){ return String(s ?? '').replace(/['"<>\\`]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()); }
+// Variante stricte pour les URLs passées dans un onclick (littéral JS) : encode aussi & (anti-entités &#39;)
+function urlJs(s){ return String(s ?? '').replace(/['"<>\\`&]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()); }
 
 // ── Helpers Supabase centralisés ──────────────────────
 function sbHeaders(extra) {
@@ -2328,6 +2344,25 @@ function sbHeadersJson() {
 const EVENT_ID = 'soiree-ete-2026';
 const BUCKET   = 'photos';
 const DELETE_WINDOW_MS = 120 * 1000; // 2 minutes
+
+// Jeton anonyme par appareil (colonne uploader_token, type uuid) :
+// le bouton Supprimer n'apparaît que sur les photos envoyées depuis CET appareil
+const MY_TOKEN = (function(){
+  function gen(){
+    try { if (crypto.randomUUID) return crypto.randomUUID(); } catch(_){}
+    try {
+      const b = new Uint8Array(16); crypto.getRandomValues(b);
+      b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
+      const h = Array.from(b, x => x.toString(16).padStart(2, '0'));
+      return h.slice(0,4).join('')+'-'+h.slice(4,6).join('')+'-'+h.slice(6,8).join('')+'-'+h.slice(8,10).join('')+'-'+h.slice(10).join('');
+    } catch(_) { return ''; }
+  }
+  try {
+    let t = localStorage.getItem('mementos_token');
+    if (!t) { t = gen(); if (t) localStorage.setItem('mementos_token', t); }
+    return t || gen();
+  } catch(_) { return gen(); }
+})();
 
 // ── Compatibilité TOUS navigateurs : getUserMedia ancien/préfixé + détection navigateur in-app ──
 (function(){
@@ -2786,8 +2821,10 @@ function switchTab(id, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('panel-' + id).classList.add('on');
+  // Hors de l'onglet Partager : libérer ENTIÈREMENT caméra + micro (LED éteinte, batterie)
+  if (id !== 'upload') { _pauseCamRecovery(); stopCamera(); stopVideoCamera(); }
   if (id === 'gallery') loadGallery();
-  else { stopAllSliders(); stopCamera(); }
+  else stopAllSliders();
   // En dehors de l'onglet Partager, on n'est plus en capture → l'emoji peut flotter
   if (id !== 'upload') document.body.classList.remove('capturing');
 
@@ -2850,6 +2887,8 @@ function selectCategory(id, emoji, name) {
 }
 
 function goBack() {
+  // Retour au choix de catégorie → libérer caméra + micro
+  _pauseCamRecovery(); stopCamera(); stopVideoCamera();
   selectedCategory = null; selectedFiles = [];
   renderPreviews();
   document.getElementById('step-upload').classList.remove('visible');
@@ -2861,7 +2900,7 @@ function goBack() {
 // ══════════════════════════════════════════
 //  FICHIERS
 // ══════════════════════════════════════════
-function onFileSelect(e) { addFiles(Array.from(e.target.files)); }
+function onFileSelect(e) { addFiles(Array.from(e.target.files)); e.target.value = ''; /* permet de re-choisir le même fichier */ }
 function onDrop(e) {
   e.preventDefault();
   document.getElementById('dropzone').classList.remove('drag');
@@ -2947,10 +2986,12 @@ async function compressImage(file) {
   });
 }
 
+let _uploading = false;   // envoi en cours → garde-fou avant fermeture de la page
 async function doUpload() {
   if (!selectedFiles.length || !selectedCategory) return;
   const btn = document.getElementById('sbtn');
-  const uploaderName = document.getElementById('uname').value.trim() || 'Invité';
+  // 50 car. max : au-delà la policy RLS rejette l'INSERT (photo perdue + fichier orphelin)
+  const uploaderName = (document.getElementById('uname').value.trim() || 'Invité').slice(0, 50);
   btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Envoi en cours…';
   document.getElementById('prog').style.display  = 'block';
   document.getElementById('toast').style.display = 'none';
@@ -2962,12 +3003,13 @@ async function doUpload() {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 30000);
     try {
-      const ext      = file._isVideo ? (file.type&&file.type.includes('mp4')?'mp4':'webm') : (file.name.split('.').pop()||'jpg').toLowerCase();
-      const filename = `${EVENT_ID}/${selectedCategory.id}/${Date.now()}-${Math.random().toString(36).substr(2,6)}.${ext}`;
       const fileToUpload = file._isVideo ? file : await compressImage(file);
+      // Extension du fichier RÉELLEMENT envoyé (après compression un PNG/HEIC devient .jpg)
+      const ext      = file._isVideo ? (file.type&&file.type.includes('mp4')?'mp4':'webm') : ((fileToUpload.name||file.name).split('.').pop()||'jpg').toLowerCase();
+      const filename = `${EVENT_ID}/${selectedCategory.id}/${Date.now()}-${Math.random().toString(36).substr(2,6)}.${ext}`;
       const uploadRes = await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${filename}`, {
         method:'POST', mode:'cors', credentials:'omit', signal: ctrl.signal,
-        headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type': (file._isVideo ? ((file.type||'video/webm').split(';')[0].trim()) : 'image/jpeg'),'x-upsert':'true' },
+        headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type': ((file._isVideo ? (file.type||'video/webm') : (fileToUpload.type||'image/jpeg')).split(';')[0].trim()),'x-upsert':'true' },
         body:fileToUpload
       });
       if (!uploadRes.ok) throw new Error(`Storage ${uploadRes.status}: ${await uploadRes.text()}`);
@@ -2975,7 +3017,7 @@ async function doUpload() {
       const insRes = await fetch(`${SB_URL}/rest/v1/photos`, {
         method:'POST', mode:'cors', credentials:'omit', signal: ctrl.signal,
         headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal' },
-        body:JSON.stringify({ event_id:EVENT_ID, uploader_name:uploaderName, category:selectedCategory.id, storage_path:filename, public_url:publicUrl, uploaded_at:new Date().toISOString(), media_type: file._isVideo ? 'video' : 'image' })
+        body:JSON.stringify({ event_id:EVENT_ID, uploader_name:uploaderName, category:selectedCategory.id, storage_path:filename, public_url:publicUrl, uploaded_at:new Date().toISOString(), media_type: file._isVideo ? 'video' : 'image', uploader_token: MY_TOKEN || null })
       });
       if (!insRes.ok) throw new Error(`Enregistrement ${insRes.status}: ${await insRes.text()}`);
       done++;
@@ -2989,6 +3031,7 @@ async function doUpload() {
 
   // File d'attente : max 3 uploads en parallèle
   const queue = [...selectedFiles];
+  const batchFiles = new Set(queue);   // photos de CE lot (celles ajoutées pendant l'envoi seront préservées)
   const MAX_PARALLEL = 3;
   async function runQueue() {
     while (queue.length) {
@@ -2997,7 +3040,8 @@ async function doUpload() {
     }
   }
   setProgress(0, total, `Photo 1 / ${total}`);
-  await runQueue();
+  _uploading = true;
+  try { await runQueue(); } finally { _uploading = false; }
 
   btn.disabled=false; btn.innerHTML='Partager mes photos';
   document.getElementById('prog').style.display='none';
@@ -3005,7 +3049,7 @@ async function doUpload() {
   if (done>0) {
     haptic([0,40,60,40]); // petite célébration tactile
     celebrate();           // confettis « partage réussi »
-    selectedFiles=[]; renderPreviews(); setProgress(0,1);
+    selectedFiles = selectedFiles.filter(f => !batchFiles.has(f)); renderPreviews(); setProgress(0,1);
     showToast(`✦  ${done} ${done>1?'souvenirs partagés':'souvenir partagé'} dans ${selectedCategory.emoji} ${selectedCategory.name} — merci ! 🎉`, false);
     // Recharger allPhotos pour que la galerie soit à jour
     refreshAllPhotos();
@@ -3092,7 +3136,7 @@ async function loadGallery() {
       document.getElementById('track-'+cat.id).innerHTML = loop.map(p => {
         const thumb = p.media_type === 'video'
           ? '<div style="width:100%;height:100%;background:#2a1f10;display:flex;align-items:center;justify-content:center;font-size:28px;color:#FF7A1A;border-radius:4px">▶</div>'
-          : `<img src="${imgUrl(p,'thumb')}" alt="" width="143" height="143" loading="lazy" decoding="async" fetchpriority="low"
+          : `<img src="${urlAttr(imgUrl(p,'thumb'))}" alt="" width="143" height="143" loading="lazy" decoding="async" fetchpriority="low"
                onload="this.parentElement.classList.add('loaded')"
                onerror="if(!this._fb){this._fb=1;this.src=this.src.replace('/render/image/public/','/object/public/').split('?')[0];}else{this.parentElement.classList.add('loaded');}">`;
         return `<div class="cw-thumb ${p.media_type==='video'?'loaded':''}" id="th-${p.id}">${thumb}</div>`;
@@ -3107,7 +3151,7 @@ async function loadGallery() {
     });
   } catch(err) {
     document.getElementById('catWidgets').innerHTML =
-      `<div class="gempty"><div class="ei">⚠️</div><p>${err.message}</p></div>`;
+      `<div class="gempty"><div class="ei">⚠️</div><p>${esc(err.message)}</p></div>`;
   }
   // Démarrer le polling temps réel
   startRealtime();
@@ -3203,7 +3247,7 @@ async function openCategory(catId) {
     });
 
   } catch(err) {
-    grid.innerHTML = `<div class="gempty"><div class="ei">⚠️</div><p>Erreur : ${err.message}</p></div>`;
+    grid.innerHTML = `<div class="gempty"><div class="ei">⚠️</div><p>Erreur : ${esc(err.message)}</p></div>`;
   }
 }
 
@@ -3299,17 +3343,19 @@ function buildPhotoItem(p) {
   const uploadedAt = new Date(p.uploaded_at).getTime();
   const age        = Date.now() - uploadedAt;
   const remaining  = DELETE_WINDOW_MS - age;
-  const canDelete  = remaining > 0;
+  // Supprimable uniquement depuis l'appareil qui a envoyé la photo (jeton anonyme)
+  const isMine     = !!(p.uploader_token && MY_TOKEN && p.uploader_token === MY_TOKEN);
+  const canDelete  = remaining > 0 && isMine;
   const isLiked    = getLike(p.id);
   const likeCount  = p.likes || 0;
   const isVideo    = p.media_type === 'video';
-  const safeUrl    = (p.public_url || '').replace(/'/g, '%27');
+  const safeUrl    = urlJs(p.public_url || '');
   const clickFn   = isVideo ? `openLBVideo('${safeUrl}')` : `openLB('${safeUrl}')`;
-  const dlExt     = isVideo ? 'webm' : 'jpg';
+  const dlExt     = isVideo ? (((p.storage_path||'').split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'') || 'mp4') : 'jpg';
 
   const mediaEl = isVideo
     ? `<div class="video-thumb">
-         <video src="${p.public_url}" playsinline muted preload="metadata"
+         <video src="${urlAttr(p.public_url||'')}" playsinline muted preload="metadata"
                 style="width:100%;height:100%;object-fit:cover;display:block"
                 onloadeddata="this.closest('.gitem').classList.add('loaded')"
                 onerror="this.closest('.gitem').classList.add('loaded')"></video>
@@ -3317,7 +3363,7 @@ function buildPhotoItem(p) {
            <span style="font-size:40px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.8))">▶</span>
          </div>
        </div>`
-    : `<img src="${imgUrl(p,'grid')}" alt="Photo de ${(p.uploader_name||'Invité').replace(/[<>"'&]/g,'')}" width="600" height="600" loading="lazy" decoding="async"
+    : `<img src="${urlAttr(imgUrl(p,'grid'))}" alt="Photo de ${(p.uploader_name||'Invité').replace(/[<>"'&]/g,'')}" width="600" height="600" loading="lazy" decoding="async"
             onload="this.closest('.gitem').classList.add('loaded')"
             onerror="if(!this._fb){this._fb=1;this.src=this.src.replace('/render/image/public/','/object/public/').split('?')[0];}else{this.closest('.gitem').classList.add('loaded');this.closest('.gitem').style.display='none';}">`;
 
@@ -3334,7 +3380,7 @@ function buildPhotoItem(p) {
         <button class="react-btn" aria-label="Réaction coup de cœur" onclick="event.stopPropagation();addReaction('${p.id}','😍',this)">😍</button>
       </div>
       ${canDelete ? `
-        <button class="del-btn" aria-label="Supprimer la photo" onclick="event.stopPropagation();askDelete('${p.id}','${(p.storage_path||'').replace(/'/g,'%27')}',this.closest('.gitem'))">🗑</button>
+        <button class="del-btn" aria-label="Supprimer la photo" onclick="event.stopPropagation();askDelete('${p.id}','${urlJs(p.storage_path||'')}',this.closest('.gitem'))">🗑</button>
         <div class="del-timer" id="timer-${p.id}"><span id="timer-txt-${p.id}"></span></div>
         <div class="del-progress"><div class="del-progress-fill" id="timer-bar-${p.id}" style="width:${Math.round((remaining/DELETE_WINDOW_MS)*100)}%"></div></div>
       ` : ''}
@@ -3443,7 +3489,8 @@ async function confirmDelete() {
         'Prefer':        'return=minimal'
       }
     });
-    if (!dbRes.ok) log.warn('DB delete warning:', await dbRes.text());
+    // Échec DB = photo toujours en ligne → erreur visible (ne pas faire croire à une suppression)
+    if (!dbRes.ok) throw new Error('La photo n\'a pas pu être supprimée (' + dbRes.status + '). Réessayez.');
 
     // 3. Retirer du DOM après animation
     setTimeout(() => { if (el) el.remove(); }, 400);
@@ -3551,6 +3598,9 @@ async function startRealtimeFull() {
               // Mettre à jour le compteur affiché
               const detailTitle = document.getElementById('detail-title');
               if (detailTitle) detailTitle.innerHTML = '<span style="color:var(--gold)">' + cnt + '</span>&nbsp;photo' + (cnt !== 1 ? 's' : '');
+              // Démarrer le compte à rebours de suppression (photo de cet appareil)
+              const remMs = DELETE_WINDOW_MS - (Date.now() - new Date(p.uploaded_at).getTime());
+              if (remMs > 0 && newEl.querySelector('.del-btn')) startDeleteTimer(p.id, remMs);
             }
           }
         }
@@ -3705,7 +3755,7 @@ function openLB(src) {
   lbImg.style.display   = 'block';
   lbVideo.style.display = 'none';
   lbVideo.pause();
-  lbVideo.src = '';
+  lbVideo.removeAttribute('src'); lbVideo.load();
   document.getElementById('lb').classList.add('open');
 }
 
@@ -3724,9 +3774,9 @@ function openLBVideo(src) {
 function closeLB() {
   document.getElementById('lb').classList.remove('open');
   const lbVideo = document.getElementById('lbVideo');
-  if (lbVideo) { lbVideo.pause(); lbVideo.src = ''; }
+  if (lbVideo) { lbVideo.pause(); lbVideo.removeAttribute('src'); lbVideo.load(); }
   const lbImg = document.getElementById('lbImg');
-  if (lbImg) lbImg.src = '';
+  if (lbImg) lbImg.removeAttribute('src');
 }
 
 // Fermeture des overlays au clavier (Échap) — accessibilité
@@ -4190,7 +4240,9 @@ function _startCameraWatchdog() {
     const photoPane = document.getElementById('upload-camera-pane');
     const wrapEl    = document.getElementById('cameraWrap');
     const photoVid  = document.getElementById('cameraVideo');
-    if (photoPane && photoPane.style.display === 'block' &&
+    // offsetParent !== null = le panneau est RÉELLEMENT affiché (un ancêtre masqué via
+    // classe .panel rend offsetParent null) → ne jamais rallumer la caméra depuis Galerie/QR
+    if (photoPane && photoPane.style.display === 'block' && photoPane.offsetParent !== null &&
         wrapEl && wrapEl.style.display === 'block' && photoVid) {
       const streamDead = !hasCam || !cameraStream.active ||
                          cameraStream.getVideoTracks().every(t => t.readyState === 'ended');
@@ -4202,7 +4254,7 @@ function _startCameraWatchdog() {
     const vidPane = document.getElementById('upload-video-pane');
     const recWrap = document.getElementById('videoRecorderWrap');
     const liveVid = document.getElementById('videoLive');
-    if (vidPane && vidPane.style.display === 'block' &&
+    if (vidPane && vidPane.style.display === 'block' && vidPane.offsetParent !== null &&
         recWrap && recWrap.style.display === 'block' &&
         liveVid && !recording) {
       const streamDead = !hasVid || !videoStream.active ||
@@ -4317,7 +4369,9 @@ window.addEventListener('pageshow',    () => _onVisible());
 // (blur retiré volontairement : il se déclenche très souvent sur Android — la moindre perte de focus
 //  libérait la caméra et faisait réapparaître l'écran d'autorisation/« Reprise ». visibilitychange + pagehide suffisent.)
 // (focus retiré : se déclenchait trop souvent — clavier, barre d'URL… — et relançait la caméra inutilement. visibilitychange + pageshow suffisent.)
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', (e) => {
+  // Envoi en cours → demander confirmation avant de quitter (photos pas encore parties)
+  if (typeof _uploading !== 'undefined' && _uploading) { e.preventDefault(); e.returnValue = ''; return; }
   if (_cameraWatchdogId) { clearInterval(_cameraWatchdogId); _cameraWatchdogId = null; }
   _stopReacquireRetry();
   _releaseAllCameraHardware();

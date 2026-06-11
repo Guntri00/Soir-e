@@ -1,0 +1,51 @@
+-- ═══════════════════════════════════════════════════════════════
+-- DURCISSEMENT SÉCURITÉ — Soirée d'été CSE IQVIA (audit 2026-06-11)
+-- À exécuter dans Supabase → SQL Editor (projet xhijahegkohowfmajjvq)
+-- ═══════════════════════════════════════════════════════════════
+
+-- ─────────────────────────────────────────────────────────────────
+-- PARTIE A — RECOMMANDÉE, SANS RISQUE (à exécuter avant la soirée)
+-- Problème : la policy events_update_public autorise N'IMPORTE QUI
+-- (clé anon visible dans le source) à mettre is_active=false ou
+-- expires_at dans le passé → TOUT le site tombe en pleine soirée.
+-- Correctif : on ne laisse modifiables par l'anon QUE les deux
+-- colonnes utilisées par les interrupteurs du dashboard
+-- (uploads_enabled, video_enabled). Les toggles continuent de marcher.
+-- ─────────────────────────────────────────────────────────────────
+revoke update on public.events from anon, authenticated;
+grant  update (uploads_enabled, video_enabled) on public.events to anon, authenticated;
+
+-- ─────────────────────────────────────────────────────────────────
+-- PARTIE B — OPTIONNELLE (compromis à connaître avant d'exécuter)
+-- Problème : DELETE anonyme ouvert sur photos + storage → n'importe
+-- qui peut vider la galerie. Le correctif limite la suppression
+-- anonyme aux photos de moins de 2 minutes (la fenêtre « oups »
+-- côté invité), MAIS : la suppression/modération depuis
+-- dashboard.html ne fonctionnera PLUS au-delà de 2 minutes
+-- (elle utilise la même clé anon). À n'exécuter que si vous
+-- préférez protéger la galerie plutôt que garder la modération.
+-- ─────────────────────────────────────────────────────────────────
+-- drop policy if exists photos_delete_public on public.photos;
+-- create policy photos_delete_public on public.photos
+--   for delete to anon, authenticated
+--   using (
+--     uploaded_at > now() - interval '2 minutes'
+--     and exists (select 1 from public.events e
+--                 where e.id = photos.event_id and e.is_active)
+--   );
+--
+-- drop policy if exists soiree_storage_delete on storage.objects;
+-- create policy soiree_storage_delete on storage.objects
+--   for delete to anon, authenticated
+--   using (bucket_id = 'photos' and created_at > now() - interval '2 minutes');
+
+-- ── Pour ANNULER la partie B (retour à l'état actuel) ──
+-- drop policy if exists photos_delete_public on public.photos;
+-- create policy photos_delete_public on public.photos
+--   for delete to anon, authenticated
+--   using (exists (select 1 from public.events e
+--                  where e.id = photos.event_id and e.is_active));
+-- drop policy if exists soiree_storage_delete on storage.objects;
+-- create policy soiree_storage_delete on storage.objects
+--   for delete to anon, authenticated
+--   using (bucket_id = 'photos');

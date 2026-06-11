@@ -390,11 +390,11 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
     </div>
     <div class="login-field">
       <label>Identifiant</label>
-      <input type="text" id="loginInput" placeholder="Votre identifiant" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="username">
+      <input type="text" id="loginInput" placeholder="Votre identifiant" autocomplete="username">
     </div>
     <div class="login-field">
       <label>Mot de passe</label>
-      <input type="password" id="pwdInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" autocomplete="current-password">
+      <input type="password" id="pwdInput" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button class="login-btn" onclick="doLogin()">Accéder au dashboard</button>
     <p class="login-err" id="loginErr">Identifiant ou mot de passe incorrect</p>
@@ -594,7 +594,8 @@ function loadJSZip(){
     const s=document.createElement('script');
     s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
     s.onload=()=>res(window.JSZip);
-    s.onerror=rej;
+    // Échec CDN → on oublie la promesse rejetée pour pouvoir RÉESSAYER au prochain clic
+    s.onerror=()=>{_jszipPromise=null;s.remove();rej(new Error('Librairie ZIP injoignable (réseau ?)'))};
     document.head.appendChild(s);
   });
   return _jszipPromise;
@@ -610,7 +611,7 @@ const SB_URL   = 'https://xhijahegkohowfmajjvq.supabase.co';
 const SB_KEY   = 'sb_publishable_RqfsxW6HW7Zg95xG2R-sng_ILRjYtfU';
 const EVENT_ID = 'soiree-ete-2026';
 const BUCKET   = 'photos';
-const LOGIN_H  = 'ae4bc257e8438cd1fdbc442035f68804471495e4a65c5bd1e88518ed82fd7fea'; // SHA-256 ("guntri")
+const LOGIN_H  = 'ae4bc257e8438cd1fdbc442035f68804471495e4a65c5bd1e88518ed82fd7fea';
 
 // ── Toggle Vidéo ──────────────────────────────
 // ══════════════════════════════════════════
@@ -697,6 +698,8 @@ let pendingDeletePath= null;
 
 // ── Échappement HTML ──
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+// URL/valeur injectée dans un attribut HTML ou un onclick : neutralise quotes/chevrons/& (anti-XSS via lignes insérées en base)
+function urlJs(s){ return String(s ?? '').replace(/['"<>\\`&]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()); }
 
 // ══════════════════════════════════════════
 //  AUTH
@@ -819,7 +822,13 @@ async function refreshPhotos() {
     }
     allPhotos = await res.json();
     updateStats();
-    renderPhotos();
+    // Ne reconstruire la grille QUE si la liste a changé : évite de re-télécharger
+    // les métadonnées de toutes les vidéos toutes les 2 min pendant des heures
+    const sig = allPhotos.map(p => p.id + ':' + (p.likes||0)).join(',') + '|' + currentFilter + '|' + selectMode;
+    if (sig !== window._lastRenderSig) {
+      window._lastRenderSig = sig;
+      renderPhotos();
+    }
     // Afficher le total dans le bouton refresh
     const btn = document.querySelector('[onclick="refreshPhotos()"]');
     if (btn) btn.textContent = `↻ Actualiser (${allPhotos.length})`;
@@ -833,11 +842,12 @@ async function refreshPhotos() {
 
 // Validateur en tâche de fond : HEAD chaque URL, nettoie les 404
 let _validatorRunning = false;
+const _validatedIds = new Set();   // déjà vérifiées OK → ne pas re-HEAD toutes les 2 min pendant des heures
 async function validateStorageUrls() {
   if (_validatorRunning) return;
   _validatorRunning = true;
   try {
-    const photos = allPhotos.slice();
+    const photos = allPhotos.filter(p => !_validatedIds.has(p.id));
     const CONCURRENCY = 6;
     let idx = 0;
     async function worker() {
@@ -850,6 +860,8 @@ async function validateStorageUrls() {
           if (!res.ok) {
             const tile = document.querySelector(`[data-photo-id="${p.id}"]`);
             cleanupBrokenMedia(p.id, tile);
+          } else {
+            _validatedIds.add(p.id);
           }
         } catch (e) { /* erreurs réseau ignorées — on se fie à onerror */ }
       }
@@ -975,7 +987,7 @@ async function deleteSelected() {
 
   // Backend : DELETE en parallèle. Le trigger nettoie le storage.
   const results = await Promise.allSettled(photos.map(p =>
-    fetch(`${SB_URL}/rest/v1/photos?id=eq.${p.id}`, {
+    fetch(`${SB_URL}/rest/v1/photos?id=eq.${p.id}&event_id=eq.${EVENT_ID}`, {
       method:'DELETE', mode:'cors', credentials:'omit',
       headers:{ 'apikey':SB_KEY, 'Authorization':`Bearer ${SB_KEY}`,
                 'Content-Type':'application/json', 'Prefer':'return=minimal' }
@@ -986,6 +998,7 @@ async function deleteSelected() {
     // Rollback des échecs
     const failedPhotos = photos.filter((_, i) => results[i].status === 'rejected');
     allPhotos.push(...failedPhotos);
+    allPhotos.sort((a,b) => String(b.uploaded_at).localeCompare(String(a.uploaded_at))); // ré-ordonner (plus récentes en tête)
     renderPhotos();
     updateStats();
     toast(`⚠️ ${failed.length} suppression(s) échouée(s)`);
@@ -1014,8 +1027,8 @@ function buildPhotoCardHTML(p) {
   const time    = new Date(p.uploaded_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
   const date    = new Date(p.uploaded_at).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});
   const isVideo = p.media_type === 'video';
-  const safeUrl = getPhotoUrl(p).replace(/'/g,'%27');
-  const safePath = (p.storage_path||'').replace(/'/g,'%27');
+  const safeUrl = urlJs(getPhotoUrl(p));
+  const safePath = urlJs(p.storage_path||'');
   const safeId   = esc(String(p.id));
   const safeName = esc(p.uploader_name || 'Invité');
   const mediaEl = isVideo
@@ -1110,6 +1123,7 @@ async function dlPhoto(url, path) {
   try {
     toast('Téléchargement…');
     const res  = await fetch(url, { mode:'cors', credentials:'omit' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const blob = await res.blob();
     const a    = document.createElement('a');
     const ext  = path.split('.').pop() || 'jpg';
@@ -1118,7 +1132,7 @@ async function dlPhoto(url, path) {
     a.click();
     setTimeout(() => URL.revokeObjectURL(a.href), 3000);
     toast('✓ Photo téléchargée !');
-  } catch(e) { window.open(url,'_blank'); }
+  } catch(e) { toast('⚠️ Téléchargement impossible : ' + e.message); }
 }
 
 async function downloadZip(catFilter, btnEl) {
@@ -1134,10 +1148,23 @@ async function downloadZip(catFilter, btnEl) {
   const pct   = document.getElementById('zipPct');
   const btn   = btnEl || document.getElementById('dlAllZipBtn');
 
+  // Verrou global : un seul ZIP à la fois (la barre de progression est partagée)
+  if (window._zipRunning) { toast('Un téléchargement ZIP est déjà en cours…'); return; }
+  window._zipRunning = true;
+
   prog.classList.add('show');
   if (btn) btn.disabled = true;
 
-  const JSZipCtor = await loadJSZip();
+  let JSZipCtor;
+  try {
+    JSZipCtor = await loadJSZip();
+  } catch(e) {
+    prog.classList.remove('show'); bar.style.width = '0%';
+    if (btn) btn.disabled = false;
+    window._zipRunning = false;
+    toast('⚠️ ' + e.message);
+    return;
+  }
   const zip    = new JSZipCtor();
   const total  = items.length;
   let   done   = 0;
@@ -1203,6 +1230,7 @@ async function downloadZip(catFilter, btnEl) {
 
   prog.classList.remove('show'); bar.style.width = '0%';
   if (btn) btn.disabled = false;
+  window._zipRunning = false;
 }
 
 // ══════════════════════════════════════════
@@ -1210,6 +1238,19 @@ async function downloadZip(catFilter, btnEl) {
 // ══════════════════════════════════════════
 const _cleanedBrokenIds = new Set();
 const _CLEANED_MAX = 500;
+// Re-essaie de charger le média d'une vignette (au lieu de la masquer définitivement)
+function _retryTileLoad(tileEl, url) {
+  if (!tileEl || !url) { if (tileEl) tileEl.style.display = 'none'; return; }
+  const n = tileEl._retryCount || 0;
+  if (n >= 3) { tileEl.style.display = 'none'; return; }   // 3 tentatives puis on masque
+  tileEl._retryCount = n + 1;
+  setTimeout(() => {
+    const media = tileEl.querySelector('img,video');
+    if (!media || !tileEl.isConnected) return;
+    try { media.src = url; if (media.load) media.load(); } catch(_) {}
+  }, 7000 * (n + 1));
+}
+
 async function cleanupBrokenMedia(id, tileEl) {
   if (!id) { if (tileEl) tileEl.style.display = 'none'; return; }
   // Période de grâce pour cohérence différée Supabase Storage
@@ -1217,7 +1258,8 @@ async function cleanupBrokenMedia(id, tileEl) {
   if (_p && _p.uploaded_at) {
     const ageMs = Date.now() - new Date(_p.uploaded_at).getTime();
     if (ageMs < 3 * 60 * 1000) {
-      if (tileEl) tileEl.style.display = 'none';
+      // Photo toute fraîche : le fichier arrive peut-être encore → re-tenter, ne pas masquer
+      _retryTileLoad(tileEl, getPhotoUrl(_p));
       return;
     }
   }
@@ -1233,7 +1275,7 @@ async function cleanupBrokenMedia(id, tileEl) {
   if (_verUrl) {
     try { const _c = await fetch(_verUrl, { method:'HEAD', mode:'cors', cache:'no-store' }); _gone = (_c.status === 404 || _c.status === 410); } catch(_) { _gone = false; }
   }
-  if (!_gone) { if (tileEl) tileEl.style.display = 'none'; return; } // accessible ou erreur transitoire → on GARDE la photo
+  if (!_gone) { _retryTileLoad(tileEl, _verUrl); return; } // accessible ou erreur transitoire → on GARDE la photo et on re-tente
 
   if (_cleanedBrokenIds.size >= _CLEANED_MAX) _cleanedBrokenIds.clear();
   _cleanedBrokenIds.add(id);
@@ -1246,7 +1288,7 @@ async function cleanupBrokenMedia(id, tileEl) {
   try { updateStats(); } catch(e) {}
 
   try {
-    await fetch(`${SB_URL}/rest/v1/photos?id=eq.${encodeURIComponent(id)}`, {
+    await fetch(`${SB_URL}/rest/v1/photos?id=eq.${encodeURIComponent(id)}&event_id=eq.${EVENT_ID}`, {
       method: 'DELETE', mode: 'cors', credentials: 'omit',
       headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }
     });
@@ -1283,14 +1325,14 @@ async function confirmDelete() {
   // Backend en arrière-plan. Le trigger DB cleanup_storage_on_photo_delete()
   // supprime le fichier du storage, donc un seul appel réseau suffit.
   try {
-    const res = await fetch(`${SB_URL}/rest/v1/photos?id=eq.${id}`, {
+    const res = await fetch(`${SB_URL}/rest/v1/photos?id=eq.${id}&event_id=eq.${EVENT_ID}`, {
       method:'DELETE', mode:'cors', credentials:'omit',
       headers:{ 'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal' }
     });
     if (!res.ok) throw new Error(`DB ${res.status}`);
   } catch(err) {
     // Rollback : remettre dans allPhotos et rendre à nouveau la grille
-    if (previous) { allPhotos.push(previous); renderPhotos(); updateStats(); }
+    if (previous) { allPhotos.push(previous); allPhotos.sort((a,b) => String(b.uploaded_at).localeCompare(String(a.uploaded_at))); renderPhotos(); updateStats(); }
     toast('⚠️ Erreur suppression : ' + err.message);
   }
 }
