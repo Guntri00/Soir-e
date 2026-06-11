@@ -819,14 +819,14 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
 
     <div class="dl-grid">
       <div class="dl-card" id="dlcard-ceremonie">
-        <span class="dl-card-emoji">🍹</span>
-        <div class="dl-card-name">Apéro &amp; Jeux</div>
+        <span class="dl-card-emoji">🎲</span>
+        <div class="dl-card-name">Jeux</div>
         <div class="dl-card-count" id="dlcount-ceremonie">—</div>
         <button class="dl-card-btn" onclick="event.stopPropagation();downloadCat('ceremonie')">⬇ Télécharger</button>
       </div>
       <div class="dl-card" id="dlcard-cocktail">
-        <span class="dl-card-emoji">🍖</span>
-        <div class="dl-card-name">Barbecue</div>
+        <span class="dl-card-emoji">🍹</span>
+        <div class="dl-card-name">Apéro</div>
         <div class="dl-card-count" id="dlcount-cocktail">—</div>
         <button class="dl-card-btn" onclick="event.stopPropagation();downloadCat('cocktail')">⬇ Télécharger</button>
       </div>
@@ -863,8 +863,8 @@ a,button,.cat-tab,.dl-card-btn,.dl-card,.login-btn{touch-action:manipulation}
 
     <div class="cat-tabs">
       <button class="cat-tab on" onclick="filterCat('all',this)">Toutes <span class="tc" id="tc-all">0</span></button>
-      <button class="cat-tab" onclick="filterCat('ceremonie',this)">🍹 Apéro &amp; Jeux <span class="tc" id="tc-ceremonie">0</span></button>
-      <button class="cat-tab" onclick="filterCat('cocktail',this)">🍖 Barbecue <span class="tc" id="tc-cocktail">0</span></button>
+      <button class="cat-tab" onclick="filterCat('ceremonie',this)">🎲 Jeux <span class="tc" id="tc-ceremonie">0</span></button>
+      <button class="cat-tab" onclick="filterCat('cocktail',this)">🍹 Apéro <span class="tc" id="tc-cocktail">0</span></button>
       <button class="cat-tab" onclick="filterCat('diner',this)">🍸 Cocktail <span class="tc" id="tc-diner">0</span></button>
       <button class="cat-tab" onclick="filterCat('danse',this)">🪩 Dance Floor <span class="tc" id="tc-danse">0</span></button>
     </div>
@@ -939,8 +939,8 @@ const BUCKET   = 'photos';
 const LOGIN_H  = '2905b73396edbca62093e0f31accee239598a6d318fb0a24da8a29f130d75571';
 const PWD_H    = '7adafdde57db1cc4b0f866cd2082422e0a96be23024b4107b2b1f22dd9ccdcbb';
 const CATS = {
-  ceremonie:{emoji:'🍹',name:'Apéro & Jeux'},
-  cocktail: {emoji:'🍖',name:'Barbecue'},
+  ceremonie:{emoji:'🎲',name:'Jeux'},
+  cocktail: {emoji:'🍹',name:'Apéro'},
   diner:    {emoji:'🍸',name:'Cocktail'},
   danse:    {emoji:'🪩',name:'Dance Floor'},
 };

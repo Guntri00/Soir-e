@@ -430,14 +430,14 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
         <div class="stat-lbl">Invités actifs</div>
       </div>
       <div class="stat-card">
-        <span class="stat-icon">🍹</span>
+        <span class="stat-icon">🎲</span>
         <div class="stat-val" id="statCeremonie">—</div>
-        <div class="stat-lbl">Apéro &amp; Jeux</div>
+        <div class="stat-lbl">Jeux</div>
       </div>
       <div class="stat-card">
-        <span class="stat-icon">🍖</span>
+        <span class="stat-icon">🍹</span>
         <div class="stat-val" id="statCocktail">—</div>
-        <div class="stat-lbl">Barbecue</div>
+        <div class="stat-lbl">Apéro</div>
       </div>
       <div class="stat-card">
         <span class="stat-icon">🍸</span>
@@ -516,10 +516,10 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
         Toutes <span class="tab-count" id="tc-all">0</span>
       </button>
       <button class="cat-tab" onclick="filterCat('ceremonie',this)">
-        🍹 Apéro &amp; Jeux <span class="tab-count" id="tc-ceremonie">0</span>
+        🎲 Jeux <span class="tab-count" id="tc-ceremonie">0</span>
       </button>
       <button class="cat-tab" onclick="filterCat('cocktail',this)">
-        🍖 Barbecue <span class="tab-count" id="tc-cocktail">0</span>
+        🍹 Apéro <span class="tab-count" id="tc-cocktail">0</span>
       </button>
       <button class="cat-tab" onclick="filterCat('diner',this)">
         🍸 Cocktail <span class="tab-count" id="tc-diner">0</span>
@@ -531,8 +531,8 @@ a,button,.btn,.cat-tab,.login-btn,.stat-card{touch-action:manipulation}
 
     <!-- ZIP PAR CAT -->
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
-      <button class="btn btn-outline btn-sm" onclick="downloadZip('ceremonie', this)">⬇ ZIP Apéro</button>
-      <button class="btn btn-outline btn-sm" onclick="downloadZip('cocktail', this)">⬇ ZIP Barbecue</button>
+      <button class="btn btn-outline btn-sm" onclick="downloadZip('ceremonie', this)">⬇ ZIP Jeux</button>
+      <button class="btn btn-outline btn-sm" onclick="downloadZip('cocktail', this)">⬇ ZIP Apéro</button>
       <button class="btn btn-outline btn-sm" onclick="downloadZip('diner', this)">⬇ ZIP Cocktail</button>
       <button class="btn btn-outline btn-sm" onclick="downloadZip('danse', this)">⬇ ZIP Dance Floor</button>
     </div>
@@ -682,8 +682,8 @@ async function toggleVideo() {
 const PWD_H    = 'ad1f95a7db72b027a7ad4960a216ad4d4d9071c8e3ce367ec5538722ceceeb24'; // SHA-256
 
 const CATEGORIES = {
-  ceremonie: { emoji:'🍹', name:'Apéro & Jeux' },
-  cocktail:  { emoji:'🍖', name:'Barbecue' },
+  ceremonie: { emoji:'🎲', name:'Jeux' },
+  cocktail:  { emoji:'🍹', name:'Apéro' },
   diner:     { emoji:'🍸', name:'Cocktail' },
   danse:     { emoji:'🪩', name:'Dance Floor' },
 };

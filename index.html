@@ -1687,29 +1687,29 @@ footer{
       <p class="cat-sub">Choisissez une catégorie pour mieux organiser vos souvenirs</p>
       <p class="flip-hint">Touchez une catégorie pour commencer</p>
       <div class="cards-grid">
-        <div class="flip-wrap" onclick="selectCategory('ceremonie','🍹','Apéro &amp; Jeux')">
+        <div class="flip-wrap" onclick="selectCategory('ceremonie','🎲','Jeux')">
           <div class="flip-card" id="card-ceremonie">
             <div class="flip-face flip-front" id="front-ceremonie">
-              <div class="flip-emoji">🍹</div>
-              <div class="flip-name">Apéro &amp; Jeux</div>
+              <div class="flip-emoji">🎲</div>
+              <div class="flip-name">Jeux</div>
             </div>
             <div class="flip-face flip-back">
-              <div style="font-size:24px;margin-bottom:6px">🍹</div>
+              <div style="font-size:24px;margin-bottom:6px">🎲</div>
               <div class="flip-desc">Les premiers verres et les jeux</div>
-              <button class="flip-btn-3d" onclick="event.stopPropagation();selectCategory('ceremonie','🍹','Apéro &amp; Jeux')">Choisir</button>
+              <button class="flip-btn-3d" onclick="event.stopPropagation();selectCategory('ceremonie','🎲','Jeux')">Choisir</button>
             </div>
           </div>
         </div>
-        <div class="flip-wrap" onclick="selectCategory('cocktail','🍖','Barbecue')">
+        <div class="flip-wrap" onclick="selectCategory('cocktail','🍹','Apéro')">
           <div class="flip-card" id="card-cocktail">
             <div class="flip-face flip-front" id="front-cocktail">
-              <div class="flip-emoji">🍖</div>
-              <div class="flip-name">Barbecue</div>
+              <div class="flip-emoji">🍹</div>
+              <div class="flip-name">Apéro</div>
             </div>
             <div class="flip-face flip-back">
-              <div style="font-size:24px;margin-bottom:6px">🍖</div>
+              <div style="font-size:24px;margin-bottom:6px">🍹</div>
               <div class="flip-desc">Les grillades et le festin</div>
-              <button class="flip-btn-3d" onclick="event.stopPropagation();selectCategory('cocktail','🍖','Barbecue')">Choisir</button>
+              <button class="flip-btn-3d" onclick="event.stopPropagation();selectCategory('cocktail','🍹','Apéro')">Choisir</button>
             </div>
           </div>
         </div>
@@ -2435,8 +2435,8 @@ function saveName(v){ try{ localStorage.setItem('mementos_name', v); }catch(e){}
 function loadName(){ try{ return localStorage.getItem('mementos_name')||''; }catch(e){ return ''; } }
 
 const CATEGORIES = [
-  { id:'ceremonie', emoji:'🍹', name:'Apéro & Jeux' },
-  { id:'cocktail',  emoji:'🍖', name:'Barbecue' },
+  { id:'ceremonie', emoji:'🎲', name:'Jeux' },
+  { id:'cocktail',  emoji:'🍹', name:'Apéro' },
   { id:'diner',     emoji:'🍸', name:'Cocktail' },
   { id:'danse',     emoji:'🪩', name:'Dance Floor' },
 ];
